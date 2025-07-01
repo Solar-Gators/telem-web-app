@@ -1,6 +1,6 @@
-import { fetchLatestTelemetryData } from "@/app/api/telemetry/latest/route";
 import { useEffect, useState } from "react";
 import { TelemetryData } from "@/lib/types";
+import { fetchLatestTelemetryData } from "@/lib/db-utils";
 
 const useTelemetryData = () => {
   const [data, setData] = useState<TelemetryData | null>(null);

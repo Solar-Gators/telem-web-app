@@ -1,5 +1,4 @@
-"use server";
-
+'use server'
 import { neon } from "@neondatabase/serverless";
 import { TelemetryData } from "@/lib/types";
 
@@ -21,7 +20,6 @@ export async function fetchLatestTelemetryData() {
 
     const data = result[0];
 
-    // Transform database format back to your TelemetryData interface
     const telemetryData: TelemetryData = {
       gps: {
         rx_time: data.gps_rx_time,
@@ -70,3 +68,4 @@ export async function fetchLatestTelemetryData() {
     return null;
   }
 }
+

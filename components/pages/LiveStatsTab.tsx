@@ -33,7 +33,7 @@ export default function LiveStatsTab({ telemetryData }: LiveStatsTabProps) {
           value={telemetryData.gps.speed}
           unit="mph"
           icon={Gauge}
-          status={getSpeedStatus(telemetryData.gps.speed)}
+          status={getSpeedStatus(telemetryData)}
         />
         <PowerCard
           title="Net Power"
@@ -41,7 +41,7 @@ export default function LiveStatsTab({ telemetryData }: LiveStatsTabProps) {
           current={netPower / telemetryData.battery.main_bat_v}
           power={netPower}
           icon={Zap}
-          status={getNetPowerStatus(netPower)}
+          status={getNetPowerStatus(telemetryData)}
         />
         <PowerCard
           title="Motor Power"
@@ -49,7 +49,7 @@ export default function LiveStatsTab({ telemetryData }: LiveStatsTabProps) {
           current={telemetryData.mitsuba.current}
           power={motorPower}
           icon={Car}
-          status={getMotorStatus(telemetryData.mitsuba.current)}
+          status={getMotorStatus(telemetryData)}
         />
         <PowerCard
           title="Total Solar Input"
