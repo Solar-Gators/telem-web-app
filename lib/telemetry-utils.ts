@@ -40,8 +40,8 @@ export const getNetPowerStatus = (power: number): StatusType => {
 
 export const getMotorStatus = (current: number): StatusType => {
   // Motor status based on current draw
-  if (current > 50) return "critical";  // High current draw
-  if (current > 40) return "warning";   // Moderate current draw
+  if (current > 50) return "critical"; // High current draw
+  if (current > 40) return "warning"; // Moderate current draw
   return "good";
 };
 

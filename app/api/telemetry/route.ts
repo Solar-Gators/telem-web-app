@@ -6,11 +6,11 @@ export async function POST(request: NextRequest) {
   try {
     const json_obj = await request.json();
 
-    const apiKey = request.headers.get('auth-key');
+    const apiKey = request.headers.get("auth-key");
     if (!apiKey || apiKey !== process.env.NOTEHUB_AUTH_KEY) {
       return NextResponse.json(
-        { error: 'Unauthorized - Invalid auth key' },
-        { status: 401 }
+        { error: "Unauthorized - Invalid auth key" },
+        { status: 401 },
       );
     }
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       )
     `;
 
-    console.log("Telemetry data stored.")
+    console.log("Telemetry data stored.");
 
     return NextResponse.json(
       { success: true, message: "Telemetry data stored successfully" },
