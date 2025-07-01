@@ -74,3 +74,32 @@
   width: 100%;
   border-radius: 0.5rem;
 }
+
+/* Prevent Dark Reader hydration mismatches */
+@media (prefers-color-scheme: dark) {
+  * {
+    /* Suppress Dark Reader attributes that cause hydration mismatches */
+    --darkreader-inline-color: initial !important;
+    --darkreader-inline-stroke: initial !important;
+    --darkreader-inline-outline: initial !important;
+    --darkreader-inline-fill: initial !important;
+    --darkreader-inline-bgcolor: initial !important;
+    --darkreader-inline-border: initial !important;
+  }
+}
+
+/* Additional Dark Reader suppression for all elements */
+*[data-darkreader-inline-color],
+*[data-darkreader-inline-stroke],
+*[data-darkreader-inline-outline],
+*[data-darkreader-inline-fill],
+*[data-darkreader-inline-bgcolor],
+*[data-darkreader-inline-border] {
+  /* Reset any Dark Reader inline styles that might cause hydration issues */
+  color: inherit !important;
+  stroke: inherit !important;
+  outline: inherit !important;
+  fill: inherit !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}

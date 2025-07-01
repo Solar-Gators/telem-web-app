@@ -31,6 +31,28 @@ export default function RootLayout({
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossOrigin=""
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Prevent Dark Reader from causing hydration mismatches
+              if (typeof window !== 'undefined') {
+                const originalAddEventListener = Element.prototype.addEventListener;
+                Element.prototype.addEventListener = function(type, listener, options) {
+                  if (type === 'DOMContentLoaded' && listener.toString().includes('darkreader')) {
+                    return;
+                  }
+                  return originalAddEventListener.call(this, type, listener, options);
+                };
+                
+                // Add meta tag to discourage Dark Reader
+                const meta = document.createElement('meta');
+                meta.name = 'darkreader-lock';
+                meta.content = '';
+                document.head.appendChild(meta);
+              }
+            `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         <ThemeProvider
