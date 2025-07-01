@@ -49,7 +49,7 @@ export default function LiveStatsTab({ telemetryData }: LiveStatsTabProps) {
           current={telemetryData.mitsuba.current}
           power={motorPower}
           icon={Car}
-          status={getMotorStatus(telemetryData.mitsuba.error_frame)}
+          status={getMotorStatus(telemetryData.mitsuba.current)}
         />
         <PowerCard
           title="Total Solar Input"

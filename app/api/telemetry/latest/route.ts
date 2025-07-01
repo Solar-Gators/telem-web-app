@@ -63,7 +63,6 @@ export async function GET() {
       mitsuba: {
         voltage: data.mitsuba_voltage,
         current: data.mitsuba_current,
-        error_frame: data.mitsuba_error_frame,
       },
     };
 

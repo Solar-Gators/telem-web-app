@@ -38,7 +38,6 @@ export interface TelemetryData {
   mitsuba: {
     voltage: number;
     current: number;
-    error_frame: number;
   };
 }
 

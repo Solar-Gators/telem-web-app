@@ -4,21 +4,20 @@ import { TelemetryData } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
-    // Connect to the Neon database
-    const sql = neon(process.env.DATABASE_URL as string);
+    const json_obj = await request.json();
 
-    // Parse the incoming telemetry data
-    const telemetryData: TelemetryData = await request.json();
-
-    // Validate the data structure
-    if (!isValidTelemetryData(telemetryData)) {
+    const apiKey = request.headers.get('auth-key');
+    if (!apiKey || apiKey !== process.env.NOTEHUB_AUTH_KEY) {
       return NextResponse.json(
-        { error: "Invalid telemetry data format" },
-        { status: 400 },
+        { error: 'Unauthorized - Invalid auth key' },
+        { status: 401 }
       );
     }
 
-    // Insert data into your Neon Postgres database
+    const telemetryData: TelemetryData = json_obj["body"];
+
+    const sql = neon(process.env.DATABASE_URL as string);
+
     await sql`
       INSERT INTO telemetry (
         gps_rx_time, gps_longitude, gps_latitude, gps_speed, gps_num_sats,
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
         mppt1_input_v, mppt1_input_c, mppt1_output_v, mppt1_output_c,
         mppt2_input_v, mppt2_input_c, mppt2_output_v, mppt2_output_c,
         mppt3_input_v, mppt3_input_c, mppt3_output_v, mppt3_output_c,
-        mitsuba_voltage, mitsuba_current, mitsuba_error_frame,
+        mitsuba_voltage, mitsuba_current,
         created_at
       ) VALUES (
         ${telemetryData.gps.rx_time},
@@ -58,7 +57,6 @@ export async function POST(request: NextRequest) {
         ${telemetryData.mppt3.output_c},
         ${telemetryData.mitsuba.voltage},
         ${telemetryData.mitsuba.current},
-        ${telemetryData.mitsuba.error_frame},
         NOW()
       )
     `;
@@ -74,22 +72,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-}
-
-function isValidTelemetryData(data: any): data is TelemetryData {
-  return (
-    data &&
-    data.gps &&
-    typeof data.gps.longitude === "number" &&
-    data.battery &&
-    typeof data.battery.sup_bat_v === "number" &&
-    data.mppt1 &&
-    typeof data.mppt1.input_v === "number" &&
-    data.mppt2 &&
-    typeof data.mppt2.input_v === "number" &&
-    data.mppt3 &&
-    typeof data.mppt3.input_v === "number" &&
-    data.mitsuba &&
-    typeof data.mitsuba.voltage === "number"
-  );
 }

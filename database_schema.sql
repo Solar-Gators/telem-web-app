@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS telemetry (
   -- Mitsuba motor data
   mitsuba_voltage REAL NOT NULL,
   mitsuba_current REAL NOT NULL,
-  mitsuba_error_frame INTEGER NOT NULL,
   
   -- Timestamp
   created_at TIMESTAMP DEFAULT NOW()

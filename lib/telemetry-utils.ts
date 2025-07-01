@@ -38,8 +38,11 @@ export const getNetPowerStatus = (power: number): StatusType => {
   return "critical";
 };
 
-export const getMotorStatus = (errorFrame: number): StatusType => {
-  return errorFrame > 0 ? "critical" : "good";
+export const getMotorStatus = (current: number): StatusType => {
+  // Motor status based on current draw
+  if (current > 50) return "critical";  // High current draw
+  if (current > 40) return "warning";   // Moderate current draw
+  return "good";
 };
 
 // Calculation functions

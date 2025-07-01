@@ -88,7 +88,6 @@ const getMockData = (): TelemetryData => ({
   mitsuba: {
     voltage: 48.2,
     current: 22.5,
-    error_frame: 0,
   },
 });
 
