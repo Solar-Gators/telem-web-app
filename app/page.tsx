@@ -1,54 +1,62 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Battery, Zap, Gauge, Sun, Car, Satellite, Thermometer } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Image from "next/image"
+import { useEffect, useRef, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Battery,
+  Zap,
+  Gauge,
+  Sun,
+  Car,
+  Satellite,
+  Thermometer,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Image from "next/image";
 
 // Type definitions for telemetry data
 interface TelemetryData {
   gps: {
-    rx_time: number
-    longitude: number
-    latitude: number
-    speed: number
-    num_sats: number
-  }
+    rx_time: number;
+    longitude: number;
+    latitude: number;
+    speed: number;
+    num_sats: number;
+  };
   battery: {
-    sup_bat_v: number
-    main_bat_v: number
-    main_bat_c: number
-    low_cell_v: number
-    high_cell_v: number
-    high_cell_t: number
-    cell_idx_low_v: number
-    cell_idx_high_t: number
-  }
+    sup_bat_v: number;
+    main_bat_v: number;
+    main_bat_c: number;
+    low_cell_v: number;
+    high_cell_v: number;
+    high_cell_t: number;
+    cell_idx_low_v: number;
+    cell_idx_high_t: number;
+  };
   mppt1: {
-    input_v: number
-    input_c: number
-    output_v: number
-    output_c: number
-  }
+    input_v: number;
+    input_c: number;
+    output_v: number;
+    output_c: number;
+  };
   mppt2: {
-    input_v: number
-    input_c: number
-    output_v: number
-    output_c: number
-  }
+    input_v: number;
+    input_c: number;
+    output_v: number;
+    output_c: number;
+  };
   mppt3: {
-    input_v: number
-    input_c: number
-    output_v: number
-    output_c: number
-  }
+    input_v: number;
+    input_c: number;
+    output_v: number;
+    output_c: number;
+  };
   mitsuba: {
-    voltage: number
-    current: number
-    error_frame: number
-  }
+    voltage: number;
+    current: number;
+    error_frame: number;
+  };
 }
 
 // Mock telemetry data - replace with your actual data source
@@ -94,7 +102,7 @@ const useTelemetryData = () => {
       current: 22.5,
       error_frame: 0,
     },
-  })
+  });
 
   useEffect(() => {
     // Simulate live data updates
@@ -103,85 +111,143 @@ const useTelemetryData = () => {
         gps: {
           ...prev.gps,
           speed: Math.max(0, prev.gps.speed + (Math.random() - 0.5) * 5),
-          num_sats: Math.max(0, Math.min(12, prev.gps.num_sats + Math.floor((Math.random() - 0.5) * 3))),
+          num_sats: Math.max(
+            0,
+            Math.min(
+              12,
+              prev.gps.num_sats + Math.floor((Math.random() - 0.5) * 3),
+            ),
+          ),
           rx_time: Date.now(),
         },
         battery: {
           ...prev.battery,
-          sup_bat_v: Math.max(0, prev.battery.sup_bat_v + (Math.random() - 0.5) * 0.5),
-          main_bat_v: Math.max(0, prev.battery.main_bat_v + (Math.random() - 0.5) * 2),
-          main_bat_c: Math.max(0, prev.battery.main_bat_c + (Math.random() - 0.5) * 3),
-          low_cell_v: Math.max(0, prev.battery.low_cell_v + (Math.random() - 0.5) * 0.1),
-          high_cell_v: Math.max(0, prev.battery.high_cell_v + (Math.random() - 0.5) * 0.1),
-          high_cell_t: Math.max(0, prev.battery.high_cell_t + (Math.random() - 0.5) * 2),
+          sup_bat_v: Math.max(
+            0,
+            prev.battery.sup_bat_v + (Math.random() - 0.5) * 0.5,
+          ),
+          main_bat_v: Math.max(
+            0,
+            prev.battery.main_bat_v + (Math.random() - 0.5) * 2,
+          ),
+          main_bat_c: Math.max(
+            0,
+            prev.battery.main_bat_c + (Math.random() - 0.5) * 3,
+          ),
+          low_cell_v: Math.max(
+            0,
+            prev.battery.low_cell_v + (Math.random() - 0.5) * 0.1,
+          ),
+          high_cell_v: Math.max(
+            0,
+            prev.battery.high_cell_v + (Math.random() - 0.5) * 0.1,
+          ),
+          high_cell_t: Math.max(
+            0,
+            prev.battery.high_cell_t + (Math.random() - 0.5) * 2,
+          ),
         },
         mppt1: {
           input_v: Math.max(0, prev.mppt1.input_v + (Math.random() - 0.5) * 2),
           input_c: Math.max(0, prev.mppt1.input_c + (Math.random() - 0.5) * 1),
-          output_v: Math.max(0, prev.mppt1.output_v + (Math.random() - 0.5) * 1),
-          output_c: Math.max(0, prev.mppt1.output_c + (Math.random() - 0.5) * 1),
+          output_v: Math.max(
+            0,
+            prev.mppt1.output_v + (Math.random() - 0.5) * 1,
+          ),
+          output_c: Math.max(
+            0,
+            prev.mppt1.output_c + (Math.random() - 0.5) * 1,
+          ),
         },
         mppt2: {
           input_v: Math.max(0, prev.mppt2.input_v + (Math.random() - 0.5) * 2),
           input_c: Math.max(0, prev.mppt2.input_c + (Math.random() - 0.5) * 1),
-          output_v: Math.max(0, prev.mppt2.output_v + (Math.random() - 0.5) * 1),
-          output_c: Math.max(0, prev.mppt2.output_c + (Math.random() - 0.5) * 1),
+          output_v: Math.max(
+            0,
+            prev.mppt2.output_v + (Math.random() - 0.5) * 1,
+          ),
+          output_c: Math.max(
+            0,
+            prev.mppt2.output_c + (Math.random() - 0.5) * 1,
+          ),
         },
         mppt3: {
           input_v: Math.max(0, prev.mppt3.input_v + (Math.random() - 0.5) * 2),
           input_c: Math.max(0, prev.mppt3.input_c + (Math.random() - 0.5) * 1),
-          output_v: Math.max(0, prev.mppt3.output_v + (Math.random() - 0.5) * 1),
-          output_c: Math.max(0, prev.mppt3.output_c + (Math.random() - 0.5) * 1),
+          output_v: Math.max(
+            0,
+            prev.mppt3.output_v + (Math.random() - 0.5) * 1,
+          ),
+          output_c: Math.max(
+            0,
+            prev.mppt3.output_c + (Math.random() - 0.5) * 1,
+          ),
         },
         mitsuba: {
-          voltage: Math.max(0, prev.mitsuba.voltage + (Math.random() - 0.5) * 2),
-          current: Math.max(0, prev.mitsuba.current + (Math.random() - 0.5) * 5),
+          voltage: Math.max(
+            0,
+            prev.mitsuba.voltage + (Math.random() - 0.5) * 2,
+          ),
+          current: Math.max(
+            0,
+            prev.mitsuba.current + (Math.random() - 0.5) * 5,
+          ),
           error_frame: Math.random() > 0.95 ? 1 : 0, // Occasional error
         },
-      }))
-    }, 2000)
+      }));
+    }, 2000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
-  return data
-}
+  return data;
+};
 
 const MapComponent = ({
   location,
   satelliteCount,
-}: { location: { lat: number; lng: number }; satelliteCount: number }) => {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<any>(null)
-  const markerRef = useRef<any>(null)
+}: {
+  location: { lat: number; lng: number };
+  satelliteCount: number;
+}) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && mapRef.current && !mapInstanceRef.current) {
+    if (
+      typeof window !== "undefined" &&
+      mapRef.current &&
+      !mapInstanceRef.current
+    ) {
       // Dynamically import Leaflet
       import("leaflet").then((L) => {
         // Initialize map
-        mapInstanceRef.current = L.map(mapRef.current!).setView([location.lat, location.lng], 13)
+        mapInstanceRef.current = L.map(mapRef.current!).setView(
+          [location.lat, location.lng],
+          13,
+        );
 
         // Add tile layer
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: "© OpenStreetMap contributors",
-        }).addTo(mapInstanceRef.current)
+        }).addTo(mapInstanceRef.current);
 
         // Add marker
         markerRef.current = L.marker([location.lat, location.lng])
           .addTo(mapInstanceRef.current)
-          .bindPopup("Solar Car Location")
-      })
+          .bindPopup("Solar Car Location");
+      });
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (mapInstanceRef.current && markerRef.current) {
       // Update marker position
-      markerRef.current.setLatLng([location.lat, location.lng])
-      mapInstanceRef.current.setView([location.lat, location.lng])
+      markerRef.current.setLatLng([location.lat, location.lng]);
+      mapInstanceRef.current.setView([location.lat, location.lng]);
     }
-  }, [location])
+  }, [location]);
 
   return (
     <div className="relative h-full">
@@ -189,15 +255,20 @@ const MapComponent = ({
       <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 border">
         <div className="flex items-center gap-2">
           <Satellite className="h-4 w-4" />
-          <span className="text-sm font-medium">Satellites: {satelliteCount}</span>
-          <Badge variant={satelliteCount >= 4 ? "default" : "destructive"} className="text-xs">
+          <span className="text-sm font-medium">
+            Satellites: {satelliteCount}
+          </span>
+          <Badge
+            variant={satelliteCount >= 4 ? "default" : "destructive"}
+            className="text-xs"
+          >
             {satelliteCount >= 4 ? "Good" : "Poor"}
           </Badge>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const PowerCard = ({
   title,
@@ -207,25 +278,25 @@ const PowerCard = ({
   icon: Icon,
   status,
 }: {
-  title: string
-  voltage: number
-  current: number
-  power: number
-  icon: any
-  status?: "good" | "warning" | "critical"
+  title: string;
+  voltage: number;
+  current: number;
+  power: number;
+  icon: any;
+  status?: "good" | "warning" | "critical";
 }) => {
   const getStatusColor = () => {
     switch (status) {
       case "good":
-        return "text-green-600"
+        return "text-green-600";
       case "warning":
-        return "text-yellow-600"
+        return "text-yellow-600";
       case "critical":
-        return "text-red-600"
+        return "text-red-600";
       default:
-        return "text-foreground"
+        return "text-foreground";
     }
-  }
+  };
 
   return (
     <Card>
@@ -234,19 +305,23 @@ const PowerCard = ({
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className={`text-xl font-bold ${getStatusColor()}`}>{power.toFixed(0)}W</div>
+        <div className={`text-xl font-bold ${getStatusColor()}`}>
+          {power.toFixed(0)}W
+        </div>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
-            <span className="text-muted-foreground">V:</span> {voltage.toFixed(1)}V
+            <span className="text-muted-foreground">V:</span>{" "}
+            {voltage.toFixed(1)}V
           </div>
           <div>
-            <span className="text-muted-foreground">A:</span> {current.toFixed(1)}A
+            <span className="text-muted-foreground">A:</span>{" "}
+            {current.toFixed(1)}A
           </div>
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
 const SimpleCard = ({
   title,
@@ -256,25 +331,25 @@ const SimpleCard = ({
   status,
   subtitle,
 }: {
-  title: string
-  value: number
-  unit: string
-  icon: any
-  status?: "good" | "warning" | "critical"
-  subtitle?: string
+  title: string;
+  value: number;
+  unit: string;
+  icon: any;
+  status?: "good" | "warning" | "critical";
+  subtitle?: string;
 }) => {
   const getStatusColor = () => {
     switch (status) {
       case "good":
-        return "text-green-600"
+        return "text-green-600";
       case "warning":
-        return "text-yellow-600"
+        return "text-yellow-600";
       case "critical":
-        return "text-red-600"
+        return "text-red-600";
       default:
-        return "text-foreground"
+        return "text-foreground";
     }
-  }
+  };
 
   return (
     <Card>
@@ -285,51 +360,57 @@ const SimpleCard = ({
       <CardContent>
         <div className={`text-2xl font-bold ${getStatusColor()}`}>
           {value.toFixed(1)}
-          <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>
+          <span className="text-sm font-normal text-muted-foreground ml-1">
+            {unit}
+          </span>
         </div>
-        {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
+        {subtitle && (
+          <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+        )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
 export default function SolarCarTelemetry() {
-  const telemetryData = useTelemetryData()
+  const telemetryData = useTelemetryData();
 
   // Calculate derived values
   const totalSolarPower =
     telemetryData.mppt1.input_v * telemetryData.mppt1.input_c +
     telemetryData.mppt2.input_v * telemetryData.mppt2.input_c +
-    telemetryData.mppt3.input_v * telemetryData.mppt3.input_c
+    telemetryData.mppt3.input_v * telemetryData.mppt3.input_c;
 
-  const motorPower = telemetryData.mitsuba.voltage * telemetryData.mitsuba.current
-  const batteryPower = telemetryData.battery.main_bat_v * telemetryData.battery.main_bat_c
-  const netPower = totalSolarPower - motorPower
+  const motorPower =
+    telemetryData.mitsuba.voltage * telemetryData.mitsuba.current;
+  const batteryPower =
+    telemetryData.battery.main_bat_v * telemetryData.battery.main_bat_c;
+  const netPower = totalSolarPower - motorPower;
 
   // Status functions
   const getSpeedStatus = (speed: number) => {
-    if (speed > 80) return "critical"
-    if (speed > 60) return "warning"
-    return "good"
-  }
+    if (speed > 80) return "critical";
+    if (speed > 60) return "warning";
+    return "good";
+  };
 
   const getBatteryStatus = (voltage: number, type: "main" | "supplemental") => {
     if (type === "main") {
-      if (voltage < 44) return "critical"
-      if (voltage < 46) return "warning"
-      return "good"
+      if (voltage < 44) return "critical";
+      if (voltage < 46) return "warning";
+      return "good";
     } else {
-      if (voltage < 11) return "critical"
-      if (voltage < 11.8) return "warning"
-      return "good"
+      if (voltage < 11) return "critical";
+      if (voltage < 11.8) return "warning";
+      return "good";
     }
-  }
+  };
 
   const getCellStatus = (lowV: number, highV: number, temp: number) => {
-    if (lowV < 3.0 || highV > 4.0 || temp > 45) return "critical"
-    if (lowV < 3.2 || highV > 3.9 || temp > 35) return "warning"
-    return "good"
-  }
+    if (lowV < 3.0 || highV > 4.0 || temp > 45) return "critical";
+    if (lowV < 3.2 || highV > 3.9 || temp > 35) return "warning";
+    return "good";
+  };
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -345,7 +426,9 @@ export default function SolarCarTelemetry() {
               className="h-auto"
               priority
             />
-            <p className="text-muted-foreground">Telemetry monitoring dashboard</p>
+            <p className="text-muted-foreground">
+              Telemetry monitoring dashboard :)
+            </p>
           </div>
         </div>
 
@@ -373,7 +456,13 @@ export default function SolarCarTelemetry() {
                 current={netPower / telemetryData.battery.main_bat_v}
                 power={netPower}
                 icon={Zap}
-                status={netPower > 0 ? "good" : netPower > -500 ? "warning" : "critical"}
+                status={
+                  netPower > 0
+                    ? "good"
+                    : netPower > -500
+                      ? "warning"
+                      : "critical"
+                }
               />
               <PowerCard
                 title="Motor Power"
@@ -381,12 +470,23 @@ export default function SolarCarTelemetry() {
                 current={telemetryData.mitsuba.current}
                 power={motorPower}
                 icon={Car}
-                status={telemetryData.mitsuba.error_frame > 0 ? "critical" : "good"}
+                status={
+                  telemetryData.mitsuba.error_frame > 0 ? "critical" : "good"
+                }
               />
               <PowerCard
                 title="Total Solar Input"
-                voltage={(telemetryData.mppt1.input_v + telemetryData.mppt2.input_v + telemetryData.mppt3.input_v) / 3}
-                current={telemetryData.mppt1.input_c + telemetryData.mppt2.input_c + telemetryData.mppt3.input_c}
+                voltage={
+                  (telemetryData.mppt1.input_v +
+                    telemetryData.mppt2.input_v +
+                    telemetryData.mppt3.input_v) /
+                  3
+                }
+                current={
+                  telemetryData.mppt1.input_c +
+                  telemetryData.mppt2.input_c +
+                  telemetryData.mppt3.input_c
+                }
                 power={totalSolarPower}
                 icon={Sun}
                 status="good"
@@ -406,21 +506,35 @@ export default function SolarCarTelemetry() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <div className="text-sm text-muted-foreground mb-1">Output</div>
+                      <div className="text-sm text-muted-foreground mb-1">
+                        Output
+                      </div>
                       <div className="text-2xl font-bold">
-                        {(telemetryData.mppt1.input_v * telemetryData.mppt1.input_c).toFixed(0)}W
+                        {(
+                          telemetryData.mppt1.input_v *
+                          telemetryData.mppt1.input_c
+                        ).toFixed(0)}
+                        W
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {telemetryData.mppt1.input_v.toFixed(1)}V × {telemetryData.mppt1.input_c.toFixed(1)}A
+                        {telemetryData.mppt1.input_v.toFixed(1)}V ×{" "}
+                        {telemetryData.mppt1.input_c.toFixed(1)}A
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-muted-foreground mb-1">Input</div>
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Input
+                      </div>
                       <div className="text-base font-bold">
-                        {(telemetryData.mppt1.output_v * telemetryData.mppt1.output_c).toFixed(0)}W
+                        {(
+                          telemetryData.mppt1.output_v *
+                          telemetryData.mppt1.output_c
+                        ).toFixed(0)}
+                        W
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {telemetryData.mppt1.output_v.toFixed(1)}V × {telemetryData.mppt1.output_c.toFixed(1)}A
+                        {telemetryData.mppt1.output_v.toFixed(1)}V ×{" "}
+                        {telemetryData.mppt1.output_c.toFixed(1)}A
                       </div>
                     </div>
                   </CardContent>
@@ -432,21 +546,35 @@ export default function SolarCarTelemetry() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <div className="text-sm text-muted-foreground mb-1">Output</div>
+                      <div className="text-sm text-muted-foreground mb-1">
+                        Output
+                      </div>
                       <div className="text-2xl font-bold">
-                        {(telemetryData.mppt2.input_v * telemetryData.mppt2.input_c).toFixed(0)}W
+                        {(
+                          telemetryData.mppt2.input_v *
+                          telemetryData.mppt2.input_c
+                        ).toFixed(0)}
+                        W
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {telemetryData.mppt2.input_v.toFixed(1)}V × {telemetryData.mppt2.input_c.toFixed(1)}A
+                        {telemetryData.mppt2.input_v.toFixed(1)}V ×{" "}
+                        {telemetryData.mppt2.input_c.toFixed(1)}A
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-muted-foreground mb-1">Input</div>
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Input
+                      </div>
                       <div className="text-base font-bold">
-                        {(telemetryData.mppt2.output_v * telemetryData.mppt2.output_c).toFixed(0)}W
+                        {(
+                          telemetryData.mppt2.output_v *
+                          telemetryData.mppt2.output_c
+                        ).toFixed(0)}
+                        W
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {telemetryData.mppt2.output_v.toFixed(1)}V × {telemetryData.mppt2.output_c.toFixed(1)}A
+                        {telemetryData.mppt2.output_v.toFixed(1)}V ×{" "}
+                        {telemetryData.mppt2.output_c.toFixed(1)}A
                       </div>
                     </div>
                   </CardContent>
@@ -458,21 +586,35 @@ export default function SolarCarTelemetry() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <div className="text-sm text-muted-foreground mb-1">Output</div>
+                      <div className="text-sm text-muted-foreground mb-1">
+                        Output
+                      </div>
                       <div className="text-2xl font-bold">
-                        {(telemetryData.mppt3.input_v * telemetryData.mppt3.input_c).toFixed(0)}W
+                        {(
+                          telemetryData.mppt3.input_v *
+                          telemetryData.mppt3.input_c
+                        ).toFixed(0)}
+                        W
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {telemetryData.mppt3.input_v.toFixed(1)}V × {telemetryData.mppt3.input_c.toFixed(1)}A
+                        {telemetryData.mppt3.input_v.toFixed(1)}V ×{" "}
+                        {telemetryData.mppt3.input_c.toFixed(1)}A
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-muted-foreground mb-1">Input</div>
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Input
+                      </div>
                       <div className="text-base font-bold">
-                        {(telemetryData.mppt3.output_v * telemetryData.mppt3.output_c).toFixed(0)}W
+                        {(
+                          telemetryData.mppt3.output_v *
+                          telemetryData.mppt3.output_c
+                        ).toFixed(0)}
+                        W
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {telemetryData.mppt3.output_v.toFixed(1)}V × {telemetryData.mppt3.output_c.toFixed(1)}A
+                        {telemetryData.mppt3.output_v.toFixed(1)}V ×{" "}
+                        {telemetryData.mppt3.output_c.toFixed(1)}A
                       </div>
                     </div>
                   </CardContent>
@@ -493,7 +635,10 @@ export default function SolarCarTelemetry() {
                     value={telemetryData.battery.main_bat_v}
                     unit="V"
                     icon={Battery}
-                    status={getBatteryStatus(telemetryData.battery.main_bat_v, "main")}
+                    status={getBatteryStatus(
+                      telemetryData.battery.main_bat_v,
+                      "main",
+                    )}
                     subtitle={`${telemetryData.battery.main_bat_c.toFixed(1)}A`}
                   />
                   <SimpleCard
@@ -501,7 +646,10 @@ export default function SolarCarTelemetry() {
                     value={telemetryData.battery.sup_bat_v}
                     unit="V"
                     icon={Battery}
-                    status={getBatteryStatus(telemetryData.battery.sup_bat_v, "supplemental")}
+                    status={getBatteryStatus(
+                      telemetryData.battery.sup_bat_v,
+                      "supplemental",
+                    )}
                   />
                 </div>
 
@@ -537,7 +685,9 @@ export default function SolarCarTelemetry() {
                         </div>
                       </div>
                       <div className="col-span-2">
-                        <div className="text-muted-foreground">Highest Cell Temp</div>
+                        <div className="text-muted-foreground">
+                          Highest Cell Temp
+                        </div>
                         <div
                           className={`font-bold ${telemetryData.battery.high_cell_t > 45 ? "text-red-600" : telemetryData.battery.high_cell_t > 35 ? "text-yellow-600" : "text-green-600"}`}
                         >
@@ -558,7 +708,10 @@ export default function SolarCarTelemetry() {
                 <div className="h-full flex flex-col">
                   <div className="flex-1">
                     <MapComponent
-                      location={{ lat: telemetryData.gps.latitude, lng: telemetryData.gps.longitude }}
+                      location={{
+                        lat: telemetryData.gps.latitude,
+                        lng: telemetryData.gps.longitude,
+                      }}
                       satelliteCount={telemetryData.gps.num_sats}
                     />
                   </div>
@@ -589,5 +742,5 @@ export default function SolarCarTelemetry() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
