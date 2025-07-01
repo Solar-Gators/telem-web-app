@@ -83,8 +83,8 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
       fetchTelemetryDataInRange(startDate, endDate, dataKey).then((data) => {
         if (data != null) {
           setChartData(data);
-          console.log(chartData);
         }
+        console.log(chartData);
       });
     }
   }, [dataKey, startDate, endDate]);
