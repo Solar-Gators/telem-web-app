@@ -19,30 +19,56 @@ export default function MapComponent({
   const markerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      mapRef.current &&
-      !mapInstanceRef.current
-    ) {
+    let isMounted = true;
+
+    if (typeof window !== "undefined" && mapRef.current && !mapInstanceRef.current) {
       // Dynamically import Leaflet
       import("leaflet").then((L) => {
-        // Initialize map
-        mapInstanceRef.current = L.map(mapRef.current!).setView(
-          [location.lat, location.lng],
-          13,
-        );
+        // Check if component is still mounted and map hasn't been initialized
+        if (isMounted && !mapInstanceRef.current && mapRef.current) {
+          // Check if container already has a map
+          const container = mapRef.current;
+          if ((container as any)._leaflet_id) {
+            // Container already has a map, clean it up
+            delete (container as any)._leaflet_id;
+          }
 
-        // Add tile layer
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "© OpenStreetMap contributors",
-        }).addTo(mapInstanceRef.current);
+          // Initialize map
+          mapInstanceRef.current = L.map(container).setView(
+            [location.lat, location.lng],
+            13,
+          );
 
-        // Add marker
-        markerRef.current = L.marker([location.lat, location.lng])
-          .addTo(mapInstanceRef.current)
-          .bindPopup("Solar Car Location");
+          // Add tile layer
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "© OpenStreetMap contributors",
+          }).addTo(mapInstanceRef.current);
+
+          // Fix default icon issue with Next.js
+          delete (L.Icon.Default.prototype as any)._getIconUrl;
+          L.Icon.Default.mergeOptions({
+            iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+          });
+
+          // Add marker
+          markerRef.current = L.marker([location.lat, location.lng])
+            .addTo(mapInstanceRef.current)
+            .bindPopup("Solar Car Location");
+        }
       });
     }
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+        markerRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
