@@ -116,3 +116,21 @@ export function getCellStatus(cellVoltage: number): StatusType | undefined {
     return 'good';
   }
 }
+
+export function calculateStateOfCharge(data: TelemetryData): number {
+  // Simplified SOC calculation based on voltage
+  // This is a placeholder - actual SOC calculation would be more complex
+  const nominalVoltage = 48; // Example nominal battery voltage
+  return Math.min(100, Math.max(0, (data.battery.main_bat_v / nominalVoltage) * 100));
+}
+
+export function getCustomValue(data: TelemetryData, path: string): number | undefined {
+  switch (path) {
+    case 'custom.soc':
+      return calculateStateOfCharge(data);
+    case 'custom.motorPower':
+      return calculateMotorPower(data);
+    default:
+      return undefined;
+  }
+}

@@ -15,6 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { generateSelectGroups, getValueFromPath } from "@/lib/chart-config";
+import { getCustomValue } from "@/lib/telemetry-utils";
 
 interface StatsGraphTabProps {
   telemetryData: TelemetryData;
@@ -42,67 +44,41 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
+  const selectGroups = generateSelectGroups();
+
+  const handleValueChange = (value: string) => {
+    // Handle selection change - this could update chart data
+    console.log('Selected:', value);
+  };
+
+  const getFieldValue = (dataPath: string, value: string): number | undefined => {
+    // Handle custom calculations
+    if (dataPath.startsWith('custom.')) {
+      return getCustomValue(telemetryData, dataPath);
+    }
+    
+    // Use the enhanced getValueFromPath that handles special cases
+    return getValueFromPath(telemetryData, dataPath, value);
+  };
+
   return (
     <div>
       <div className="grid place-items-center">
-        <Select>
+        <Select onValueChange={handleValueChange}>
           <SelectTrigger className="w-[280px]">
             <SelectValue placeholder="Select a Statistic" />
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup>
-              <SelectLabel>GPS</SelectLabel>
-              <SelectItem value="rxt">RX Time</SelectItem>
-              <SelectItem value="lon">Longitude</SelectItem>
-              <SelectItem value="lat">Latitude</SelectItem>
-              <SelectItem value="mph">Speed</SelectItem>
-              <SelectItem value="ns">Number of Satellites</SelectItem>
-            </SelectGroup>
-            <SelectGroup>
-              <SelectLabel>Battery</SelectLabel>
-              <SelectItem value="sbv">Sup Battery Voltage</SelectItem>
-              <SelectItem value="mbv">Main Battery Voltage</SelectItem>
-              <SelectItem value="mbc">Main Battery Current</SelectItem>
-              <SelectItem value="lcv">Low Cell Voltage</SelectItem>
-              <SelectItem value="hcv">High Cell Voltage</SelectItem>
-              <SelectItem value="hct">High Cell T</SelectItem>
-              <SelectItem value="ilv">IDX Low Voltage</SelectItem>
-              <SelectItem value="ilc">IDX High T</SelectItem>
-            </SelectGroup>
-            <SelectGroup>
-              <SelectLabel>MPPT 1</SelectLabel>
-              <SelectItem value="iv1">Voltage Input (MPPT 1)</SelectItem>
-              <SelectItem value="ov1">Voltage Output (MPPT 1)</SelectItem>
-              <SelectItem value="ic1">Current Input (MPPT 1)</SelectItem>
-              <SelectItem value="oc1">Current Output (MPPT 1)</SelectItem>
-            </SelectGroup>
-            <SelectGroup>
-              <SelectLabel>MPPT 2</SelectLabel>
-              <SelectItem value="iv2">Voltage Input (MPPT 2)</SelectItem>
-              <SelectItem value="ov2">Voltage Output (MPPT 2)</SelectItem>
-              <SelectItem value="ic2">Current Input (MPPT 2)</SelectItem>
-              <SelectItem value="oc2">Current Output (MPPT 2)</SelectItem>
-            </SelectGroup>
-            <SelectGroup>
-              <SelectLabel>MPPT 3</SelectLabel>
-              <SelectItem value="iv3">Voltage Input (MPPT 3)</SelectItem>
-              <SelectItem value="ov3">Voltage Output (MPPT 3)</SelectItem>
-              <SelectItem value="ic3">Current Input (MPPT 3)</SelectItem>
-              <SelectItem value="oc3">Current Output (MPPT 3)</SelectItem>
-            </SelectGroup>
-            <SelectGroup>
-              <SelectLabel>Mitsuba</SelectLabel>
-              <SelectItem value="v">Voltage</SelectItem>
-              <SelectItem value="c">Current</SelectItem>
-              <SelectItem value="err">Error Frame</SelectItem>
-            </SelectGroup>
-            <SelectGroup>
-              <SelectLabel>Custom</SelectLabel>
-              <SelectItem value="mph">Miles per Hour</SelectItem>
-              <SelectItem value="kph">Kilometers per Hour</SelectItem>
-              <SelectItem value="soc">State of Charge</SelectItem>
-              <SelectItem value="mpc">Motor Power Consumption</SelectItem>
-            </SelectGroup>
+            {selectGroups.map((group) => (
+              <SelectGroup key={group.label}>
+                <SelectLabel>{group.label}</SelectLabel>
+                {group.options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            ))}
           </SelectContent>
         </Select>
       </div>
