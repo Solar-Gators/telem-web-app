@@ -61,6 +61,8 @@ export async function POST(request: NextRequest) {
       )
     `;
 
+    console.log("Telemetry data stored.")
+
     return NextResponse.json(
       { success: true, message: "Telemetry data stored successfully" },
       { status: 201 },
