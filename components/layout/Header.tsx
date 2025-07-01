@@ -5,7 +5,11 @@ export default function Header() {
   return (
     <div className="mb-6">
       <div className="flex flex-col items-start gap-2 mb-4">
-        <ClientOnly fallback={<div className="w-[200px] h-[59px] bg-muted animate-pulse rounded" />}>
+        <ClientOnly
+          fallback={
+            <div className="w-[200px] h-[59px] bg-muted animate-pulse rounded" />
+          }
+        >
           <Image
             src="/images/sg-logo.png"
             alt="Solar Gators Logo"
@@ -17,9 +21,7 @@ export default function Header() {
             style={{ color: "transparent" }}
           />
         </ClientOnly>
-        <p className="text-muted-foreground">
-          Telemetry monitoring dashboard
-        </p>
+        <p className="text-muted-foreground">Telemetry monitoring dashboard</p>
       </div>
     </div>
   );

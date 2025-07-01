@@ -9,7 +9,7 @@ export const getSpeedStatus = (speed: number): StatusType => {
 
 export const getBatteryStatus = (
   voltage: number,
-  type: "main" | "supplemental"
+  type: "main" | "supplemental",
 ): StatusType => {
   if (type === "main") {
     if (voltage < 44) return "critical";
@@ -25,7 +25,7 @@ export const getBatteryStatus = (
 export const getCellStatus = (
   lowV: number,
   highV: number,
-  temp: number
+  temp: number,
 ): StatusType => {
   if (lowV < 3.0 || highV > 4.0 || temp > 45) return "critical";
   if (lowV < 3.2 || highV > 3.9 || temp > 35) return "warning";
@@ -66,15 +66,16 @@ export const calculateNetPower = (data: TelemetryData): number => {
 };
 
 export const calculateAverageSolarVoltage = (data: TelemetryData): number => {
-  return (
-    (data.mppt1.input_v + data.mppt2.input_v + data.mppt3.input_v) / 3
-  );
+  return (data.mppt1.input_v + data.mppt2.input_v + data.mppt3.input_v) / 3;
 };
 
 export const calculateTotalSolarCurrent = (data: TelemetryData): number => {
   return data.mppt1.input_c + data.mppt2.input_c + data.mppt3.input_c;
 };
 
-export const calculateMPPTPower = (voltage: number, current: number): number => {
+export const calculateMPPTPower = (
+  voltage: number,
+  current: number,
+): number => {
   return voltage * current;
 };

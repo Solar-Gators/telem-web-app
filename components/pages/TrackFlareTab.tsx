@@ -14,11 +14,13 @@ export default function TrackFlareTab({ telemetryData }: TrackFlareTabProps) {
       <CardContent className="h-full p-0">
         <div className="h-full flex flex-col">
           <div className="flex-1">
-            <ClientOnly fallback={
-              <div className="h-full w-full rounded-lg bg-muted flex items-center justify-center">
-                <p className="text-muted-foreground">Loading map...</p>
-              </div>
-            }>
+            <ClientOnly
+              fallback={
+                <div className="h-full w-full rounded-lg bg-muted flex items-center justify-center">
+                  <p className="text-muted-foreground">Loading map...</p>
+                </div>
+              }
+            >
               <MapComponent
                 location={{
                   lat: telemetryData.gps.latitude,

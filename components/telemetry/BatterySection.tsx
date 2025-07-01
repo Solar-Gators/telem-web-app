@@ -13,7 +13,9 @@ export default function BatterySection({ batteryData }: BatterySectionProps) {
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <ClientOnly fallback={<div className="w-5 h-5 bg-muted-foreground/20 rounded" />}>
+        <ClientOnly
+          fallback={<div className="w-5 h-5 bg-muted-foreground/20 rounded" />}
+        >
           <Battery className="h-5 w-5" suppressHydrationWarning />
         </ClientOnly>
         Battery Systems

@@ -12,7 +12,10 @@ interface TelemetryTabsProps {
 export default function TelemetryTabs({ telemetryData }: TelemetryTabsProps) {
   return (
     <Tabs defaultValue="live-stats" className="w-full" suppressHydrationWarning>
-      <TabsList className="grid w-full grid-cols-2 mb-6" suppressHydrationWarning>
+      <TabsList
+        className="grid w-full grid-cols-2 mb-6"
+        suppressHydrationWarning
+      >
         <TabsTrigger value="live-stats">Live Stats</TabsTrigger>
         <TabsTrigger value="track-flare">Track Flare</TabsTrigger>
       </TabsList>

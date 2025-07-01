@@ -21,7 +21,11 @@ export default function MapComponent({
   useEffect(() => {
     let isMounted = true;
 
-    if (typeof window !== "undefined" && mapRef.current && !mapInstanceRef.current) {
+    if (
+      typeof window !== "undefined" &&
+      mapRef.current &&
+      !mapInstanceRef.current
+    ) {
       // Dynamically import Leaflet
       import("leaflet").then((L) => {
         // Check if component is still mounted and map hasn't been initialized
@@ -47,9 +51,12 @@ export default function MapComponent({
           // Fix default icon issue with Next.js
           delete (L.Icon.Default.prototype as any)._getIconUrl;
           L.Icon.Default.mergeOptions({
-            iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            iconRetinaUrl:
+              "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+            iconUrl:
+              "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+            shadowUrl:
+              "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
           });
 
           // Add marker

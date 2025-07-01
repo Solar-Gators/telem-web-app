@@ -48,7 +48,9 @@ export default function MPPTSection({ mppt1, mppt2, mppt3 }: MPPTSectionProps) {
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <ClientOnly fallback={<div className="w-5 h-5 bg-muted-foreground/20 rounded" />}>
+        <ClientOnly
+          fallback={<div className="w-5 h-5 bg-muted-foreground/20 rounded" />}
+        >
           <Sun className="h-5 w-5" suppressHydrationWarning />
         </ClientOnly>
         Solar Panel Controllers (MPPT)

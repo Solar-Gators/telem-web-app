@@ -37,8 +37,13 @@ export default function SimpleCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <ClientOnly fallback={<div className="w-4 h-4 bg-muted-foreground/20 rounded" />}>
-          <Icon className="h-4 w-4 text-muted-foreground" suppressHydrationWarning />
+        <ClientOnly
+          fallback={<div className="w-4 h-4 bg-muted-foreground/20 rounded" />}
+        >
+          <Icon
+            className="h-4 w-4 text-muted-foreground"
+            suppressHydrationWarning
+          />
         </ClientOnly>
       </CardHeader>
       <CardContent>

@@ -19,7 +19,7 @@ export default function CellMonitoring({
   cellIdxHighT,
 }: CellMonitoringProps) {
   const status = getCellStatus(lowCellV, highCellV, highCellT);
-  
+
   const getStatusColor = () => {
     switch (status) {
       case "good":
@@ -37,7 +37,11 @@ export default function CellMonitoring({
     <Card>
       <CardHeader>
         <CardTitle className="text-sm flex items-center gap-2">
-          <ClientOnly fallback={<div className="w-4 h-4 bg-muted-foreground/20 rounded" />}>
+          <ClientOnly
+            fallback={
+              <div className="w-4 h-4 bg-muted-foreground/20 rounded" />
+            }
+          >
             <Thermometer className="h-4 w-4" suppressHydrationWarning />
           </ClientOnly>
           Cell Monitoring
