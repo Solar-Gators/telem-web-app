@@ -17,20 +17,23 @@ import {
 } from "@/components/ui/select";
 import { generateSelectGroups, getValueFromPath } from "@/lib/chart-config";
 import { getCustomValue } from "@/lib/telemetry-utils";
+import { useEffect, useState } from "react";
+import { ChevronDownIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { start } from "repl";
+import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 
 interface StatsGraphTabProps {
   telemetryData: TelemetryData;
 }
-
-const chartData = [
-  { placeholder: "1", placeholder2: "2", xaxis: "1" },
-  { placeholder: "2", placeholder2: "1", xaxis: "2" },
-  { placeholder: "1", placeholder2: "2", xaxis: "3" },
-  { placeholder: "2", placeholder2: "1", xaxis: "4" },
-  { placeholder: "1", placeholder2: "2", xaxis: "5" },
-  { placeholder: "2", placeholder2: "1", xaxis: "6" },
-  { placeholder: "1", placeholder2: "2", xaxis: "7" },
-];
 
 const chartConfig = {
   placeholder: {
@@ -44,26 +47,51 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
+  const [open1, setOpen1] = useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [dataKey, setDataKey] = useState("");
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+
   const selectGroups = generateSelectGroups();
 
   const handleValueChange = (value: string) => {
     // Handle selection change - this could update chart data
-    console.log('Selected:', value);
+    setDataKey(value);
   };
 
-  const getFieldValue = (dataPath: string, value: string): number | undefined => {
+  const getFieldValue = (
+    dataPath: string,
+    value: string
+  ): number | undefined => {
     // Handle custom calculations
-    if (dataPath.startsWith('custom.')) {
+    if (dataPath.startsWith("custom.")) {
       return getCustomValue(telemetryData, dataPath);
     }
-    
+
     // Use the enhanced getValueFromPath that handles special cases
     return getValueFromPath(telemetryData, dataPath, value);
   };
 
+  console.log(dataKey);
+  console.log(startDate);
+  console.log(endDate);
+
+  useEffect(() => {
+    if (dataKey && startDate && endDate) {
+      fetchTelemetryDataInRange(startDate, endDate, dataKey).then((data) => {
+        if (data != null) {
+          setChartData(data);
+          console.log(chartData);
+        }
+      });
+    }
+  }, [dataKey, startDate, endDate]);
+
   return (
     <div>
-      <div className="grid place-items-center">
+      <div className="grid place-items-center grid-cols-3 gap-4">
         <Select onValueChange={handleValueChange}>
           <SelectTrigger className="w-[280px]">
             <SelectValue placeholder="Select a Statistic" />
@@ -81,6 +109,84 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
             ))}
           </SelectContent>
         </Select>
+        <div className="flex gap-4">
+          <div className="flex flex-col gap-3">
+            <Popover open={open1} onOpenChange={setOpen1}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  id="date-picker"
+                  className="w-32 justify-between font-normal"
+                >
+                  {startDate ? startDate.toLocaleDateString() : "Start Date"}
+                  <ChevronDownIcon />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="start"
+              >
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  captionLayout="dropdown"
+                  onSelect={(date) => {
+                    setStartDate(date);
+                    setOpen1(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Input
+              type="time"
+              id="time-picker"
+              step="1"
+              defaultValue="12:00:00"
+              className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+            />
+          </div>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex flex-col gap-3">
+            <Popover open={open2} onOpenChange={setOpen2}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  id="date-picker"
+                  className="w-32 justify-between font-normal"
+                >
+                  {endDate ? endDate.toLocaleDateString() : "End Date"}
+                  <ChevronDownIcon />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="start"
+              >
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  captionLayout="dropdown"
+                  onSelect={(date) => {
+                    setEndDate(date);
+                    setOpen2(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Input
+              type="time"
+              id="time-picker"
+              step="1"
+              defaultValue="12:00:00"
+              className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+            />
+          </div>
+        </div>
       </div>
 
       <ChartContainer config={chartConfig}>
