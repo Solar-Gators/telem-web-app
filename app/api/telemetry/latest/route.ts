@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
+"use server";
+
 import { neon } from "@neondatabase/serverless";
 import { TelemetryData } from "@/lib/types";
 
-export async function GET() {
+export async function fetchLatestTelemetryData() {
   try {
     // Connect to the Neon database
-    const sql = neon(`${process.env.DATABASE_URL}`);
+    const sql = neon(process.env.DATABASE_URL || "");
 
     // Fetch the latest telemetry data
     const result = await sql`
@@ -15,10 +16,7 @@ export async function GET() {
     `;
 
     if (result.length === 0) {
-      return NextResponse.json(
-        { error: "No telemetry data found" },
-        { status: 404 },
-      );
+      throw new Error("No telemetry data found");
     }
 
     const data = result[0];
@@ -66,12 +64,9 @@ export async function GET() {
       },
     };
 
-    return NextResponse.json(telemetryData);
+    return telemetryData;
   } catch (error) {
     console.error("Error fetching latest telemetry data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch telemetry data" },
-      { status: 500 },
-    );
+    return null;
   }
 }

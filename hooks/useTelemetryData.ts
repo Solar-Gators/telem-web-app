@@ -1,5 +1,4 @@
-"use client";
-
+import { fetchLatestTelemetryData } from "@/app/api/telemetry/latest/route";
 import { useEffect, useState } from "react";
 import { TelemetryData } from "@/lib/types";
 
@@ -11,19 +10,9 @@ const useTelemetryData = () => {
   useEffect(() => {
     const fetchLatestData = async () => {
       try {
-        const response = await fetch("/api/telemetry/latest");
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            setError("No telemetry data received yet. Showing mock data.");
-          } else {
-            throw new Error(`Failed to fetch data: ${response.statusText}`);
-          }
-        } else {
-          const latestData = await response.json();
-          setData(latestData);
-          setError(null);
-        }
+        const latestData = await fetchLatestTelemetryData();
+        setData(latestData || null);
+        setError(null);
       } catch (error) {
         console.error("Error fetching telemetry data:", error);
         setError(error instanceof Error ? error.message : "Unknown error");
@@ -32,12 +21,7 @@ const useTelemetryData = () => {
       }
     };
 
-    // Fetch initial data
     fetchLatestData();
-
-    // const interval = setInterval(fetchLatestData, 2000);
-
-    // return () => clearInterval(interval);
   }, []);
 
   return { data, loading, error };
