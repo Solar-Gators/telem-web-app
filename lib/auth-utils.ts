@@ -1,82 +1,66 @@
-"use server";
-import { neon } from "@neondatabase/serverless";
-import { auth } from "@/auth";
-import { AuthError } from "next-auth";
+import { Pool } from "@neondatabase/serverless";
 
-/**
- * Updates the verification status of a user
- * @param userId - The ID of the user to update
- * @param isVerified - The new verification status
- * @returns Promise<boolean> - Success status
- */
-export async function updateUserVerification(userId: string, isVerified: boolean): Promise<boolean> {
+// Helper function to update user verification status
+export async function updateUserVerification(userId: string, isVerified: boolean) {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  
   try {
-    const session = await auth();
-    
-    // Only allow verified users to update verification status (admin functionality)
-    if (!session || !session.user.is_verified) {
-      throw new AuthError("Not authorized to update user verification");
-    }
-
-    const sql = neon(process.env.DATABASE_URL || "");
-
-    // Update the user's verification status
-    const result = await sql`
-      UPDATE users 
-      SET is_verified = ${isVerified}
-      WHERE id = ${userId}
-    `;
-
-    return true;
+    await pool.query(
+      'UPDATE users SET is_verified = $1 WHERE id = $2',
+      [isVerified, userId]
+    );
+    return { success: true };
   } catch (error) {
-    console.error("Error updating user verification:", error);
-    return false;
+    console.error('Error updating user verification:', error);
+    return { success: false, error };
+  } finally {
+    await pool.end();
   }
 }
 
-/**
- * Gets the current user's verification status
- * @returns Promise<boolean | null> - Verification status or null if not authenticated
- */
-export async function getCurrentUserVerificationStatus(): Promise<boolean | null> {
+// Helper function to get user verification status
+export async function getUserVerificationStatus(userId: string) {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  
   try {
-    const session = await auth();
+    const result = await pool.query(
+      'SELECT is_verified FROM users WHERE id = $1',
+      [userId]
+    );
     
-    if (!session) {
-      return null;
+    if (result.rows.length === 0) {
+      return { success: false, error: 'User not found' };
     }
-
-    return session.user.is_verified || false;
+    
+    return { 
+      success: true, 
+      isVerified: result.rows[0].is_verified 
+    };
   } catch (error) {
-    console.error("Error getting user verification status:", error);
-    return null;
+    console.error('Error getting user verification status:', error);
+    return { success: false, error };
+  } finally {
+    await pool.end();
   }
 }
 
-/**
- * Lists all users with their verification status (admin only)
- * @returns Promise<Array<{id: string, name: string, email: string, is_verified: boolean}> | null>
- */
-export async function listUsersWithVerificationStatus() {
+// Helper function to list all users and their verification status (admin use)
+export async function getAllUsersVerificationStatus() {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  
   try {
-    const session = await auth();
+    const result = await pool.query(
+      'SELECT id, name, email, is_verified FROM users ORDER BY name'
+    );
     
-    // Only allow verified users to view all users (admin functionality)
-    if (!session || !session.user.is_verified) {
-      throw new AuthError("Not authorized to view user list");
-    }
-
-    const sql = neon(process.env.DATABASE_URL || "");
-
-    const result = await sql`
-      SELECT id, name, email, is_verified
-      FROM users
-      ORDER BY name
-    `;
-
-    return result;
+    return { 
+      success: true, 
+      users: result.rows 
+    };
   } catch (error) {
-    console.error("Error fetching users:", error);
-    return null;
+    console.error('Error getting all users verification status:', error);
+    return { success: false, error };
+  } finally {
+    await pool.end();
   }
 }
