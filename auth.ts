@@ -13,7 +13,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
       async session({ session, user }) {
         // When using database adapter, user contains the database user object
         // Add is_verified to session from database user
-        console.log(user)
         if (session?.user && user) {
           session.user.is_verified = user.is_verified ?? false;
         }
