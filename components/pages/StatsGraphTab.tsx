@@ -144,6 +144,12 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
               id="time-picker"
               step="1"
               defaultValue="12:00:00"
+              onChange={(time) => {
+                startDate?.setHours(parseInt(time.target.value.split(":")[0]));
+                startDate?.setMinutes(
+                  parseInt(time.target.value.split(":")[1])
+                );
+              }}
               className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
             />
           </div>
