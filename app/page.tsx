@@ -3,14 +3,15 @@
 import useTelemetryData from "@/hooks/useTelemetryData";
 import Header from "@/components/layout/Header";
 import TelemetryTabs from "@/components/layout/TelemetryTabs";
-import SignIn from "./login";
-import { signIn } from "next-auth/react"
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 
 export default function SolarCarTelemetry() {
   const { data, loading, error } = useTelemetryData();
+  const { data: session } = useSession();
 
-  return <Button onClick={() => signIn("google")} />;
+  if (!session) return <Button onClick={() => signIn("google")} />;
 
   if (loading) {
     return (
