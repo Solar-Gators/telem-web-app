@@ -11,7 +11,12 @@ export default function SolarCarTelemetry() {
   const { data, loading, error } = useTelemetryData();
   const { data: session } = useSession();
 
-  if (!session) return <Button onClick={() => signIn("google")} />;
+  if (!session)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Button onClick={() => signIn("google")}></Button>
+      </div>
+    );
 
   if (loading) {
     return (
