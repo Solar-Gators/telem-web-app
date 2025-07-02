@@ -21,7 +21,7 @@ export default function Header() {
             style={{ color: "transparent" }}
           />
         </ClientOnly>
-        <p className="text-muted-foreground">Telemetry monitoring dashboard</p>
+        <p className="text-muted-foreground">Telemetry Monitoring Dashboard</p>
       </div>
     </div>
   );
