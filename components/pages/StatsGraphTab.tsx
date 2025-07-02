@@ -1,5 +1,5 @@
 import { TelemetryData } from "@/lib/types";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
   ChartContainer,
@@ -18,7 +18,7 @@ import {
 import { generateSelectGroups, getValueFromPath } from "@/lib/chart-config";
 import { getCustomValue } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
-import { ChevronDownIcon, Divide, Rainbow, Rows, Space } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -28,7 +28,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { start } from "repl";
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 
 interface StatsGraphTabProps {
@@ -74,17 +73,12 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
     return getValueFromPath(telemetryData, dataPath, value);
   };
 
-  console.log(dataKey);
-  console.log(startDate);
-  console.log(endDate);
-
   useEffect(() => {
     if (dataKey && startDate && endDate) {
       fetchTelemetryDataInRange(startDate, endDate, dataKey).then((data) => {
         if (data != null) {
           setChartData(data);
         }
-        console.log(chartData);
       });
     }
   }, [dataKey, startDate, endDate]);
@@ -219,6 +213,17 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
                 minute: "2-digit",
               });
             }}
+          />
+          <YAxis
+            label={{
+              value: dataKey,
+              angle: -90,
+              position: "insideLeft",
+            }}
+            tickLine={false}
+            axisLine={false}
+            tickMargin={10}
+            tickCount={5}
           />
           <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
           <Line
