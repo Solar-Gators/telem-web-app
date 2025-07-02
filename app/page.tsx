@@ -4,11 +4,14 @@ import useTelemetryData from "@/hooks/useTelemetryData";
 import Header from "@/components/layout/Header";
 import TelemetryTabs from "@/components/layout/TelemetryTabs";
 import SignIn from "./login";
+import { signIn } from "next-auth/react"
+import { Button } from "@/components/ui/button";
 
 export default function SolarCarTelemetry() {
   const { data, loading, error } = useTelemetryData();
 
-  return SignIn();
+  return <Button onClick={() => signIn("google")} />;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-4">
