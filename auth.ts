@@ -8,6 +8,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL })
   return {
     adapter: NeonAdapter(pool),
-    providers: [Google],
+    providers: [
+      Google({
+        profile(profile) {
+          return { 
+            is_verified: profile.is_verified ?? false, 
+            ...profile 
+          }
+        },
+      }),
+    ],
+    callbacks: {
+      session({ session, user }) {
+        session.user.is_verified = user.is_verified
+        return session
+      },
+    },
   }
 })
