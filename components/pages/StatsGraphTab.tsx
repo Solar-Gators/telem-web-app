@@ -1,5 +1,6 @@
 import { TelemetryData } from "@/lib/types";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import {
   ChartConfig,
   ChartContainer,
@@ -7,14 +8,13 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { generateSelectGroups, getValueFromPath } from "@/lib/chart-config";
 import { getCustomValue } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
@@ -48,61 +48,104 @@ const chartConfig = {
 export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
-  const [dataKey, setDataKey] = useState("");
+  const [selectedDataKeys, setSelectedDataKeys] = useState<string[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
+  const [lineColors] = useState([
+    "#8884D8",
+    "#D88884",
+    "#84D888",
+    "#884D88",
+    "#88884D",
+    "#4D8888",
+  ]);
+
   const selectGroups = generateSelectGroups();
 
-  const handleValueChange = (value: string) => {
-    // Handle selection change - this could update chart data
-    setDataKey(value.replace(".", "_"));
+  const handleValueChange = (values: string[]) => {
+    setSelectedDataKeys(values.map((v) => v.replace(".", "_")));
   };
 
   const getFieldValue = (
     dataPath: string,
     value: string
   ): number | undefined => {
-    // Handle custom calculations
     if (dataPath.startsWith("custom.")) {
       return getCustomValue(telemetryData, dataPath);
     }
-
-    // Use the enhanced getValueFromPath that handles special cases
     return getValueFromPath(telemetryData, dataPath, value);
   };
 
+  console.log(selectedDataKeys);
+  console.log(startDate);
+  console.log(endDate);
+
   useEffect(() => {
-    if (dataKey && startDate && endDate) {
-      fetchTelemetryDataInRange(startDate, endDate, dataKey).then((data) => {
-        if (data != null) {
-          setChartData(data);
-        }
+    if (selectedDataKeys.length > 0 && startDate && endDate) {
+      Promise.all(
+        selectedDataKeys.map((key) =>
+          fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
+            key,
+            data,
+          }))
+        )
+      ).then((results) => {
+        const mergedData: { [timestamp: string]: any } = {};
+        results.forEach(({ key, data }) => {
+          data?.forEach((point: any) => {
+            const ts = point.timestamp;
+            if (!mergedData[ts]) mergedData[ts] = { timestamp: ts };
+            mergedData[ts][key] = point.value;
+          });
+        });
+        const mergedArray = Object.values(mergedData).sort(
+          (a: any, b: any) =>
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
+        setChartData(mergedArray);
       });
     }
-  }, [dataKey, startDate, endDate]);
-
+  }, [selectedDataKeys, startDate, endDate]);
   return (
     <div>
       <div className="grid place-items-center grid-cols-3 gap-4">
-        <Select onValueChange={handleValueChange}>
-          <SelectTrigger className="w-[280px]">
-            <SelectValue placeholder="Select a Statistic" />
-          </SelectTrigger>
-          <SelectContent>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-[280px] justify-between">
+              {selectedDataKeys.length > 0
+                ? `${selectedDataKeys.length} Selected`
+                : "Select Statistics"}
+              <ChevronDownIcon className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-64 max-h-80 overflow-y-auto">
             {selectGroups.map((group) => (
-              <SelectGroup key={group.label}>
-                <SelectLabel>{group.label}</SelectLabel>
+              <div key={group.label}>
+                <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {group.options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <DropdownMenuCheckboxItem
+                    key={option.value}
+                    checked={selectedDataKeys.includes(
+                      option.value.replace(".", "_")
+                    )}
+                    onCheckedChange={(checked) => {
+                      const value = option.value.replace(".", "_");
+                      const updatedKeys = checked
+                        ? [...selectedDataKeys, value]
+                        : selectedDataKeys.filter((key) => key !== value);
+                      handleValueChange(updatedKeys);
+                    }}
+                  >
                     {option.label}
-                  </SelectItem>
+                  </DropdownMenuCheckboxItem>
                 ))}
-              </SelectGroup>
+              </div>
             ))}
-          </SelectContent>
-        </Select>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <div className="flex gap-4">
           <div className="flex flex-col gap-3">
             <Popover open={open1} onOpenChange={setOpen1}>
@@ -215,24 +258,24 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
             }}
           />
           <YAxis
-            label={{
-              value: dataKey,
-              angle: -90,
-              position: "insideLeft",
-            }}
             tickLine={false}
             axisLine={false}
             tickMargin={10}
             tickCount={5}
           />
           <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-          <Line
-            dataKey="value"
-            type="monotone"
-            stroke="#666"
-            strokeWidth={2}
-            dot={false}
-          />
+          {selectedDataKeys.map((key) => {
+            return (
+              <Line
+                key={key}
+                dataKey={key}
+                type="monotone"
+                stroke={lineColors[selectedDataKeys.indexOf(key) % 6]}
+                strokeWidth={2}
+                dot={false}
+              />
+            );
+          })}
         </LineChart>
       </ChartContainer>
     </div>
