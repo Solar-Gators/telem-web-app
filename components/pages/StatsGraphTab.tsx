@@ -18,7 +18,7 @@ import {
 import { generateSelectGroups, getValueFromPath } from "@/lib/chart-config";
 import { getCustomValue } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Divide, Rainbow, Rows, Space } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -58,7 +58,7 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
 
   const handleValueChange = (value: string) => {
     // Handle selection change - this could update chart data
-    setDataKey(value);
+    setDataKey(value.replace(".", "_"));
   };
 
   const getFieldValue = (
@@ -189,6 +189,7 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
         </div>
       </div>
 
+      <br></br>
       <ChartContainer config={chartConfig}>
         <LineChart
           accessibilityLayer
@@ -196,28 +197,28 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
           margin={{
             left: 12,
             right: 12,
+            top: 12,
           }}
         >
           <CartesianGrid vertical={false} />
           <XAxis
-            dataKey="xaxis"
+            dataKey="timestamp"
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            tickFormatter={(value) => value.slice(0, 3)}
+            tickFormatter={(value: Date) => {
+              const date = value instanceof Date ? value : new Date(value);
+              return date.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            }}
           />
           <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
           <Line
-            dataKey="placeholder"
+            dataKey="value"
             type="monotone"
-            stroke="var(--color-placeholder)"
-            strokeWidth={2}
-            dot={false}
-          />
-          <Line
-            dataKey="placeholder2"
-            type="monotone"
-            stroke="var(--color-placeholder2)"
+            stroke="#666"
             strokeWidth={2}
             dot={false}
           />
