@@ -3,10 +3,12 @@
 import useTelemetryData from "@/hooks/useTelemetryData";
 import Header from "@/components/layout/Header";
 import TelemetryTabs from "@/components/layout/TelemetryTabs";
+import SignIn from "./login";
 
 export default function SolarCarTelemetry() {
   const { data, loading, error } = useTelemetryData();
 
+  return SignIn();
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-4">
