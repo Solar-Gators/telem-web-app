@@ -3,8 +3,9 @@
 import useTelemetryData from "@/hooks/useTelemetryData";
 import Header from "@/components/layout/Header";
 import TelemetryTabs from "@/components/layout/TelemetryTabs";
+import VerificationGuard from "@/components/auth/VerificationGuard";
 
-export default function SolarCarTelemetry() {
+function TelemetryContent() {
   const { data, loading, error } = useTelemetryData();
 
   if (loading) {
@@ -39,5 +40,13 @@ export default function SolarCarTelemetry() {
         <TelemetryTabs telemetryData={data} />
       </div>
     </div>
+  );
+}
+
+export default function SolarCarTelemetry() {
+  return (
+    <VerificationGuard>
+      <TelemetryContent />
+    </VerificationGuard>
   );
 }

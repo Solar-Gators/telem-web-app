@@ -1,3 +1,6 @@
+import { DefaultSession } from "next-auth"
+import { DefaultJWT } from "next-auth/jwt"
+
 // Type definitions for telemetry data
 export interface TelemetryData {
   gps: {
@@ -53,4 +56,23 @@ export type StatusType = "good" | "warning" | "critical";
 export interface Location {
   lat: number;
   lng: number;
+}
+
+// Next.js Auth type extensions
+declare module "next-auth" {
+  interface Session {
+    user: {
+      is_verified?: boolean
+    } & DefaultSession["user"]
+  }
+
+  interface User {
+    is_verified?: boolean
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT extends DefaultJWT {
+    is_verified?: boolean
+  }
 }
