@@ -62,7 +62,7 @@ export async function fetchLatestTelemetryData() {
 export async function fetchTelemetryDataInRange(
   startDate: Date,
   endDate: Date,
-  statField?: string,
+  statField?: string
 ): Promise<TelemetryData[] | TelemetryStatValue[] | null> {
   try {
     //const session = await auth();
@@ -97,6 +97,48 @@ export async function fetchTelemetryDataInRange(
     return result.map((row) => mapTelemetryData(row));
   } catch (error) {
     console.error("Error fetching telemetry data in range:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetches all users from the database
+ * @returns Array of user objects or null if there's an error
+ */
+export async function fetchUsers(): Promise<any[] | null> {
+  try {
+    console.log("Attempting to fetch users from the database...");
+    //const session = await auth();
+    //if (!session || !session.user.is_verified) {
+    //  throw new AuthError("User not authenticated or not verified");
+    //}
+
+    // Connect to the Neon database
+    console.log(
+      "Connecting to Neon database with URL:",
+      process.env.DATABASE_URL || "undefined"
+    );
+    const sql = neon(process.env.DATABASE_URL || "");
+    console.log("Database connection established.");
+
+    // Fetch all users
+    console.log("Executing query to fetch users...");
+    const result = await sql`
+      SELECT * FROM users
+      ORDER BY created_at DESC
+    `;
+    console.log("Query executed, results:", result.length, "users found.");
+    if (result.length === 0) {
+      return [];
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     return null;
   }
 }
