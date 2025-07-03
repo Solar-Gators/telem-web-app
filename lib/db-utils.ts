@@ -13,10 +13,11 @@ interface TelemetryStatValue {
 
 export async function fetchLatestTelemetryData() {
   try {
-    const session = await auth();
-    if (!session || !session.user.is_verified) {
-      throw new AuthError("User not authenticated or not verified");
-    }
+    //const session = await auth();
+    //if (!session || !session.user.is_verified) {
+    //  throw new AuthError("User not authenticated or not verified");
+    //}
+
     // Connect to the Neon database
 
     const sql = neon(process.env.DATABASE_URL || "");
@@ -61,13 +62,14 @@ export async function fetchLatestTelemetryData() {
 export async function fetchTelemetryDataInRange(
   startDate: Date,
   endDate: Date,
-  statField?: string
+  statField?: string,
 ): Promise<TelemetryData[] | TelemetryStatValue[] | null> {
   try {
-    const session = await auth();
-    if (!session || !session.user.is_verified) {
-      throw new AuthError("User not authenticated or not verified");
-    }
+    //const session = await auth();
+    //if (!session || !session.user.is_verified) {
+    //  throw new AuthError("User not authenticated or not verified");
+    //}
+
     // Connect to the Neon database
     const sql = neon(process.env.DATABASE_URL || "");
 
