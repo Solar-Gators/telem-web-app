@@ -19,15 +19,37 @@ export async function fetchLatestTelemetryData() {
     //}
 
     // Connect to the Neon database
-
     const sql = neon(process.env.DATABASE_URL || "");
 
-    // Fetch the latest telemetry data
-    const result = await sql`
-      SELECT * FROM telemetry
-      ORDER BY created_at DESC
-      LIMIT 1
+    // Define all telemetry fields that we want to get latest non-zero values for
+    const telemetryFields = [
+      'gps_rx_time', 'gps_longitude', 'gps_latitude', 'gps_speed', 'gps_num_sats',
+      'battery_sup_bat_v', 'battery_main_bat_v', 'battery_main_bat_c', 'battery_low_cell_v',
+      'battery_high_cell_v', 'battery_high_cell_t', 'battery_cell_idx_low_v', 'battery_cell_idx_high_t',
+      'mppt1_input_v', 'mppt1_input_c', 'mppt1_output_v', 'mppt1_output_c',
+      'mppt2_input_v', 'mppt2_input_c', 'mppt2_output_v', 'mppt2_output_c',
+      'mppt3_input_v', 'mppt3_input_c', 'mppt3_output_v', 'mppt3_output_c',
+      'mitsuba_voltage', 'mitsuba_current'
+    ];
+
+    // Build the SELECT clause dynamically
+    const selectFields = telemetryFields.map(field => 
+      `COALESCE(
+        (SELECT ${field} FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
+        (SELECT ${field} FROM telemetry ORDER BY created_at DESC LIMIT 1)
+      ) AS ${field}`
+    ).join(',\n        ');
+
+    // Build the complete query
+    const query = `
+      SELECT 
+        ${selectFields},
+        (SELECT id FROM telemetry ORDER BY created_at DESC LIMIT 1) AS id,
+        (SELECT created_at FROM telemetry ORDER BY created_at DESC LIMIT 1) AS created_at
     `;
+
+    // Execute the dynamic query
+    const result = await sql(query);
 
     if (result.length === 0) {
       throw new Error("No telemetry data found");

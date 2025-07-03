@@ -17,8 +17,7 @@ export async function POST(request: NextRequest) {
 
     const telemetryData: TelemetryData = json_obj["body"];
 
-    // Convert IEEE 32-bit float integer to actual float value
-    const supBatVoltage = ieee32ToFloat(telemetryData.battery.sup_bat_v);
+    const supBatVoltage = ieee32ToFloat(telemetryData.battery.sup_bat_v) / 1000;
 
     const sql = neon(process.env.DATABASE_URL as string);
 
