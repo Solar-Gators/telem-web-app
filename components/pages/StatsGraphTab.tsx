@@ -30,10 +30,6 @@ import {
 } from "@/components/ui/popover";
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 
-interface StatsGraphTabProps {
-  telemetryData: TelemetryData<number>;
-}
-
 const chartConfig = {
   placeholder: {
     label: "Fake Data",
@@ -45,7 +41,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
+export default function StatsGraphTab() {
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [selectedDataKeys, setSelectedDataKeys] = useState<string[]>([]);
@@ -68,16 +64,6 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
     setSelectedDataKeys(values.map((v) => v.replace(".", "_")));
   };
 
-  const getFieldValue = (
-    dataPath: string,
-    value: string
-  ): number | undefined => {
-    if (dataPath.startsWith("custom.")) {
-      return getCustomValue(telemetryData, dataPath);
-    }
-    return getValueFromPath(telemetryData, dataPath, value);
-  };
-
   console.log(selectedDataKeys);
   console.log(startDate);
   console.log(endDate);
@@ -89,8 +75,8 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
           fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
             key,
             data,
-          }))
-        )
+          })),
+        ),
       ).then((results) => {
         const mergedData: { [timestamp: string]: any } = {};
         results.forEach(({ key, data }) => {
@@ -102,7 +88,7 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
         });
         const mergedArray = Object.values(mergedData).sort(
           (a: any, b: any) =>
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
         );
         setChartData(mergedArray);
       });
@@ -129,7 +115,7 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
                   <DropdownMenuCheckboxItem
                     key={option.value}
                     checked={selectedDataKeys.includes(
-                      option.value.replace(".", "_")
+                      option.value.replace(".", "_"),
                     )}
                     onCheckedChange={(checked) => {
                       const value = option.value.replace(".", "_");
@@ -184,7 +170,7 @@ export default function StatsGraphTab({ telemetryData }: StatsGraphTabProps) {
               onChange={(time) => {
                 startDate?.setHours(parseInt(time.target.value.split(":")[0]));
                 startDate?.setMinutes(
-                  parseInt(time.target.value.split(":")[1])
+                  parseInt(time.target.value.split(":")[1]),
                 );
               }}
               className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"

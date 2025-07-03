@@ -11,7 +11,10 @@ interface TelemetryTabsProps {
   dateData: TelemetryData<Date>;
 }
 
-export default function TelemetryTabs({ telemetryData }: TelemetryTabsProps) {
+export default function TelemetryTabs({
+  telemetryData,
+  dateData,
+}: TelemetryTabsProps) {
   return (
     <Tabs defaultValue="live-stats" className="w-full" suppressHydrationWarning>
       <TabsList
@@ -25,17 +28,17 @@ export default function TelemetryTabs({ telemetryData }: TelemetryTabsProps) {
 
       {/* Live Stats Tab */}
       <TabsContent value="live-stats">
-        <LiveStatsTab telemetryData={telemetryData} />
+        <LiveStatsTab telemetryData={telemetryData} dateData={dateData} />
       </TabsContent>
 
       {/* Stats Graph Tab */}
       <TabsContent value="stats-graph">
-        <StatsGraphTab telemetryData={telemetryData} />
+        <StatsGraphTab telemetryData={telemetryData} dateData={dateData} />
       </TabsContent>
 
       {/* Track Flare Tab */}
       <TabsContent value="track-flare">
-        <TrackFlareTab telemetryData={telemetryData} />
+        <TrackFlareTab telemetryData={telemetryData} dateData={dateData} />
       </TabsContent>
     </Tabs>
   );

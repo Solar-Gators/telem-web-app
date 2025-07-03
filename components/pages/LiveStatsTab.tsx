@@ -17,9 +17,13 @@ import BatterySection from "../telemetry/BatterySection";
 
 interface LiveStatsTabProps {
   telemetryData: TelemetryData<number>;
+  dateData: TelemetryData<Date>;
 }
 
-export default function LiveStatsTab({ telemetryData }: LiveStatsTabProps) {
+export default function LiveStatsTab({
+  telemetryData,
+  dateData,
+}: LiveStatsTabProps) {
   const totalSolarPower = calculateTotalSolarPower(telemetryData);
   const motorPower = calculateMotorPower(telemetryData);
   const netPower = calculateNetPower(telemetryData);

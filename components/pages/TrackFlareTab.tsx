@@ -6,6 +6,7 @@ import ClientOnly from "../ClientOnly";
 
 interface TrackFlareTabProps {
   telemetryData: TelemetryData<number>;
+  dateData: TelemetryData<Date>;
 }
 
 export default function TrackFlareTab({ telemetryData }: TrackFlareTabProps) {
