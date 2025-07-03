@@ -47,5 +47,46 @@ CREATE TABLE IF NOT EXISTS telemetry (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE accounts
+(
+  id SERIAL,
+  "userId" INTEGER NOT NULL,
+  type VARCHAR(255) NOT NULL,
+  provider VARCHAR(255) NOT NULL,
+  "providerAccountId" VARCHAR(255) NOT NULL,
+  refresh_token TEXT,
+  access_token TEXT,
+  expires_at BIGINT,
+  id_token TEXT,
+  scope TEXT,
+  session_state TEXT,
+  token_type TEXT,
+ 
+  PRIMARY KEY (id)
+);
+ 
+CREATE TABLE sessions
+(
+  id SERIAL,
+  "userId" INTEGER NOT NULL,
+  expires TIMESTAMPTZ NOT NULL,
+  "sessionToken" VARCHAR(255) NOT NULL,
+ 
+  PRIMARY KEY (id)
+);
+ 
+CREATE TABLE users
+(
+  id SERIAL,
+  name VARCHAR(255),
+  email VARCHAR(255),
+  "emailVerified" TIMESTAMPTZ,
+  image TEXT,
+  is_verified boolean NOT NULL DEFAULT FALSE,
+ 
+  PRIMARY KEY (id)
+);
+ 
+
 -- Create an index on created_at for faster queries
 CREATE INDEX IF NOT EXISTS idx_telemetry_created_at ON telemetry(created_at DESC);
