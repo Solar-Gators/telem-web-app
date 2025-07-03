@@ -1,5 +1,12 @@
 import { TelemetryData, StatusType, MPPTData } from './types';
 
+export function ieee32ToFloat(intValue: number): number {
+  const buffer = new ArrayBuffer(4);
+  const view = new DataView(buffer);
+  view.setUint32(0, intValue, false); // false for big-endian
+  return view.getFloat32(0, false);
+}
+
 export function mapTelemetryData(data: any): TelemetryData {
   return {
     gps: {
