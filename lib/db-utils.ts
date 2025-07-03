@@ -1,6 +1,6 @@
 "use server";
 import { neon } from "@neondatabase/serverless";
-import { mapTelemetryData } from "./telemetry-utils";
+import { mapTelemetryData, telemetryFields } from "./telemetry-utils";
 import { TelemetryData } from "./types";
 import { useSession } from "next-auth/react";
 import { auth } from "@/auth";
@@ -20,17 +20,6 @@ export async function fetchLatestTelemetryData() {
 
     // Connect to the Neon database
     const sql = neon(process.env.DATABASE_URL || "");
-
-    // Define all telemetry fields that we want to get latest non-zero values for
-    const telemetryFields = [
-      'gps_rx_time', 'gps_longitude', 'gps_latitude', 'gps_speed', 'gps_num_sats',
-      'battery_sup_bat_v', 'battery_main_bat_v', 'battery_main_bat_c', 'battery_low_cell_v',
-      'battery_high_cell_v', 'battery_high_cell_t', 'battery_cell_idx_low_v', 'battery_cell_idx_high_t',
-      'mppt1_input_v', 'mppt1_input_c', 'mppt1_output_v', 'mppt1_output_c',
-      'mppt2_input_v', 'mppt2_input_c', 'mppt2_output_v', 'mppt2_output_c',
-      'mppt3_input_v', 'mppt3_input_c', 'mppt3_output_v', 'mppt3_output_c',
-      'mitsuba_voltage', 'mitsuba_current'
-    ];
 
     // Build the SELECT clause dynamically
     const selectFields = telemetryFields.map(field => 

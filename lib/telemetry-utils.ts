@@ -1,4 +1,4 @@
-import { TelemetryData, StatusType, MPPTData } from './types';
+import { TelemetryData, StatusType, MPPTData } from "./types";
 
 export function ieee32ToFloat(intValue: number): number {
   const buffer = new ArrayBuffer(4);
@@ -6,6 +6,36 @@ export function ieee32ToFloat(intValue: number): number {
   view.setUint32(0, intValue, false); // false for big-endian
   return view.getFloat32(0, false);
 }
+
+export const telemetryFields = [
+  "gps_rx_time",
+  "gps_longitude",
+  "gps_latitude",
+  "gps_speed",
+  "gps_num_sats",
+  "battery_sup_bat_v",
+  "battery_main_bat_v",
+  "battery_main_bat_c",
+  "battery_low_cell_v",
+  "battery_high_cell_v",
+  "battery_high_cell_t",
+  "battery_cell_idx_low_v",
+  "battery_cell_idx_high_t",
+  "mppt1_input_v",
+  "mppt1_input_c",
+  "mppt1_output_v",
+  "mppt1_output_c",
+  "mppt2_input_v",
+  "mppt2_input_c",
+  "mppt2_output_v",
+  "mppt2_output_c",
+  "mppt3_input_v",
+  "mppt3_input_c",
+  "mppt3_output_v",
+  "mppt3_output_c",
+  "mitsuba_voltage",
+  "mitsuba_current",
+];
 
 export function mapTelemetryData(data: any): TelemetryData {
   return {
@@ -52,16 +82,16 @@ export function mapTelemetryData(data: any): TelemetryData {
 }
 
 export function getSpeedStatus(data: TelemetryData): StatusType | undefined {
-  return data.gps.speed > 0 ? 'good' : 'warning';
+  return data.gps.speed > 0 ? "good" : "warning";
 }
 
 export function getNetPowerStatus(data: TelemetryData): StatusType | undefined {
   const netPower = calculateNetPower(data);
-  return netPower > 0 ? 'good' : 'critical';
+  return netPower > 0 ? "good" : "critical";
 }
 
 export function getMotorStatus(data: TelemetryData): StatusType | undefined {
-  return data.mitsuba.current > 0 ? 'good' : 'warning';
+  return data.mitsuba.current > 0 ? "good" : "warning";
 }
 
 export function calculateNetPower(data: TelemetryData): number {
@@ -83,31 +113,30 @@ export function calculateTotalSolarPower(data: TelemetryData): number {
 }
 
 export function calculateAverageSolarVoltage(data: TelemetryData): number {
-  return (
-    (data.mppt1.input_v + data.mppt2.input_v + data.mppt3.input_v) / 3
-  );
+  return (data.mppt1.input_v + data.mppt2.input_v + data.mppt3.input_v) / 3;
 }
 
 export function calculateTotalSolarCurrent(data: TelemetryData): number {
-  return (
-    data.mppt1.input_c + data.mppt2.input_c + data.mppt3.input_c
-  );
+  return data.mppt1.input_c + data.mppt2.input_c + data.mppt3.input_c;
 }
 
 export function calculateMPPTPower(voltage: number, current: number): number {
   return voltage * current;
 }
 
-export function getBatteryStatus(voltage: number, type: string): StatusType | undefined {
+export function getBatteryStatus(
+  voltage: number,
+  type: string,
+): StatusType | undefined {
   const lowVoltageThreshold = 3.0; // Example threshold
   const highVoltageThreshold = 4.2; // Example threshold
 
   if (voltage < lowVoltageThreshold) {
-    return 'critical';
+    return "critical";
   } else if (voltage > highVoltageThreshold) {
-    return 'warning';
+    return "warning";
   } else {
-    return 'good';
+    return "good";
   }
 }
 
@@ -116,11 +145,11 @@ export function getCellStatus(cellVoltage: number): StatusType | undefined {
   const highVoltageThreshold = 4.2; // Example threshold
 
   if (cellVoltage < lowVoltageThreshold) {
-    return 'critical';
+    return "critical";
   } else if (cellVoltage > highVoltageThreshold) {
-    return 'warning';
+    return "warning";
   } else {
-    return 'good';
+    return "good";
   }
 }
 
@@ -128,14 +157,20 @@ export function calculateStateOfCharge(data: TelemetryData): number {
   // Simplified SOC calculation based on voltage
   // This is a placeholder - actual SOC calculation would be more complex
   const nominalVoltage = 48; // Example nominal battery voltage
-  return Math.min(100, Math.max(0, (data.battery.main_bat_v / nominalVoltage) * 100));
+  return Math.min(
+    100,
+    Math.max(0, (data.battery.main_bat_v / nominalVoltage) * 100),
+  );
 }
 
-export function getCustomValue(data: TelemetryData, path: string): number | undefined {
+export function getCustomValue(
+  data: TelemetryData,
+  path: string,
+): number | undefined {
   switch (path) {
-    case 'custom.soc':
+    case "custom.soc":
       return calculateStateOfCharge(data);
-    case 'custom.motorPower':
+    case "custom.motorPower":
       return calculateMotorPower(data);
     default:
       return undefined;
