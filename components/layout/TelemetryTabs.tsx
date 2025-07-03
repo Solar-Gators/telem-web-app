@@ -7,7 +7,7 @@ import StatsGraphTab from "../pages/StatsGraphTab";
 import TrackFlareTab from "../pages/TrackFlareTab";
 
 interface TelemetryTabsProps {
-  telemetryData: TelemetryData;
+  telemetryData: TelemetryData<number>;
 }
 
 export default function TelemetryTabs({ telemetryData }: TelemetryTabsProps) {

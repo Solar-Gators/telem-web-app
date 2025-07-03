@@ -44,7 +44,7 @@ export async function fetchLatestTelemetryData() {
       throw new Error("No telemetry data found");
     }
 
-    return mapTelemetryData(result[0]);
+    return mapTelemetryData<number>(result[0]);
   } catch (error) {
     console.error("Error fetching latest telemetry data:", error);
     return null;
@@ -56,7 +56,7 @@ export async function fetchLatestTelemetryData() {
  * @param startDate - The start date for the range (inclusive)
  * @param endDate - The end date for the range (inclusive)
  * @param statField - Optional specific database field to extract (e.g., 'battery_main_bat_v', 'gps_speed')
- * @returns Array of TelemetryData objects if no statField specified, or array of TelemetryStatValue objects if statField specified
+ * @returns Array of TelemetryData<number> objects if no statField specified, or array of TelemetryStatValue objects if statField specified
  *
  * @example
  * // Get all telemetry data for the last 24 hours
@@ -74,7 +74,7 @@ export async function fetchTelemetryDataInRange(
   startDate: Date,
   endDate: Date,
   statField?: string,
-): Promise<TelemetryData[] | TelemetryStatValue[] | null> {
+): Promise<TelemetryData<number>[] | TelemetryStatValue[] | null> {
   try {
     //const session = await auth();
     //if (!session || !session.user.is_verified) {
@@ -105,7 +105,7 @@ export async function fetchTelemetryDataInRange(
     }
 
     // Otherwise, map all data to TelemetryData format
-    return result.map((row) => mapTelemetryData(row));
+    return result.map((row) => mapTelemetryData<number>(row));
   } catch (error) {
     console.error("Error fetching telemetry data in range:", error);
     return null;

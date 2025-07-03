@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const telemetryData: TelemetryData = json_obj["body"];
+    const telemetryData: TelemetryData<number> = json_obj["body"];
 
     const supBatVoltage = ieee32ToFloat(telemetryData.battery.sup_bat_v) / 1000;
 

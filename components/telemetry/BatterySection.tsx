@@ -6,7 +6,7 @@ import CellMonitoring from "./CellMonitoring";
 import ClientOnly from "@/components/ClientOnly";
 
 interface BatterySectionProps {
-  batteryData: TelemetryData["battery"];
+  batteryData: TelemetryData<number>["battery"];
 }
 
 export default function BatterySection({ batteryData }: BatterySectionProps) {

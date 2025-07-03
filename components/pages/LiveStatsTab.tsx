@@ -16,7 +16,7 @@ import MPPTSection from "../telemetry/MPPTSection";
 import BatterySection from "../telemetry/BatterySection";
 
 interface LiveStatsTabProps {
-  telemetryData: TelemetryData;
+  telemetryData: TelemetryData<number>;
 }
 
 export default function LiveStatsTab({ telemetryData }: LiveStatsTabProps) {

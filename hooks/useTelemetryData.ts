@@ -3,7 +3,7 @@ import { TelemetryData } from "@/lib/types";
 import { fetchLatestTelemetryData } from "@/lib/db-utils";
 
 const useTelemetryData = () => {
-  const [data, setData] = useState<TelemetryData | null>(null);
+  const [data, setData] = useState<TelemetryData<number> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

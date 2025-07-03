@@ -5,7 +5,7 @@ import MapComponent from "../telemetry/MapComponent";
 import ClientOnly from "../ClientOnly";
 
 interface TrackFlareTabProps {
-  telemetryData: TelemetryData;
+  telemetryData: TelemetryData<number>;
 }
 
 export default function TrackFlareTab({ telemetryData }: TrackFlareTabProps) {

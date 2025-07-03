@@ -114,7 +114,7 @@ export function generateSelectGroups(): SelectGroup[] {
 }
 
 export function getValueFromPath(
-  data: TelemetryData,
+  data: TelemetryData<number>,
   path: string,
   value?: string
 ): number | undefined {

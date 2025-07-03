@@ -31,7 +31,7 @@ import {
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 
 interface StatsGraphTabProps {
-  telemetryData: TelemetryData;
+  telemetryData: TelemetryData<number>;
 }
 
 const chartConfig = {

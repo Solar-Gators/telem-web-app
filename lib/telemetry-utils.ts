@@ -37,7 +37,7 @@ export const telemetryFields = [
   "mitsuba_current",
 ];
 
-export function mapTelemetryData(data: any): TelemetryData {
+export function mapTelemetryData<T>(data: any): TelemetryData<T> {
   return {
     gps: {
       rx_time: data.gps_rx_time,
@@ -81,30 +81,30 @@ export function mapTelemetryData(data: any): TelemetryData {
   };
 }
 
-export function getSpeedStatus(data: TelemetryData): StatusType | undefined {
+export function getSpeedStatus(data: TelemetryData<number>): StatusType | undefined {
   return data.gps.speed > 0 ? "good" : "warning";
 }
 
-export function getNetPowerStatus(data: TelemetryData): StatusType | undefined {
+export function getNetPowerStatus(data: TelemetryData<number>): StatusType | undefined {
   const netPower = calculateNetPower(data);
   return netPower > 0 ? "good" : "critical";
 }
 
-export function getMotorStatus(data: TelemetryData): StatusType | undefined {
+export function getMotorStatus(data: TelemetryData<number>): StatusType | undefined {
   return data.mitsuba.current > 0 ? "good" : "warning";
 }
 
-export function calculateNetPower(data: TelemetryData): number {
+export function calculateNetPower(data: TelemetryData<number>): number {
   const solarPower = calculateTotalSolarPower(data);
   const motorPower = calculateMotorPower(data);
   return solarPower - motorPower;
 }
 
-export function calculateMotorPower(data: TelemetryData): number {
+export function calculateMotorPower(data: TelemetryData<number>): number {
   return data.mitsuba.voltage * data.mitsuba.current;
 }
 
-export function calculateTotalSolarPower(data: TelemetryData): number {
+export function calculateTotalSolarPower(data: TelemetryData<number>): number {
   return (
     data.mppt1.output_v * data.mppt1.output_c +
     data.mppt2.output_v * data.mppt2.output_c +
@@ -112,11 +112,11 @@ export function calculateTotalSolarPower(data: TelemetryData): number {
   );
 }
 
-export function calculateAverageSolarVoltage(data: TelemetryData): number {
+export function calculateAverageSolarVoltage(data: TelemetryData<number>): number {
   return (data.mppt1.input_v + data.mppt2.input_v + data.mppt3.input_v) / 3;
 }
 
-export function calculateTotalSolarCurrent(data: TelemetryData): number {
+export function calculateTotalSolarCurrent(data: TelemetryData<number>): number {
   return data.mppt1.input_c + data.mppt2.input_c + data.mppt3.input_c;
 }
 
@@ -153,7 +153,7 @@ export function getCellStatus(cellVoltage: number): StatusType | undefined {
   }
 }
 
-export function calculateStateOfCharge(data: TelemetryData): number {
+export function calculateStateOfCharge(data: TelemetryData<number>): number {
   // Simplified SOC calculation based on voltage
   // This is a placeholder - actual SOC calculation would be more complex
   const nominalVoltage = 48; // Example nominal battery voltage
@@ -164,7 +164,7 @@ export function calculateStateOfCharge(data: TelemetryData): number {
 }
 
 export function getCustomValue(
-  data: TelemetryData,
+  data: TelemetryData<number>,
   path: string,
 ): number | undefined {
   switch (path) {
