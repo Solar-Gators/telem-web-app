@@ -8,6 +8,7 @@ import TrackFlareTab from "../pages/TrackFlareTab";
 
 interface TelemetryTabsProps {
   telemetryData: TelemetryData<number>;
+  dateData: TelemetryData<Date>;
 }
 
 export default function TelemetryTabs({ telemetryData }: TelemetryTabsProps) {

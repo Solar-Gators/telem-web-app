@@ -13,28 +13,35 @@ interface TelemetryStatValue {
 
 export async function fetchLatestTelemetryData() {
   try {
-    //const session = await auth();
-    //if (!session || !session.user.is_verified) {
-    //  throw new AuthError("User not authenticated or not verified");
-    //}
+    // Authentication logic can be re-enabled here if needed
+    // const session = await auth();
+    // if (!session || !session.user.is_verified) {
+    //   throw new AuthError("User not authenticated or not verified");
+    // }
 
-    // Connect to the Neon database
+    // Connect to the Neon database. Ensure DATABASE_URL is in your environment variables.
     const sql = neon(process.env.DATABASE_URL || "");
 
-    // Build the SELECT clause dynamically
-    const selectFields = telemetryFields.map(field => 
-      `COALESCE(
+    // Build the SELECT clause dynamically. For each field, this creates two subqueries:
+    // 1. To get the latest value (prioritizing non-zero).
+    // 2. To get the timestamp of that same latest value.
+    const selectFields = telemetryFields.map(field => `
+      COALESCE(
         (SELECT ${field} FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
         (SELECT ${field} FROM telemetry ORDER BY created_at DESC LIMIT 1)
-      ) AS ${field}`
-    ).join(',\n        ');
+      ) AS ${field},
+      COALESCE(
+        (SELECT created_at FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
+        (SELECT created_at FROM telemetry ORDER BY created_at DESC LIMIT 1)
+      ) AS d_${field}
+    `).join(',\n      ');
 
-    // Build the complete query
+    // Build the complete query, also fetching the ID and timestamp of the overall latest entry.
     const query = `
-      SELECT 
+      SELECT
         ${selectFields},
         (SELECT id FROM telemetry ORDER BY created_at DESC LIMIT 1) AS id,
-        (SELECT created_at FROM telemetry ORDER BY created_at DESC LIMIT 1) AS created_at
+        (SELECT created_at FROM telemetry ORDER BY created_at DESC LIMIT 1) AS overall_created_at
     `;
 
     // Execute the dynamic query
@@ -44,10 +51,32 @@ export async function fetchLatestTelemetryData() {
       throw new Error("No telemetry data found");
     }
 
-    return mapTelemetryData<number>(result[0]);
+    const sqlResult = result[0];
+    const numericDataForMap: Record<string, any> = {};
+    const dateDataForMap: Record<string, Date> = {};
+
+    // Iterate over the defined fields to separate the numeric values and date values
+    // from the flat SQL query result into two distinct objects.
+    for (const field of telemetryFields) {
+      numericDataForMap[field] = sqlResult[field];
+      // The corresponding date is retrieved from the aliased 'd_{field}' column
+      dateDataForMap[field] = new Date(sqlResult[`d_${field}`]);
+    }
+
+    // Use the provided mapTelemetryData function to structure both sets of data
+    const numericTelemetry = mapTelemetryData<number>(numericDataForMap);
+    const dateTelemetry = mapTelemetryData<Date>(dateDataForMap);
+
+    // Return both the numeric data and the date data
+    return {
+      numericData: numericTelemetry,
+      dateData: dateTelemetry,
+    };
+
   } catch (error) {
     console.error("Error fetching latest telemetry data:", error);
-    return null;
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return { error: errorMessage };
   }
 }
 
