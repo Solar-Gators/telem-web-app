@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
-    console.error("Error storing telemetry data:", error);
+    console.error("Error storing telemetry data:", error, await request.json());
     return NextResponse.json(
       { error: "Failed to store telemetry data" },
       { status: 500 },
