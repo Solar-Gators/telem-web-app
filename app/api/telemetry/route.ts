@@ -3,9 +3,9 @@ import { neon } from "@neondatabase/serverless";
 import { TelemetryData } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
-  try {
-    const json_obj = await request.json();
+  const json_obj = await request.json();
 
+  try {
     const apiKey = request.headers.get("auth-key");
     if (!apiKey || apiKey !== process.env.NOTEHUB_AUTH_KEY) {
       return NextResponse.json(
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
-    console.error("Error storing telemetry data:", error, await request.json());
+    console.error("Error storing telemetry data:", error, json_obj);
     return NextResponse.json(
       { error: "Failed to store telemetry data" },
       { status: 500 },
