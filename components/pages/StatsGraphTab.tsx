@@ -1,11 +1,13 @@
 import { TelemetryData } from "@/lib/types";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis, Legend } from "recharts";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
 } from "@/components/ui/chart";
 import {
   DropdownMenu,
@@ -15,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { generateSelectGroups, getValueFromPath } from "@/lib/chart-config";
+import { generateSelectGroups, getValueFromPath, TELEMETRY_FIELD_CONFIG } from "@/lib/chart-config";
 import { getCustomValue } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
 import { ChevronDownIcon } from "lucide-react";
@@ -30,16 +32,39 @@ import {
 } from "@/components/ui/popover";
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 
-const chartConfig = {
-  placeholder: {
-    label: "Fake Data",
-    color: "var(--chart-1)",
-  },
-  placeholder2: {
-    label: "Fake Data 2",
-    color: "var(--chart-3)",
-  },
-} satisfies ChartConfig;
+// Helper function to get label from data key
+function getLabelFromDataKey(dataKey: string): string {
+  // Convert from database format (e.g., "battery_main_bat_v") to config format (e.g., "battery.main_bat_v")
+  // Find the first underscore to separate category from the rest
+  const firstUnderscoreIndex = dataKey.indexOf("_");
+  if (firstUnderscoreIndex === -1) {
+    return dataKey.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+  }
+  
+  const category = dataKey.substring(0, firstUnderscoreIndex);
+  const field = dataKey.substring(firstUnderscoreIndex + 1);
+  
+  if (category && field && TELEMETRY_FIELD_CONFIG[category]?.fields[field]) {
+    return TELEMETRY_FIELD_CONFIG[category].fields[field];
+  }
+  
+  // Fallback to formatted version of the key
+  return dataKey.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+}
+
+// Generate dynamic chart config based on selected data keys
+function generateChartConfig(selectedDataKeys: string[], lineColors: string[]): ChartConfig {
+  const config: ChartConfig = {};
+  
+  selectedDataKeys.forEach((key, index) => {
+    config[key] = {
+      label: getLabelFromDataKey(key),
+      color: lineColors[index % lineColors.length],
+    };
+  });
+  
+  return config;
+}
 
 export default function StatsGraphTab() {
   const [open1, setOpen1] = useState(false);
@@ -77,10 +102,6 @@ export default function StatsGraphTab() {
   const handleValueChange = (values: string[]) => {
     setSelectedDataKeys(values.map((v) => v.replace(".", "_")));
   };
-
-  console.log(selectedDataKeys);
-  console.log(startDate);
-  console.log(endDate);
 
   useEffect(() => {
     if (selectedDataKeys.length > 0 && startDate && endDate) {
@@ -143,6 +164,10 @@ export default function StatsGraphTab() {
 
     return () => clearInterval(interval);
   }, [selectedDataKeys, startDate, endDate]);
+
+  // Generate dynamic chart config
+  const chartConfig = generateChartConfig(selectedDataKeys, lineColors);
+
   return (
     <div>
       <div className="grid place-items-center grid-cols-3 gap-4">
@@ -298,7 +323,27 @@ export default function StatsGraphTab() {
             tickMargin={10}
             tickCount={5}
           />
-          <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+          <ChartTooltip 
+            cursor={false} 
+            content={<ChartTooltipContent 
+              labelFormatter={(value, payload) => {
+                // Get the timestamp from the payload data
+                if (payload && payload.length > 0 && payload[0].payload) {
+                  const timestamp = payload[0].payload.timestamp;
+                  try {
+                    const date = new Date(timestamp);
+                    if (!isNaN(date.getTime())) {
+                      return date.toLocaleString();
+                    }
+                  } catch (error) {
+                    console.error('Error parsing timestamp:', error);
+                  }
+                }
+                return String(value);
+              }}
+            />} 
+          />
+          <ChartLegend content={<ChartLegendContent />} />
           {selectedDataKeys.map((key) => {
             return (
               <Line

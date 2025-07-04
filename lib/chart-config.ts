@@ -87,7 +87,7 @@ export function generateSelectGroups(): SelectGroup[] {
   });
 
   // Add custom fields
-  //groups.push(CUSTOM_FIELD_CONFIG);
+  groups.push(CUSTOM_FIELD_CONFIG);
 
   return groups;
 }
