@@ -144,16 +144,21 @@ export async function fetchTelemetryDataInRange(
     return null;
   }
 }
-//fetches users from database
-@returns
 
 export async function fetchUsers(): Promise<any[] | null> {
   try {
-    const sql = neon(process.env.DATABASE_URL || "")
-    const result = await sql `SELECT * FROM users ORDER BY created_at DESC`
-    return result
-  } catch(error) {
-    console.log("Error fetching users", error)
+    //connects to neon db
+    const sql = neon(process.env.DATABASE_URL || "");
+    //fetches users
+    const result = await sql`SELECT * FROM users ORDER BY created_at DESC`;
+    //checks user list length
+    console.log("Users fetched: ", result.length, "users found");
+    if (result.length === 0) {
+      return null;
+    }
+    return result;
+  } catch (error) {
+    console.log("Error fetching users", error);
+    return null;
   }
-  
 }
