@@ -1,5 +1,5 @@
 "use client";
-
+import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardContent,
@@ -33,7 +33,7 @@ export default function AdminTab() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [isVerified, setIsVerified] = useState<boolean | null>(null);
+  const [is_verified, setIs_verified] = useState<boolean | null>(null);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -56,28 +56,19 @@ export default function AdminTab() {
     loadUsers();
   }, []);
 
-  //   const handleEdit = (userID: string): void => {
-  //     if (!users) return;
-  //     const user = users.find((user) => user.id === userID);
-  //     if (!user) return;
-
-  //     setSelectedUserId(userID);
-  //     setIsVerified(user.is_verified);
-  //   };
-
   const handleToggleVerify = async (userID: string): Promise<void> => {
     const user = users.find((u) => u.id === userID);
     if (!user) return;
 
-    const newStatus = !user.isVerified;
+    const newStatus = !user.is_verified;
 
     try {
-      const response = await fetch(`/api/users/${userID}`, {
+      const response = await fetch(`/api/users`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ is_verified: newStatus }),
+        body: JSON.stringify({ id: userID, is_verified: newStatus }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -93,13 +84,17 @@ export default function AdminTab() {
       console.error("Error updating user", error);
     } finally {
       setSelectedUserId(null);
-      setIsVerified(null);
+      setIs_verified(null);
     }
   };
   const handleDelete = async (userID: string) => {
     try {
-      const response = await fetch(`/api/users/${userID}`, {
+      const response = await fetch(`/api/users`, {
         method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ id: userID }),
       });
       if (response.ok) {
         const refreshedResponse = await fetch("/api/users");
@@ -174,7 +169,22 @@ export default function AdminTab() {
                         <TableCell>{user.id}</TableCell>
                         <TableCell>{user.email || "N/A"}</TableCell>
                         <TableCell>{user.name || "N/A"}</TableCell>
-                        <TableCell>{user.is_verified ? "Yes" : "No"}</TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={user.is_verified}
+                            onCheckedChange={() => handleToggleVerify(user.id)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-red-700"
+                            onClick={() => handleDelete(user.id)}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
