@@ -30,21 +30,21 @@ function MPPTCard({ title, data, lastUpdated }: MPPTCardProps) {
         <div>
           <div className="text-sm text-muted-foreground mb-1">Output</div>
           <div className="text-xl font-bold">
-            {inputPower.toFixed(0)}
-            <span className="text-muted-foreground text-sm"> W</span>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {data.input_v.toFixed(1)} V × {data.input_c.toFixed(1)} A
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-muted-foreground mb-1">Input</div>
-          <div className="text-xl text-base font-bold">
             {outputPower.toFixed(0)}
             <span className="text-muted-foreground text-sm"> W</span>
           </div>
           <div className="text-sm text-muted-foreground">
             {data.output_v.toFixed(1)} V × {data.output_c.toFixed(1)} A
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground mb-1">Input</div>
+          <div className="text-md text-base font-bold">
+            {inputPower.toFixed(0)}
+            <span className="text-muted-foreground text-xs"> W</span>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {data.input_v.toFixed(1)} V × {data.input_c.toFixed(1)} A
           </div>
         </div>
         {lastUpdated && (

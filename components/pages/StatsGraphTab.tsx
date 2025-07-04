@@ -34,6 +34,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
   PopoverContent,
@@ -93,6 +94,7 @@ function generateChartConfig(
 export default function StatsGraphTab() {
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
+  const [multiselectEnabled, setMultiselectEnabled] = useState(false);
   const [selectedDataKeys, setSelectedDataKeys] = useState<string[]>([
     "battery_main_bat_v",
   ]);
@@ -380,41 +382,75 @@ export default function StatsGraphTab() {
   return (
     <div>
       <div className="grid place-items-center grid-cols-3 gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[280px] justify-between">
-              {selectedDataKeys.length > 0
-                ? `${selectedDataKeys.length} Selected`
-                : "Select Statistics"}
-              <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64 max-h-80 overflow-y-auto">
-            {selectGroups.map((group) => (
-              <div key={group.label}>
-                <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {group.options.map((option) => (
-                  <DropdownMenuCheckboxItem
-                    key={option.value}
-                    checked={selectedDataKeys.includes(
-                      option.value.replace(".", "_"),
-                    )}
-                    onCheckedChange={(checked) => {
-                      const value = option.value.replace(".", "_");
-                      const updatedKeys = checked
-                        ? [...selectedDataKeys, value]
-                        : selectedDataKeys.filter((key) => key !== value);
-                      handleValueChange(updatedKeys);
-                    }}
-                  >
-                    {option.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </div>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex flex-col gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[280px] justify-between">
+                {selectedDataKeys.length > 0
+                  ? multiselectEnabled
+                    ? `${selectedDataKeys.length} Selected`
+                    : selectedDataKeys.length === 1
+                      ? getLabelFromDataKey(selectedDataKeys[0])
+                      : `${selectedDataKeys.length} Selected`
+                  : "Select Statistics"}
+                <ChevronDownIcon className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-64 max-h-80 overflow-y-auto">
+              {selectGroups.map((group) => (
+                <div key={group.label}>
+                  <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {group.options.map((option) => (
+                    <DropdownMenuCheckboxItem
+                      key={option.value}
+                      checked={selectedDataKeys.includes(
+                        option.value.replace(".", "_"),
+                      )}
+                      onCheckedChange={(checked) => {
+                        const value = option.value.replace(".", "_");
+                        let updatedKeys: string[];
+
+                        if (multiselectEnabled) {
+                          // Multiselect mode: add/remove from array
+                          updatedKeys = checked
+                            ? [...selectedDataKeys, value]
+                            : selectedDataKeys.filter((key) => key !== value);
+                        } else {
+                          // Single select mode: replace selection
+                          updatedKeys = checked ? [value] : [];
+                        }
+
+                        handleValueChange(updatedKeys);
+                      }}
+                    >
+                      {option.label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </div>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="multiselect"
+              checked={multiselectEnabled}
+              onCheckedChange={(checked) => {
+                setMultiselectEnabled(checked as boolean);
+                // If disabling multiselect and multiple items are selected, keep only the first one
+                if (!checked && selectedDataKeys.length > 1) {
+                  setSelectedDataKeys([selectedDataKeys[0]]);
+                }
+              }}
+            />
+            <label
+              htmlFor="multiselect"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Enable Multiselect
+            </label>
+          </div>
+        </div>
         <div className="flex gap-4">
           <div className="flex flex-col gap-3">
             <Popover open={open1} onOpenChange={setOpen1}>
