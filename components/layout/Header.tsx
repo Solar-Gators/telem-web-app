@@ -1,7 +1,11 @@
 import Image from "next/image";
 import ClientOnly from "@/components/ClientOnly";
 
-export default function Header() {
+interface HeaderProps {
+  lastUpdated?: Date;
+}
+
+export default function Header({ lastUpdated }: HeaderProps) {
   return (
     <div className="mb-6">
       <div className="flex flex-col items-start gap-2 mb-4">
@@ -20,6 +24,11 @@ export default function Header() {
             suppressHydrationWarning
             style={{ color: "transparent" }}
           />
+          {lastUpdated && (
+            <p className="absolute text-muted-foreground text-xs right-4">
+              Last packet: {lastUpdated?.toLocaleTimeString()}
+            </p>
+          )}
         </ClientOnly>
         <p className="text-muted-foreground">Telemetry Monitoring Dashboard</p>
       </div>
