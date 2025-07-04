@@ -44,11 +44,21 @@ const chartConfig = {
 export default function StatsGraphTab() {
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
-  const [selectedDataKeys, setSelectedDataKeys] = useState<string[]>([]);
+  const [selectedDataKeys, setSelectedDataKeys] = useState<string[]>(["battery_main_bat_v"]);
   const [chartData, setChartData] = useState<any[]>([]);
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | undefined>(() => {
+
+  const now = new Date();
+  now.setHours(1, 0, 0, 0);
+  return now;
+});
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(() => {
+  const now = new Date();
+  now.setDate(now.getDate() + 1);
+  now.setHours(1, 0, 0, 0);
+  return now;
+});
 
   const [lineColors] = useState([
     "#8884D8",
@@ -202,7 +212,7 @@ export default function StatsGraphTab() {
               type="time"
               id="time-picker"
               step="1"
-              defaultValue="12:00:00"
+              defaultValue="01:00:00"
               onChange={(time) => {
                 startDate?.setHours(parseInt(time.target.value.split(":")[0]));
                 startDate?.setMinutes(
@@ -247,7 +257,7 @@ export default function StatsGraphTab() {
               type="time"
               id="time-picker"
               step="1"
-              defaultValue="12:00:00"
+              defaultValue="01:00:00"
               className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
             />
           </div>
