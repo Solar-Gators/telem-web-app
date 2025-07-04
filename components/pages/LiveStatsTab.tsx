@@ -29,6 +29,11 @@ export default function LiveStatsTab({
   const motorPower = calculateMotorPower(telemetryData);
   const netPower = calculateNetPower(telemetryData);
 
+  const batteryLastUpdated =
+    dateData.battery.main_bat_v > dateData.battery.main_bat_c
+      ? dateData.battery.main_bat_v
+      : dateData.battery.main_bat_c;
+
   return (
     <div className="space-y-6">
       {/* Top Row - Speed, Net Power, Motor Power */}
@@ -78,7 +83,10 @@ export default function LiveStatsTab({
       />
 
       {/* Battery Systems */}
-      <BatterySection batteryData={telemetryData.battery} />
+      <BatterySection
+        batteryData={telemetryData.battery}
+        lastUpdated={batteryLastUpdated}
+      />
     </div>
   );
 }

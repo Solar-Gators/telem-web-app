@@ -34,6 +34,7 @@ export default function BatterySection({
             status={getBatteryStatus(batteryData.main_bat_v, "main")}
             subtitle={batteryData.main_bat_c.toFixed(1)}
             subtitleUnit="A"
+            subtitleFullSize={true}
             lastUpdated={lastUpdated}
           />
           <SimpleCard
@@ -41,6 +42,7 @@ export default function BatterySection({
             value={batteryData.sup_bat_v}
             unit="V"
             icon={Battery}
+            subtitleFullSize={true}
             status={getBatteryStatus(batteryData.sup_bat_v, "supplemental")}
             lastUpdated={lastUpdated}
           />

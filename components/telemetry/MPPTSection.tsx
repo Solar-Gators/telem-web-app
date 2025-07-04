@@ -28,7 +28,7 @@ function MPPTCard({ title, data, lastUpdated }: MPPTCardProps) {
       <CardContent className="space-y-3 relative">
         <div>
           <div className="text-sm text-muted-foreground mb-1">Output</div>
-          <div className="text-2xl font-bold">{inputPower.toFixed(0)}W</div>
+          <div className="text-xl font-bold">{inputPower.toFixed(0)}W</div>
           <div className="text-sm text-muted-foreground">
             {data.input_v.toFixed(1)}V × {data.input_c.toFixed(1)}A
           </div>

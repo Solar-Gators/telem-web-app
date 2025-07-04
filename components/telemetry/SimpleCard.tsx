@@ -12,6 +12,7 @@ interface SimpleCardProps {
   subtitle?: string;
   subtitleUnit?: string;
   lastUpdated?: Date;
+  subtitleFullSize?: boolean;
 }
 
 export default function SimpleCard({
@@ -23,6 +24,7 @@ export default function SimpleCard({
   subtitle,
   subtitleUnit,
   lastUpdated,
+  subtitleFullSize,
 }: SimpleCardProps) {
   const getStatusColor = () => {
     switch (status) {
@@ -51,19 +53,19 @@ export default function SimpleCard({
         </ClientOnly>
       </CardHeader>
       <CardContent className="relative">
-        <div className={`text-2xl font-bold ${getStatusColor()}`}>
+        <div className={`text-xl font-bold ${getStatusColor()}`}>
           {value.toFixed(1)}
           <span className="text-sm font-normal text-muted-foreground ml-1">
             {unit}
           </span>
         </div>
-        <div className="text-xs mt-1">
+        <div className={`mt-1 ${subtitleFullSize ? "text-xl" : "text-xs"}`}>
           {subtitle}
-          {subtitleUnit && (
-            <span className="text-xs font-normal text-muted-foreground ml-1">
-              {subtitleUnit}
-            </span>
-          )}
+          <span
+            className={`font-normal text-muted-foreground ml-1 ${subtitleFullSize && "text-sm"}`}
+          >
+            {subtitleUnit}
+          </span>
         </div>
         {lastUpdated && (
           <p className="absolute bottom-2 right-2 text-xs text-muted-foreground">

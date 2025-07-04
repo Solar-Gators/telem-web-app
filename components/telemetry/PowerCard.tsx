@@ -37,7 +37,7 @@ export default function PowerCard({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <ClientOnly
           fallback={<div className="w-4 h-4 bg-muted-foreground/20 rounded" />}

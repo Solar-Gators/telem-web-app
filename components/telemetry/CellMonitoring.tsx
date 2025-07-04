@@ -80,7 +80,8 @@ export default function CellMonitoring({
                     : "text-green-600"
               }`}
             >
-              {highCellT.toFixed(1)}°C
+              {highCellT.toFixed(1)}
+              <span className="text-muted-foreground"> °C</span>
             </div>
           </div>
         </div>
