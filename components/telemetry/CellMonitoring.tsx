@@ -73,9 +73,9 @@ export default function CellMonitoring({
             <div className="text-muted-foreground">Highest Cell Temp</div>
             <div
               className={`font-bold ${
-                highCellT > 45
+                highCellT > 50
                   ? "text-red-600"
-                  : highCellT > 35
+                  : highCellT > 45
                     ? "text-yellow-600"
                     : "text-green-600"
               }`}
