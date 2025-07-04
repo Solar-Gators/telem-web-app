@@ -54,6 +54,7 @@ export default function LiveStatsTab({
           icon={Zap}
           status={getNetPowerStatus(telemetryData)}
           lastUpdated={dateData.battery.main_bat_v}
+          className="blur-sm"
         />
         <PowerCard
           title="Motor Power"

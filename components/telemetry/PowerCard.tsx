@@ -11,6 +11,7 @@ interface PowerCardProps {
   icon: LucideIcon;
   status?: StatusType;
   lastUpdated?: Date;
+  className?: string;
 }
 
 export default function PowerCard({
@@ -21,6 +22,7 @@ export default function PowerCard({
   icon: Icon,
   status,
   lastUpdated,
+  className,
 }: PowerCardProps) {
   const getStatusColor = () => {
     switch (status) {
@@ -36,7 +38,7 @@ export default function PowerCard({
   };
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <ClientOnly
