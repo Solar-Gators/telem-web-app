@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const sql = neon(process.env.DATABASE_URL || "");
-    const result = await sql`SELECT * FROM users ORDER BY created_at DESC`;
+    const result = await sql`SELECT * FROM users ORDER BY id DESC`;
     return NextResponse.json({ users: result });
   } catch {
     return NextResponse.json(
@@ -23,7 +23,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ user: result[0] });
   } catch {
     return NextResponse.json(
-      { error: "failed to fetch users" },
+      { error: "failed to update users" },
       { status: 500 }
     );
   }
