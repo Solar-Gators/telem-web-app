@@ -114,4 +114,76 @@ export default function AdminTab() {
       console.error("Unable to delete User", error);
     }
   };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Admin Dashboard</CardTitle>
+          <CardDescription>Manage Users and Authentication</CardDescription>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const loadUsers = async () => {
+                  setLoading(true);
+                  try {
+                    const response = await fetch("/api/users");
+                    const data = await response.json();
+                    console.log("Fetched users via API:", data);
+                    if (data.users) {
+                      setUsers(data.users);
+                    } else {
+                      console.error("API error:", data.error);
+                      setUsers([]);
+                    }
+                  } catch (error) {
+                    console.error("Error in loadUsers via API:", error);
+                    setUsers([]);
+                  }
+                  setLoading(false);
+                };
+                loadUsers();
+              }}
+            >
+              Refresh
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <>
+              <p className="text-muted-foreground"></p>
+            </>
+          ) : (
+            users && (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Verified</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.id}</TableCell>
+                        <TableCell>{user.email || "N/A"}</TableCell>
+                        <TableCell>{user.name || "N/A"}</TableCell>
+                        <TableCell>{user.is_verified ? "Yes" : "No"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
+            )
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
