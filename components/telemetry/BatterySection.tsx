@@ -7,9 +7,13 @@ import ClientOnly from "@/components/ClientOnly";
 
 interface BatterySectionProps {
   batteryData: TelemetryData<number>["battery"];
+  lastUpdated?: Date;
 }
 
-export default function BatterySection({ batteryData }: BatterySectionProps) {
+export default function BatterySection({
+  batteryData,
+  lastUpdated,
+}: BatterySectionProps) {
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -28,7 +32,9 @@ export default function BatterySection({ batteryData }: BatterySectionProps) {
             unit="V"
             icon={Battery}
             status={getBatteryStatus(batteryData.main_bat_v, "main")}
-            subtitle={`${batteryData.main_bat_c.toFixed(1)}A`}
+            subtitle={batteryData.main_bat_c.toFixed(1)}
+            subtitleUnit="A"
+            lastUpdated={lastUpdated}
           />
           <SimpleCard
             title="Supplemental Battery"
@@ -36,6 +42,7 @@ export default function BatterySection({ batteryData }: BatterySectionProps) {
             unit="V"
             icon={Battery}
             status={getBatteryStatus(batteryData.sup_bat_v, "supplemental")}
+            lastUpdated={lastUpdated}
           />
         </div>
 

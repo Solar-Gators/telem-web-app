@@ -13,9 +13,10 @@ interface MPPTSectionProps {
 interface MPPTCardProps {
   title: string;
   data: MPPTData;
+  lastUpdated?: Date;
 }
 
-function MPPTCard({ title, data }: MPPTCardProps) {
+function MPPTCard({ title, data, lastUpdated }: MPPTCardProps) {
   const inputPower = calculateMPPTPower(data.input_v, data.input_c);
   const outputPower = calculateMPPTPower(data.output_v, data.output_c);
 
@@ -24,7 +25,7 @@ function MPPTCard({ title, data }: MPPTCardProps) {
       <CardHeader>
         <CardTitle className="text-sm">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 relative">
         <div>
           <div className="text-sm text-muted-foreground mb-1">Output</div>
           <div className="text-2xl font-bold">{inputPower.toFixed(0)}W</div>
@@ -39,6 +40,11 @@ function MPPTCard({ title, data }: MPPTCardProps) {
             {data.output_v.toFixed(1)}V × {data.output_c.toFixed(1)}A
           </div>
         </div>
+        {lastUpdated && (
+          <p className="absolute bottom-0 right-0 text-xs text-muted-foreground">
+            {lastUpdated.toLocaleTimeString()}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

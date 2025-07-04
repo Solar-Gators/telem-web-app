@@ -10,6 +10,7 @@ interface PowerCardProps {
   power: number;
   icon: LucideIcon;
   status?: StatusType;
+  lastUpdated?: Date;
 }
 
 export default function PowerCard({
@@ -19,6 +20,7 @@ export default function PowerCard({
   power,
   icon: Icon,
   status,
+  lastUpdated,
 }: PowerCardProps) {
   const getStatusColor = () => {
     switch (status) {
@@ -46,20 +48,34 @@ export default function PowerCard({
           />
         </ClientOnly>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 relative">
         <div className={`text-xl font-bold ${getStatusColor()}`}>
           {power.toFixed(0)}W
+          <span className="text-sm font-normal text-muted-foreground ml-1">
+            W
+          </span>
         </div>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <span className="text-muted-foreground">V:</span>{" "}
-            {voltage.toFixed(1)}V
+            {voltage.toFixed(1)}
+            <span className="text-xs font-normal text-muted-foreground ml-1">
+              V
+            </span>
           </div>
           <div>
             <span className="text-muted-foreground">A:</span>{" "}
-            {current.toFixed(1)}A
+            {current.toFixed(1)}
+            <span className="text-xs font-normal text-muted-foreground ml-1">
+              A
+            </span>
           </div>
         </div>
+        {lastUpdated && (
+          <p className="absolute bottom-2 right-2 text-xs text-muted-foreground">
+            {lastUpdated.toLocaleTimeString()}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

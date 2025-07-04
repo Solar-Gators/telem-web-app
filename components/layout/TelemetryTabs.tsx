@@ -33,7 +33,7 @@ export default function TelemetryTabs({
 
       {/* Stats Graph Tab */}
       <TabsContent value="stats-graph">
-        <StatsGraphTab telemetryData={telemetryData} dateData={dateData} />
+        <StatsGraphTab />
       </TabsContent>
 
       {/* Track Flare Tab */}

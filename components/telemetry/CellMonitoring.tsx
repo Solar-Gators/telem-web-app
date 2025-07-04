@@ -18,7 +18,7 @@ export default function CellMonitoring({
   cellIdxLowV,
   cellIdxHighT,
 }: CellMonitoringProps) {
-  const status = getCellStatus(lowCellV, highCellV, highCellT);
+  const status = getCellStatus(lowCellV);
 
   const getStatusColor = () => {
     switch (status) {
@@ -50,18 +50,20 @@ export default function CellMonitoring({
       <CardContent>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <div className="text-muted-foreground">Low Cell</div>
+            <div>Low Cell</div>
             <div className={`font-bold ${getStatusColor()}`}>
-              {lowCellV.toFixed(2)}V
+              {lowCellV.toFixed(2)}
+              <span className="ml-1 text-muted-foreground text-xs">V</span>
             </div>
             <div className="text-xs text-muted-foreground">
               Cell #{cellIdxLowV}
             </div>
           </div>
           <div>
-            <div className="text-muted-foreground">High Cell</div>
+            <div>High Cell</div>
             <div className={`font-bold ${getStatusColor()}`}>
-              {highCellV.toFixed(2)}V
+              {highCellV.toFixed(2)}
+              <span className="ml-1 text-muted-foreground text-xs">V</span>
             </div>
             <div className="text-xs text-muted-foreground">
               Cell #{cellIdxHighT}

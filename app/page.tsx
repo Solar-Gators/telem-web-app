@@ -6,7 +6,7 @@ import TelemetryTabs from "@/components/layout/TelemetryTabs";
 import VerificationGuard from "@/components/auth/VerificationGuard";
 
 function TelemetryContent() {
-  const { data, loading, error } = useTelemetryData();
+  const { data, dateData, loading, error } = useTelemetryData();
 
   if (loading) {
     return (
@@ -19,7 +19,7 @@ function TelemetryContent() {
     );
   }
 
-  if (!data) {
+  if (!data || !dateData) {
     return (
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-7xl mx-auto">
@@ -37,7 +37,7 @@ function TelemetryContent() {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
         <Header />
-        <TelemetryTabs telemetryData={data} />
+        <TelemetryTabs telemetryData={data} dateData={dateData} />
       </div>
     </div>
   );

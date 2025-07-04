@@ -14,6 +14,7 @@ import PowerCard from "../telemetry/PowerCard";
 import SimpleCard from "../telemetry/SimpleCard";
 import MPPTSection from "../telemetry/MPPTSection";
 import BatterySection from "../telemetry/BatterySection";
+import { useEffect } from "react";
 
 interface LiveStatsTabProps {
   telemetryData: TelemetryData<number>;
@@ -38,6 +39,7 @@ export default function LiveStatsTab({
           unit="mph"
           icon={Gauge}
           status={getSpeedStatus(telemetryData)}
+          lastUpdated={dateData.gps.rx_time}
         />
         <PowerCard
           title="Net Power"
@@ -46,6 +48,7 @@ export default function LiveStatsTab({
           power={netPower}
           icon={Zap}
           status={getNetPowerStatus(telemetryData)}
+          lastUpdated={dateData.battery.main_bat_v}
         />
         <PowerCard
           title="Motor Power"
@@ -54,6 +57,7 @@ export default function LiveStatsTab({
           power={motorPower}
           icon={Car}
           status={getMotorStatus(telemetryData)}
+          lastUpdated={dateData.mppt1.input_v}
         />
         <PowerCard
           title="Total Solar Input"
@@ -62,6 +66,7 @@ export default function LiveStatsTab({
           power={totalSolarPower}
           icon={Sun}
           status="good"
+          lastUpdated={dateData.battery.main_bat_v}
         />
       </div>
 

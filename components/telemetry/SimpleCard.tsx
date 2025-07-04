@@ -10,6 +10,8 @@ interface SimpleCardProps {
   icon: LucideIcon;
   status?: StatusType;
   subtitle?: string;
+  subtitleUnit?: string;
+  lastUpdated?: Date;
 }
 
 export default function SimpleCard({
@@ -19,6 +21,8 @@ export default function SimpleCard({
   icon: Icon,
   status,
   subtitle,
+  subtitleUnit,
+  lastUpdated,
 }: SimpleCardProps) {
   const getStatusColor = () => {
     switch (status) {
@@ -35,7 +39,7 @@ export default function SimpleCard({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 mb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <ClientOnly
           fallback={<div className="w-4 h-4 bg-muted-foreground/20 rounded" />}
@@ -46,15 +50,25 @@ export default function SimpleCard({
           />
         </ClientOnly>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
         <div className={`text-2xl font-bold ${getStatusColor()}`}>
           {value.toFixed(1)}
           <span className="text-sm font-normal text-muted-foreground ml-1">
             {unit}
           </span>
         </div>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+        <div className="text-xs mt-1">
+          {subtitle}
+          {subtitleUnit && (
+            <span className="text-xs font-normal text-muted-foreground ml-1">
+              {subtitleUnit}
+            </span>
+          )}
+        </div>
+        {lastUpdated && (
+          <p className="absolute bottom-2 right-2 text-xs text-muted-foreground">
+            {lastUpdated.toLocaleTimeString()}
+          </p>
         )}
       </CardContent>
     </Card>
