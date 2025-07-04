@@ -26,7 +26,7 @@ export default function SimpleCard({
   subtitleUnit,
   lastUpdated,
   subtitleFullSize,
-  className
+  className,
 }: SimpleCardProps) {
   const getStatusColor = () => {
     switch (status) {

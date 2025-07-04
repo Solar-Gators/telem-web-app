@@ -11,7 +11,7 @@ const useTelemetryData = () => {
   useEffect(() => {
     const fetchLatestData = async () => {
       try {
-        const {numericData, dateData} = await fetchLatestTelemetryData();
+        const { numericData, dateData } = await fetchLatestTelemetryData();
         setData(numericData || null);
         setDateData(dateData || null);
         setError(null);

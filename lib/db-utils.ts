@@ -25,7 +25,9 @@ export async function fetchLatestTelemetryData() {
     // Build the SELECT clause dynamically. For each field, this creates two subqueries:
     // 1. To get the latest value (prioritizing non-zero).
     // 2. To get the timestamp of that same latest value.
-    const selectFields = telemetryFields.map(field => `
+    const selectFields = telemetryFields
+      .map(
+        (field) => `
       COALESCE(
         (SELECT ${field} FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
         (SELECT ${field} FROM telemetry ORDER BY created_at DESC LIMIT 1)
@@ -34,7 +36,9 @@ export async function fetchLatestTelemetryData() {
         (SELECT created_at FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
         (SELECT created_at FROM telemetry ORDER BY created_at DESC LIMIT 1)
       ) AS d_${field}
-    `).join(',\n      ');
+    `,
+      )
+      .join(",\n      ");
 
     // Build the complete query, also fetching the ID and timestamp of the overall latest entry.
     const query = `
@@ -72,10 +76,10 @@ export async function fetchLatestTelemetryData() {
       numericData: numericTelemetry,
       dateData: dateTelemetry,
     };
-
   } catch (error) {
     console.error("Error fetching latest telemetry data:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
     return { error: errorMessage };
   }
 }

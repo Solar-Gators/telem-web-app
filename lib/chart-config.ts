@@ -98,7 +98,7 @@ export function generateSelectGroups(): SelectGroup[] {
         value: `${category}.${field}`,
         label,
         dataPath: `${category}.${field}`,
-      })
+      }),
     );
 
     groups.push({
@@ -116,7 +116,7 @@ export function generateSelectGroups(): SelectGroup[] {
 export function getValueFromPath(
   data: TelemetryData<number>,
   path: string,
-  value?: string
+  value?: string,
 ): number | undefined {
   // Handle special cases based on the select value
   if (value === "kph") {

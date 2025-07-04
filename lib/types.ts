@@ -1,5 +1,5 @@
-import { DefaultSession } from "next-auth"
-import { DefaultJWT } from "next-auth/jwt"
+import { DefaultSession } from "next-auth";
+import { DefaultJWT } from "next-auth/jwt";
 
 // Type definitions for telemetry data
 export interface TelemetryData<T> {
@@ -62,17 +62,17 @@ export interface Location {
 declare module "next-auth" {
   interface Session {
     user: {
-      is_verified?: boolean
-    } & DefaultSession["user"]
+      is_verified?: boolean;
+    } & DefaultSession["user"];
   }
 
   interface User {
-    is_verified?: boolean
+    is_verified?: boolean;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
-    is_verified?: boolean
+    is_verified?: boolean;
   }
 }
