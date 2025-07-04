@@ -17,8 +17,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { generateSelectGroups, getValueFromPath, TELEMETRY_FIELD_CONFIG } from "@/lib/chart-config";
-import { getCustomValue } from "@/lib/telemetry-utils";
+import {
+  generateSelectGroups,
+  getValueFromPath,
+  TELEMETRY_FIELD_CONFIG,
+} from "@/lib/chart-config";
+import { 
+  getCustomValue,
+  calculateNetPower,
+  calculateMotorPower,
+  calculateTotalSolarPower,
+} from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
 import { ChevronDownIcon } from "lucide-react";
 
@@ -34,35 +43,50 @@ import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 
 // Helper function to get label from data key
 function getLabelFromDataKey(dataKey: string): string {
+  // Handle custom fields
+  switch (dataKey) {
+    case 'net_power':
+      return 'Net Power';
+    case 'motor_power':
+      return 'Motor Power';
+    case 'total_solar_power':
+      return 'Total Solar Power';
+    case 'mppt_sum':
+      return 'Total MPPT Voltage Output';
+  }
+
   // Convert from database format (e.g., "battery_main_bat_v") to config format (e.g., "battery.main_bat_v")
   // Find the first underscore to separate category from the rest
   const firstUnderscoreIndex = dataKey.indexOf("_");
   if (firstUnderscoreIndex === -1) {
-    return dataKey.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+    return dataKey.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   }
-  
+
   const category = dataKey.substring(0, firstUnderscoreIndex);
   const field = dataKey.substring(firstUnderscoreIndex + 1);
-  
+
   if (category && field && TELEMETRY_FIELD_CONFIG[category]?.fields[field]) {
     return TELEMETRY_FIELD_CONFIG[category].fields[field];
   }
-  
+
   // Fallback to formatted version of the key
-  return dataKey.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+  return dataKey.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 // Generate dynamic chart config based on selected data keys
-function generateChartConfig(selectedDataKeys: string[], lineColors: string[]): ChartConfig {
+function generateChartConfig(
+  selectedDataKeys: string[],
+  lineColors: string[],
+): ChartConfig {
   const config: ChartConfig = {};
-  
+
   selectedDataKeys.forEach((key, index) => {
     config[key] = {
       label: getLabelFromDataKey(key),
       color: lineColors[index % lineColors.length],
     };
   });
-  
+
   return config;
 }
 
@@ -105,37 +129,60 @@ export default function StatsGraphTab() {
 
   useEffect(() => {
     if (selectedDataKeys.length > 0 && startDate && endDate) {
-      Promise.all(
-        selectedDataKeys.map((key) =>
-          fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
-            key,
-            data,
-          })),
-        ),
-      ).then((results) => {
-        const mergedData: { [timestamp: string]: any } = {};
-        results.forEach(({ key, data }) => {
-          data?.forEach((point: any) => {
-            const ts = point.timestamp;
-            if (!mergedData[ts]) mergedData[ts] = { timestamp: ts };
-            mergedData[ts][key] = point.value;
-          });
-        });
-        const mergedArray = Object.values(mergedData).sort(
-          (a: any, b: any) =>
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-        );
-        setChartData(mergedArray);
-      });
-    }
-  }, [selectedDataKeys, startDate, endDate]);
+      // Check if any custom fields are selected
+      const customFields = selectedDataKeys.filter((key): key is 'net_power' | 'motor_power' | 'total_solar_power' | 'mppt_sum' => 
+        key === 'net_power' || key === 'motor_power' || key === 'total_solar_power' || key === 'mppt_sum'
+      );
+      const regularFields = selectedDataKeys.filter(key => 
+        !['net_power', 'motor_power', 'total_solar_power', 'mppt_sum'].includes(key)
+      );
 
-  useEffect(() => {
-    if (refreshInterval) {
-      clearInterval(refreshInterval);
-    }
-    const interval = setInterval(() => {
-      if (selectedDataKeys.length > 0 && startDate && endDate) {
+      if (customFields.length > 0) {
+        // If custom fields are selected, fetch all telemetry data
+        fetchTelemetryDataInRange(startDate, endDate).then((allData) => {
+          if (!allData || !Array.isArray(allData)) return;
+
+          const processedData = (allData as TelemetryData<number>[]).map((dataPoint: any) => {
+            const result: any = { timestamp: dataPoint.created_at || dataPoint.gps?.rx_time || new Date() };
+
+            // Add regular fields
+            regularFields.forEach((field) => {
+              const firstUnderscore = field.indexOf('_');
+              if (firstUnderscore !== -1) {
+                const category = field.substring(0, firstUnderscore);
+                const fieldName = field.substring(firstUnderscore + 1);
+                const value = getValueFromPath(dataPoint, `${category}.${fieldName}`);
+                if (value !== undefined) {
+                  result[field] = value;
+                }
+              }
+            });
+
+            // Calculate custom fields
+            customFields.forEach((field) => {
+              switch (field) {
+                case 'net_power':
+                  result[field] = calculateNetPower(dataPoint);
+                  break;
+                case 'motor_power':
+                  result[field] = calculateMotorPower(dataPoint);
+                  break;
+                case 'total_solar_power':
+                  result[field] = calculateTotalSolarPower(dataPoint);
+                  break;
+                case 'mppt_sum':
+                  result[field] = dataPoint.mppt1.output_v + dataPoint.mppt2.output_v + dataPoint.mppt3.output_v;
+                  break;
+              }
+            });
+
+            return result;
+          });
+
+          setChartData(processedData);
+        });
+      } else {
+        // If no custom fields, use the original approach
         Promise.all(
           selectedDataKeys.map((key) =>
             fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
@@ -158,6 +205,93 @@ export default function StatsGraphTab() {
           );
           setChartData(mergedArray);
         });
+      }
+    }
+  }, [selectedDataKeys, startDate, endDate]);
+
+  useEffect(() => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+    }
+    const interval = setInterval(() => {
+      if (selectedDataKeys.length > 0 && startDate && endDate) {
+        // Check if any custom fields are selected
+        const customFields = selectedDataKeys.filter((key): key is 'net_power' | 'motor_power' | 'total_solar_power' | 'mppt_sum' => 
+          key === 'net_power' || key === 'motor_power' || key === 'total_solar_power' || key === 'mppt_sum'
+        );
+        const regularFields = selectedDataKeys.filter(key => 
+          !['net_power', 'motor_power', 'total_solar_power', 'mppt_sum'].includes(key)
+        );
+
+        if (customFields.length > 0) {
+          // If custom fields are selected, fetch all telemetry data
+          fetchTelemetryDataInRange(startDate, endDate).then((allData) => {
+            if (!allData || !Array.isArray(allData)) return;
+
+            const processedData = (allData as TelemetryData<number>[]).map((dataPoint: any) => {
+              const result: any = { timestamp: dataPoint.created_at || dataPoint.gps?.rx_time || new Date() };
+
+              // Add regular fields
+              regularFields.forEach((field) => {
+                const firstUnderscore = field.indexOf('_');
+                if (firstUnderscore !== -1) {
+                  const category = field.substring(0, firstUnderscore);
+                  const fieldName = field.substring(firstUnderscore + 1);
+                  const value = getValueFromPath(dataPoint, `${category}.${fieldName}`);
+                  if (value !== undefined) {
+                    result[field] = value;
+                  }
+                }
+              });
+
+              // Calculate custom fields
+              customFields.forEach((field) => {
+                switch (field) {
+                  case 'net_power':
+                    result[field] = calculateNetPower(dataPoint);
+                    break;
+                  case 'motor_power':
+                    result[field] = calculateMotorPower(dataPoint);
+                    break;
+                  case 'total_solar_power':
+                    result[field] = calculateTotalSolarPower(dataPoint);
+                    break;
+                  case 'mppt_sum':
+                    result[field] = dataPoint.mppt1.output_v + dataPoint.mppt2.output_v + dataPoint.mppt3.output_v;
+                    break;
+                }
+              });
+
+              return result;
+            });
+
+            setChartData(processedData);
+          });
+        } else {
+          // If no custom fields, use the original approach
+          Promise.all(
+            selectedDataKeys.map((key) =>
+              fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
+                key,
+                data,
+              })),
+            ),
+          ).then((results) => {
+            const mergedData: { [timestamp: string]: any } = {};
+            results.forEach(({ key, data }) => {
+              data?.forEach((point: any) => {
+                const ts = point.timestamp;
+                if (!mergedData[ts]) mergedData[ts] = { timestamp: ts };
+                mergedData[ts][key] = point.value;
+              });
+            });
+            const mergedArray = Object.values(mergedData).sort(
+              (a: any, b: any) =>
+                new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+            );
+            setChartData(mergedArray);
+          });
+        }
       }
     }, 2000);
     setRefreshInterval(interval);
@@ -323,25 +457,27 @@ export default function StatsGraphTab() {
             tickMargin={10}
             tickCount={5}
           />
-          <ChartTooltip 
-            cursor={false} 
-            content={<ChartTooltipContent 
-              labelFormatter={(value, payload) => {
-                // Get the timestamp from the payload data
-                if (payload && payload.length > 0 && payload[0].payload) {
-                  const timestamp = payload[0].payload.timestamp;
-                  try {
-                    const date = new Date(timestamp);
-                    if (!isNaN(date.getTime())) {
-                      return date.toLocaleString();
+          <ChartTooltip
+            cursor={false}
+            content={
+              <ChartTooltipContent
+                labelFormatter={(value, payload) => {
+                  // Get the timestamp from the payload data
+                  if (payload && payload.length > 0 && payload[0].payload) {
+                    const timestamp = payload[0].payload.timestamp;
+                    try {
+                      const date = new Date(timestamp);
+                      if (!isNaN(date.getTime())) {
+                        return date.toLocaleString();
+                      }
+                    } catch (error) {
+                      console.error("Error parsing timestamp:", error);
                     }
-                  } catch (error) {
-                    console.error('Error parsing timestamp:', error);
                   }
-                }
-                return String(value);
-              }}
-            />} 
+                  return String(value);
+                }}
+              />
+            }
           />
           <ChartLegend content={<ChartLegendContent />} />
           {selectedDataKeys.map((key) => {
