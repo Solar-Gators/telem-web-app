@@ -5,8 +5,8 @@ import ClientOnly from "@/components/ClientOnly";
 
 interface PowerCardProps {
   title: string;
-  voltage: number;
-  current: number;
+  voltage?: number;
+  current?: number;
   power: number;
   icon: LucideIcon;
   status?: StatusType;
@@ -58,14 +58,14 @@ export default function PowerCard({
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <span className="text-muted-foreground">V:</span>{" "}
-            {voltage.toFixed(1)}
+            {voltage?.toFixed(1)}
             <span className="text-xs font-normal text-muted-foreground ml-1">
               V
             </span>
           </div>
           <div>
             <span className="text-muted-foreground">A:</span>{" "}
-            {current.toFixed(1)}
+            {current?.toFixed(1)}
             <span className="text-xs font-normal text-muted-foreground ml-1">
               A
             </span>

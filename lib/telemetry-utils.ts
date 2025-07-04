@@ -77,6 +77,8 @@ export function mapTelemetryData<T>(data: any): TelemetryData<T> {
 export function getSpeedStatus(
   data: TelemetryData<number>,
 ): StatusType | undefined {
+  if (!data.gps) return;
+
   return data.gps.speed > 0 ? "good" : "warning";
 }
 
@@ -90,6 +92,8 @@ export function getNetPowerStatus(
 export function getMotorStatus(
   data: TelemetryData<number>,
 ): StatusType | undefined {
+  if (!data.mitsuba) return;
+
   return data.mitsuba.current > 0 ? "good" : "warning";
 }
 
@@ -100,6 +104,8 @@ export function calculateNetPower(data: TelemetryData<number>): number {
 }
 
 export function calculateMotorPower(data: TelemetryData<number>): number {
+  if (!data.mitsuba) return 0;
+
   return data.mitsuba.voltage * data.mitsuba.current;
 }
 

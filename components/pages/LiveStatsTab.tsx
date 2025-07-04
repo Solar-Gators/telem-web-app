@@ -39,11 +39,11 @@ export default function LiveStatsTab({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SimpleCard
           title="Vehicle Speed"
-          value={telemetryData.gps.speed}
+          value={telemetryData.gps?.speed}
           unit="mph"
           icon={Gauge}
           status={getSpeedStatus(telemetryData)}
-          lastUpdated={dateData.gps.rx_time}
+          lastUpdated={dateData.gps?.rx_time}
         />
         <PowerCard
           title="Net Power"
@@ -56,8 +56,8 @@ export default function LiveStatsTab({
         />
         <PowerCard
           title="Motor Power"
-          voltage={telemetryData.mitsuba.voltage}
-          current={telemetryData.mitsuba.current}
+          voltage={telemetryData.mitsuba?.voltage}
+          current={telemetryData.mitsuba?.current}
           power={motorPower}
           icon={Car}
           status={getMotorStatus(telemetryData)}
