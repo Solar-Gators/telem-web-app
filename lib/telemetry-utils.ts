@@ -1,11 +1,4 @@
-import { TelemetryData, StatusType, MPPTData } from "./types";
-
-export function ieee32ToFloat(intValue: number): number {
-  const buffer = new ArrayBuffer(4);
-  const view = new DataView(buffer);
-  view.setUint32(0, intValue, false); // false for big-endian
-  return view.getFloat32(0, false);
-}
+import { TelemetryData, StatusType } from "./types";
 
 export const telemetryFields = [
   "gps_rx_time",
@@ -81,16 +74,22 @@ export function mapTelemetryData<T>(data: any): TelemetryData<T> {
   };
 }
 
-export function getSpeedStatus(data: TelemetryData<number>): StatusType | undefined {
+export function getSpeedStatus(
+  data: TelemetryData<number>,
+): StatusType | undefined {
   return data.gps.speed > 0 ? "good" : "warning";
 }
 
-export function getNetPowerStatus(data: TelemetryData<number>): StatusType | undefined {
+export function getNetPowerStatus(
+  data: TelemetryData<number>,
+): StatusType | undefined {
   const netPower = calculateNetPower(data);
   return netPower > 0 ? "good" : "critical";
 }
 
-export function getMotorStatus(data: TelemetryData<number>): StatusType | undefined {
+export function getMotorStatus(
+  data: TelemetryData<number>,
+): StatusType | undefined {
   return data.mitsuba.current > 0 ? "good" : "warning";
 }
 
@@ -112,11 +111,15 @@ export function calculateTotalSolarPower(data: TelemetryData<number>): number {
   );
 }
 
-export function calculateAverageSolarVoltage(data: TelemetryData<number>): number {
+export function calculateAverageSolarVoltage(
+  data: TelemetryData<number>,
+): number {
   return (data.mppt1.input_v + data.mppt2.input_v + data.mppt3.input_v) / 3;
 }
 
-export function calculateTotalSolarCurrent(data: TelemetryData<number>): number {
+export function calculateTotalSolarCurrent(
+  data: TelemetryData<number>,
+): number {
   return data.mppt1.input_c + data.mppt2.input_c + data.mppt3.input_c;
 }
 

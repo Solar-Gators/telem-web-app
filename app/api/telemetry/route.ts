@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 import { TelemetryData } from "@/lib/types";
-import { ieee32ToFloat } from "@/lib/telemetry-utils";
 
 export async function POST(request: NextRequest) {
   const json_obj = await request.json();
@@ -17,7 +16,10 @@ export async function POST(request: NextRequest) {
 
     const telemetryData: TelemetryData<number> = json_obj["body"];
 
-    const supBatVoltage = ieee32ToFloat(telemetryData.battery.sup_bat_v) / 1000;
+    telemetryData.battery.sup_bat_v /= 1000;
+    telemetryData.battery.main_bat_v /= 1000;
+    telemetryData.battery.low_cell_v /= 1000;
+    telemetryData.battery.high_cell_v /= 1000;
 
     const sql = neon(process.env.DATABASE_URL as string);
 
@@ -38,7 +40,7 @@ export async function POST(request: NextRequest) {
         ${telemetryData.gps.latitude},
         ${telemetryData.gps.speed},
         ${telemetryData.gps.num_sats},
-        ${supBatVoltage},
+        ${telemetryData.battery.sup_bat_v},
         ${telemetryData.battery.main_bat_v},
         ${telemetryData.battery.main_bat_c},
         ${telemetryData.battery.low_cell_v},
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
       )
     `;
 
-    console.log("Telemetry data stored.");
+    console.log("Telemetry data stored.", telemetryData);
 
     return NextResponse.json(
       { success: true, message: "Telemetry data stored successfully" },
