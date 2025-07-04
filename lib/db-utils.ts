@@ -25,7 +25,9 @@ export async function fetchLatestTelemetryData() {
     // Build the SELECT clause dynamically. For each field, this creates two subqueries:
     // 1. To get the latest value (prioritizing non-zero).
     // 2. To get the timestamp of that same latest value.
-    const selectFields = telemetryFields.map(field => `
+    const selectFields = telemetryFields
+      .map(
+        (field) => `
       COALESCE(
         (SELECT ${field} FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
         (SELECT ${field} FROM telemetry ORDER BY created_at DESC LIMIT 1)
@@ -34,7 +36,9 @@ export async function fetchLatestTelemetryData() {
         (SELECT created_at FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
         (SELECT created_at FROM telemetry ORDER BY created_at DESC LIMIT 1)
       ) AS d_${field}
-    `).join(',\n      ');
+    `
+      )
+      .join(",\n      ");
 
     // Build the complete query, also fetching the ID and timestamp of the overall latest entry.
     const query = `
@@ -72,10 +76,10 @@ export async function fetchLatestTelemetryData() {
       numericData: numericTelemetry,
       dateData: dateTelemetry,
     };
-
   } catch (error) {
     console.error("Error fetching latest telemetry data:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
     return { error: errorMessage };
   }
 }
@@ -102,7 +106,7 @@ export async function fetchLatestTelemetryData() {
 export async function fetchTelemetryDataInRange(
   startDate: Date,
   endDate: Date,
-  statField?: string,
+  statField?: string
 ): Promise<TelemetryData<number>[] | TelemetryStatValue[] | null> {
   try {
     //const session = await auth();
@@ -139,4 +143,17 @@ export async function fetchTelemetryDataInRange(
     console.error("Error fetching telemetry data in range:", error);
     return null;
   }
+}
+//fetches users from database
+@returns
+
+export async function fetchUsers(): Promise<any[] | null> {
+  try {
+    const sql = neon(process.env.DATABASE_URL || "")
+    const result = await sql `SELECT * FROM users ORDER BY created_at DESC`
+    return result
+  } catch(error) {
+    console.log("Error fetching users", error)
+  }
+  
 }
