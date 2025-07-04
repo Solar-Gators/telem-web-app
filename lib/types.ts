@@ -3,7 +3,7 @@ import { DefaultJWT } from "next-auth/jwt"
 
 // Type definitions for telemetry data
 export interface TelemetryData<T> {
-  gps: {
+  gps?: {
     rx_time: T;
     longitude: T;
     latitude: T;
@@ -38,7 +38,7 @@ export interface TelemetryData<T> {
     output_v: T;
     output_c: T;
   };
-  mitsuba: {
+  mitsuba?: {
     voltage: T;
     current: T;
   };

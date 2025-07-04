@@ -35,11 +35,11 @@ export async function POST(request: NextRequest) {
         mitsuba_voltage, mitsuba_current,
         created_at
       ) VALUES (
-        ${telemetryData.gps.rx_time},
-        ${telemetryData.gps.longitude},
-        ${telemetryData.gps.latitude},
-        ${telemetryData.gps.speed},
-        ${telemetryData.gps.num_sats},
+        ${telemetryData.gps?.rx_time || 0},
+        ${telemetryData.gps?.longitude || 0},
+        ${telemetryData.gps?.latitude || 0},
+        ${telemetryData.gps?.speed || 0},
+        ${telemetryData.gps?.num_sats || 0},
         ${telemetryData.battery.sup_bat_v},
         ${telemetryData.battery.main_bat_v},
         ${telemetryData.battery.main_bat_c},
@@ -60,8 +60,8 @@ export async function POST(request: NextRequest) {
         ${telemetryData.mppt3.input_c},
         ${telemetryData.mppt3.output_v},
         ${telemetryData.mppt3.output_c},
-        ${telemetryData.mitsuba.voltage},
-        ${telemetryData.mitsuba.current},
+        ${telemetryData.mitsuba?.voltage || 0},
+        ${telemetryData.mitsuba?.current || 0},
         NOW()
       )
     `;
