@@ -16,27 +16,14 @@ export const TELEMETRY_FIELD_CONFIG: Record<
   string,
   { label: string; fields: Record<string, string> }
 > = {
-  gps: {
-    label: "GPS",
-    fields: {
-      rx_time: "RX Time",
-      longitude: "Longitude",
-      latitude: "Latitude",
-      speed: "Speed",
-      num_sats: "Number of Satellites",
-    },
-  },
   battery: {
     label: "Battery",
     fields: {
-      sup_bat_v: "Sup Battery Voltage",
       main_bat_v: "Main Battery Voltage",
       main_bat_c: "Main Battery Current",
       low_cell_v: "Low Cell Voltage",
       high_cell_v: "High Cell Voltage",
       high_cell_t: "High Cell Temp",
-      cell_idx_low_v: "IDX Low Voltage",
-      cell_idx_high_t: "IDX High Temp",
     },
   },
   mppt1: {
@@ -66,24 +53,16 @@ export const TELEMETRY_FIELD_CONFIG: Record<
       output_c: "Current Output (MPPT 3)",
     },
   },
-  mitsuba: {
-    label: "Mitsuba",
-    fields: {
-      voltage: "Voltage",
-      current: "Current",
-    },
-  },
 };
 
 // Custom calculated fields
 export const CUSTOM_FIELD_CONFIG: SelectGroup = {
-  label: "Custom",
+  label: "Derived",
   options: [
-    { value: "soc", label: "State of Charge", dataPath: "custom.soc" },
     {
-      value: "mpc",
-      label: "Motor Power Consumption",
-      dataPath: "custom.motorPower",
+      value: "mppt_sum",
+      label: "Total MPPT Voltage Output ",
+      dataPath: "custom.mppt_sum",
     },
   ],
 };
@@ -108,7 +87,7 @@ export function generateSelectGroups(): SelectGroup[] {
   });
 
   // Add custom fields
-  groups.push(CUSTOM_FIELD_CONFIG);
+  //groups.push(CUSTOM_FIELD_CONFIG);
 
   return groups;
 }
