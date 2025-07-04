@@ -24,6 +24,10 @@ const useTelemetryData = () => {
     };
 
     fetchLatestData();
+
+    const interval = setInterval(fetchLatestData, 2000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return { data, dateData, loading, error };

@@ -47,6 +47,7 @@ export default function StatsGraphTab() {
   const [selectedDataKeys, setSelectedDataKeys] = useState<string[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
   const [lineColors] = useState([
@@ -93,6 +94,41 @@ export default function StatsGraphTab() {
         setChartData(mergedArray);
       });
     }
+  }, [selectedDataKeys, startDate, endDate]);
+
+  useEffect(() => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+    }
+    const interval = setInterval(() => {
+      if (selectedDataKeys.length > 0 && startDate && endDate) {
+        Promise.all(
+          selectedDataKeys.map((key) =>
+            fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
+              key,
+              data,
+            })),
+          ),
+        ).then((results) => {
+          const mergedData: { [timestamp: string]: any } = {};
+          results.forEach(({ key, data }) => {
+            data?.forEach((point: any) => {
+              const ts = point.timestamp;
+              if (!mergedData[ts]) mergedData[ts] = { timestamp: ts };
+              mergedData[ts][key] = point.value;
+            });
+          });
+          const mergedArray = Object.values(mergedData).sort(
+            (a: any, b: any) =>
+              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+          );
+          setChartData(mergedArray);
+        });
+      }
+    }, 2000);
+    setRefreshInterval(interval);
+
+    return () => clearInterval(interval);
   }, [selectedDataKeys, startDate, endDate]);
   return (
     <div>
@@ -258,6 +294,7 @@ export default function StatsGraphTab() {
                 type="monotone"
                 stroke={lineColors[selectedDataKeys.indexOf(key) % 6]}
                 strokeWidth={2}
+                isAnimationActive={false}
                 dot={false}
               />
             );
