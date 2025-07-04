@@ -45,6 +45,7 @@ export default function BatterySection({
             subtitleFullSize={true}
             status={getBatteryStatus(batteryData.sup_bat_v, "supplemental")}
             lastUpdated={lastUpdated}
+            className="blur-sm"
           />
         </div>
 

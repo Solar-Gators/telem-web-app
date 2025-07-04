@@ -44,6 +44,7 @@ export default function LiveStatsTab({
           icon={Gauge}
           status={getSpeedStatus(telemetryData)}
           lastUpdated={dateData.gps?.rx_time}
+          className="blur-sm"
         />
         <PowerCard
           title="Net Power"
