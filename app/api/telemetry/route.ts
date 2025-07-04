@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
     telemetryData.battery.main_bat_v /= 1000;
     telemetryData.battery.low_cell_v /= 1000;
     telemetryData.battery.high_cell_v /= 1000;
+    telemetryData.battery.high_cell_t /= 1000;
 
     const sql = neon(process.env.DATABASE_URL as string);
 
