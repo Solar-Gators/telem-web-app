@@ -76,7 +76,7 @@ export default function MapComponent({
         markerRef.current = null;
       }
     };
-  }, []);
+  }, [location.lat, location.lng]);
 
   useEffect(() => {
     if (mapInstanceRef.current && markerRef.current) {
@@ -84,7 +84,7 @@ export default function MapComponent({
       markerRef.current.setLatLng([location.lat, location.lng]);
       mapInstanceRef.current.setView([location.lat, location.lng]);
     }
-  }, [location]);
+  }, [location.lat, location.lng]);
 
   return (
     <div className="relative h-full">

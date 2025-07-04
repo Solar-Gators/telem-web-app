@@ -22,7 +22,7 @@ import {
   getValueFromPath,
   TELEMETRY_FIELD_CONFIG,
 } from "@/lib/chart-config";
-import { 
+import {
   getCustomValue,
   calculateNetPower,
   calculateMotorPower,
@@ -45,14 +45,14 @@ import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 function getLabelFromDataKey(dataKey: string): string {
   // Handle custom fields
   switch (dataKey) {
-    case 'net_power':
-      return 'Net Power';
-    case 'motor_power':
-      return 'Motor Power';
-    case 'total_solar_power':
-      return 'Total Solar Power';
-    case 'mppt_sum':
-      return 'Total MPPT Voltage Output';
+    case "net_power":
+      return "Net Power";
+    case "motor_power":
+      return "Motor Power";
+    case "total_solar_power":
+      return "Total Solar Power";
+    case "mppt_sum":
+      return "Total MPPT Voltage Output";
   }
 
   // Convert from database format (e.g., "battery_main_bat_v") to config format (e.g., "battery.main_bat_v")
@@ -130,11 +130,27 @@ export default function StatsGraphTab() {
   useEffect(() => {
     if (selectedDataKeys.length > 0 && startDate && endDate) {
       // Check if any custom fields are selected
-      const customFields = selectedDataKeys.filter((key): key is 'net_power' | 'motor_power' | 'total_solar_power' | 'mppt_sum' => 
-        key === 'net_power' || key === 'motor_power' || key === 'total_solar_power' || key === 'mppt_sum'
+      const customFields = selectedDataKeys.filter(
+        (
+          key,
+        ): key is
+          | "net_power"
+          | "motor_power"
+          | "total_solar_power"
+          | "mppt_sum" =>
+          key === "net_power" ||
+          key === "motor_power" ||
+          key === "total_solar_power" ||
+          key === "mppt_sum",
       );
-      const regularFields = selectedDataKeys.filter(key => 
-        !['net_power', 'motor_power', 'total_solar_power', 'mppt_sum'].includes(key)
+      const regularFields = selectedDataKeys.filter(
+        (key) =>
+          ![
+            "net_power",
+            "motor_power",
+            "total_solar_power",
+            "mppt_sum",
+          ].includes(key),
       );
 
       if (customFields.length > 0) {
@@ -142,42 +158,53 @@ export default function StatsGraphTab() {
         fetchTelemetryDataInRange(startDate, endDate).then((allData) => {
           if (!allData || !Array.isArray(allData)) return;
 
-          const processedData = (allData as TelemetryData<number>[]).map((dataPoint: any) => {
-            const result: any = { timestamp: dataPoint.created_at || dataPoint.gps?.rx_time || new Date() };
+          const processedData = (allData as TelemetryData<number>[]).map(
+            (dataPoint: any) => {
+              const result: any = {
+                timestamp:
+                  dataPoint.created_at || dataPoint.gps?.rx_time || new Date(),
+              };
 
-            // Add regular fields
-            regularFields.forEach((field) => {
-              const firstUnderscore = field.indexOf('_');
-              if (firstUnderscore !== -1) {
-                const category = field.substring(0, firstUnderscore);
-                const fieldName = field.substring(firstUnderscore + 1);
-                const value = getValueFromPath(dataPoint, `${category}.${fieldName}`);
-                if (value !== undefined) {
-                  result[field] = value;
+              // Add regular fields
+              regularFields.forEach((field) => {
+                const firstUnderscore = field.indexOf("_");
+                if (firstUnderscore !== -1) {
+                  const category = field.substring(0, firstUnderscore);
+                  const fieldName = field.substring(firstUnderscore + 1);
+                  const value = getValueFromPath(
+                    dataPoint,
+                    `${category}.${fieldName}`,
+                  );
+                  if (value !== undefined) {
+                    result[field] = value;
+                  }
                 }
-              }
-            });
+              });
 
-            // Calculate custom fields
-            customFields.forEach((field) => {
-              switch (field) {
-                case 'net_power':
-                  result[field] = calculateNetPower(dataPoint);
-                  break;
-                case 'motor_power':
-                  result[field] = calculateMotorPower(dataPoint);
-                  break;
-                case 'total_solar_power':
-                  result[field] = calculateTotalSolarPower(dataPoint);
-                  break;
-                case 'mppt_sum':
-                  result[field] = dataPoint.mppt1.output_v + dataPoint.mppt2.output_v + dataPoint.mppt3.output_v;
-                  break;
-              }
-            });
+              // Calculate custom fields
+              customFields.forEach((field) => {
+                switch (field) {
+                  case "net_power":
+                    result[field] = calculateNetPower(dataPoint);
+                    break;
+                  case "motor_power":
+                    result[field] = calculateMotorPower(dataPoint);
+                    break;
+                  case "total_solar_power":
+                    result[field] = calculateTotalSolarPower(dataPoint);
+                    break;
+                  case "mppt_sum":
+                    result[field] =
+                      dataPoint.mppt1.output_v +
+                      dataPoint.mppt2.output_v +
+                      dataPoint.mppt3.output_v;
+                    break;
+                }
+              });
 
-            return result;
-          });
+              return result;
+            },
+          );
 
           setChartData(processedData);
         });
@@ -216,11 +243,27 @@ export default function StatsGraphTab() {
     const interval = setInterval(() => {
       if (selectedDataKeys.length > 0 && startDate && endDate) {
         // Check if any custom fields are selected
-        const customFields = selectedDataKeys.filter((key): key is 'net_power' | 'motor_power' | 'total_solar_power' | 'mppt_sum' => 
-          key === 'net_power' || key === 'motor_power' || key === 'total_solar_power' || key === 'mppt_sum'
+        const customFields = selectedDataKeys.filter(
+          (
+            key,
+          ): key is
+            | "net_power"
+            | "motor_power"
+            | "total_solar_power"
+            | "mppt_sum" =>
+            key === "net_power" ||
+            key === "motor_power" ||
+            key === "total_solar_power" ||
+            key === "mppt_sum",
         );
-        const regularFields = selectedDataKeys.filter(key => 
-          !['net_power', 'motor_power', 'total_solar_power', 'mppt_sum'].includes(key)
+        const regularFields = selectedDataKeys.filter(
+          (key) =>
+            ![
+              "net_power",
+              "motor_power",
+              "total_solar_power",
+              "mppt_sum",
+            ].includes(key),
         );
 
         if (customFields.length > 0) {
@@ -228,42 +271,55 @@ export default function StatsGraphTab() {
           fetchTelemetryDataInRange(startDate, endDate).then((allData) => {
             if (!allData || !Array.isArray(allData)) return;
 
-            const processedData = (allData as TelemetryData<number>[]).map((dataPoint: any) => {
-              const result: any = { timestamp: dataPoint.created_at || dataPoint.gps?.rx_time || new Date() };
+            const processedData = (allData as TelemetryData<number>[]).map(
+              (dataPoint: any) => {
+                const result: any = {
+                  timestamp:
+                    dataPoint.created_at ||
+                    dataPoint.gps?.rx_time ||
+                    new Date(),
+                };
 
-              // Add regular fields
-              regularFields.forEach((field) => {
-                const firstUnderscore = field.indexOf('_');
-                if (firstUnderscore !== -1) {
-                  const category = field.substring(0, firstUnderscore);
-                  const fieldName = field.substring(firstUnderscore + 1);
-                  const value = getValueFromPath(dataPoint, `${category}.${fieldName}`);
-                  if (value !== undefined) {
-                    result[field] = value;
+                // Add regular fields
+                regularFields.forEach((field) => {
+                  const firstUnderscore = field.indexOf("_");
+                  if (firstUnderscore !== -1) {
+                    const category = field.substring(0, firstUnderscore);
+                    const fieldName = field.substring(firstUnderscore + 1);
+                    const value = getValueFromPath(
+                      dataPoint,
+                      `${category}.${fieldName}`,
+                    );
+                    if (value !== undefined) {
+                      result[field] = value;
+                    }
                   }
-                }
-              });
+                });
 
-              // Calculate custom fields
-              customFields.forEach((field) => {
-                switch (field) {
-                  case 'net_power':
-                    result[field] = calculateNetPower(dataPoint);
-                    break;
-                  case 'motor_power':
-                    result[field] = calculateMotorPower(dataPoint);
-                    break;
-                  case 'total_solar_power':
-                    result[field] = calculateTotalSolarPower(dataPoint);
-                    break;
-                  case 'mppt_sum':
-                    result[field] = dataPoint.mppt1.output_v + dataPoint.mppt2.output_v + dataPoint.mppt3.output_v;
-                    break;
-                }
-              });
+                // Calculate custom fields
+                customFields.forEach((field) => {
+                  switch (field) {
+                    case "net_power":
+                      result[field] = calculateNetPower(dataPoint);
+                      break;
+                    case "motor_power":
+                      result[field] = calculateMotorPower(dataPoint);
+                      break;
+                    case "total_solar_power":
+                      result[field] = calculateTotalSolarPower(dataPoint);
+                      break;
+                    case "mppt_sum":
+                      result[field] =
+                        dataPoint.mppt1.output_v +
+                        dataPoint.mppt2.output_v +
+                        dataPoint.mppt3.output_v;
+                      break;
+                  }
+                });
 
-              return result;
-            });
+                return result;
+              },
+            );
 
             setChartData(processedData);
           });
@@ -271,10 +327,12 @@ export default function StatsGraphTab() {
           // If no custom fields, use the original approach
           Promise.all(
             selectedDataKeys.map((key) =>
-              fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
-                key,
-                data,
-              })),
+              fetchTelemetryDataInRange(startDate, endDate, key).then(
+                (data) => ({
+                  key,
+                  data,
+                }),
+              ),
             ),
           ).then((results) => {
             const mergedData: { [timestamp: string]: any } = {};
@@ -287,7 +345,8 @@ export default function StatsGraphTab() {
             });
             const mergedArray = Object.values(mergedData).sort(
               (a: any, b: any) =>
-                new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+                new Date(a.timestamp).getTime() -
+                new Date(b.timestamp).getTime(),
             );
             setChartData(mergedArray);
           });
@@ -297,7 +356,7 @@ export default function StatsGraphTab() {
     setRefreshInterval(interval);
 
     return () => clearInterval(interval);
-  }, [selectedDataKeys, startDate, endDate]);
+  }, [selectedDataKeys, startDate, endDate, refreshInterval]);
 
   // Generate dynamic chart config
   const chartConfig = generateChartConfig(selectedDataKeys, lineColors);
