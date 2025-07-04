@@ -176,3 +176,21 @@ export function getCustomValue(
       return undefined;
   }
 }
+
+export function getLatestTimestamp(data: TelemetryData<Date>): Date {
+  const timestamps: number[] = [];
+
+  const extractTimestamps = (obj: any) => {
+    for (const key in obj) {
+      if (obj[key] instanceof Date) {
+        timestamps.push(obj[key].getTime());
+      } else if (typeof obj[key] === "object" && obj[key] !== null) {
+        extractTimestamps(obj[key]);
+      }
+    }
+  };
+
+  extractTimestamps(data);
+
+  return new Date(Math.max(...timestamps));
+}

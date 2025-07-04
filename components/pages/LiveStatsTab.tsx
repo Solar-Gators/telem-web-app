@@ -14,7 +14,6 @@ import PowerCard from "../telemetry/PowerCard";
 import SimpleCard from "../telemetry/SimpleCard";
 import MPPTSection from "../telemetry/MPPTSection";
 import BatterySection from "../telemetry/BatterySection";
-import { useEffect } from "react";
 
 interface LiveStatsTabProps {
   telemetryData: TelemetryData<number>;
@@ -80,6 +79,7 @@ export default function LiveStatsTab({
         mppt1={telemetryData.mppt1}
         mppt2={telemetryData.mppt2}
         mppt3={telemetryData.mppt3}
+        dateData={dateData}
       />
 
       {/* Battery Systems */}
