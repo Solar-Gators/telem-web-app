@@ -121,6 +121,9 @@ export default function StatsGraphTab() {
     "#4D8888",
   ]);
 
+  const [minYTrim, setMinYTrim] = useState<number | undefined>(undefined);
+  const [maxYTrim, setMaxYTrim] = useState<number | undefined>(undefined);
+
   const selectGroups = generateSelectGroups();
 
   const handleValueChange = (values: string[]) => {
@@ -356,9 +359,22 @@ export default function StatsGraphTab() {
     setRefreshInterval(interval);
 
     return () => clearInterval(interval);
-  }, [selectedDataKeys, startDate, endDate, refreshInterval]);
+  }, [selectedDataKeys, startDate, endDate]);
 
-  // Generate dynamic chart config
+  // Filter chart data based on Y trim values
+  const filteredChartData = chartData.filter((dataPoint) => {
+    // Check if any of the selected data keys have values outside the trim range
+    for (const key of selectedDataKeys) {
+      const value = dataPoint[key];
+      if (value !== undefined && value !== null) {
+        if (minYTrim !== undefined && value < minYTrim) return false;
+        if (maxYTrim !== undefined && value > maxYTrim) return false;
+      }
+    }
+    return true;
+  });
+
+  // Generate dynamic chart
   const chartConfig = generateChartConfig(selectedDataKeys, lineColors);
 
   return (
@@ -485,11 +501,47 @@ export default function StatsGraphTab() {
         </div>
       </div>
 
+      {/* Y-Axis Trim Controls */}
+      <div className="grid place-items-center grid-cols-2 gap-4 mt-4">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="min-y-trim" className="text-sm font-medium">
+            Min Y Value
+          </label>
+          <Input
+            id="min-y-trim"
+            type="number"
+            placeholder="No minimum"
+            value={minYTrim ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setMinYTrim(value === "" ? undefined : parseFloat(value));
+            }}
+            className="w-32"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="max-y-trim" className="text-sm font-medium">
+            Max Y Value
+          </label>
+          <Input
+            id="max-y-trim"
+            type="number"
+            placeholder="No maximum"
+            value={maxYTrim ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setMaxYTrim(value === "" ? undefined : parseFloat(value));
+            }}
+            className="w-32"
+          />
+        </div>
+      </div>
+
       <br></br>
       <ChartContainer config={chartConfig}>
         <LineChart
           accessibilityLayer
-          data={chartData}
+          data={filteredChartData}
           margin={{
             left: 12,
             right: 12,
@@ -515,6 +567,7 @@ export default function StatsGraphTab() {
             axisLine={false}
             tickMargin={10}
             tickCount={5}
+            domain={["dataMin", "dataMax"]}
           />
           <ChartTooltip
             cursor={false}
