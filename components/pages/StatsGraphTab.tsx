@@ -743,6 +743,7 @@ export default function StatsGraphTab() {
             tickMargin={10}
             tickCount={5}
             domain={["dataMin", "dataMax"]}
+            tickFormatter={(value) => Number.parseFloat(value.toFixed(1)).toString()}
           />
           <ChartTooltip
             cursor={false}
