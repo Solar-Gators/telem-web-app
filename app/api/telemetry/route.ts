@@ -16,6 +16,12 @@ export async function POST(request: NextRequest) {
 
     const telemetryData: TelemetryData<number> = json_obj["body"];
 
+    const unixTimestamp = json_obj["received"]
+
+    if (!unixTimestamp) throw "No timestamp in body!"
+
+    const date = new Date(unixTimestamp * 1000);
+
     telemetryData.battery.sup_bat_v /= 1000;
     telemetryData.battery.main_bat_v /= 1000;
     telemetryData.battery.low_cell_v /= 1000;
@@ -63,7 +69,7 @@ export async function POST(request: NextRequest) {
         ${telemetryData.mppt3?.output_c || 0},
         ${telemetryData.mitsuba?.voltage || 0},
         ${telemetryData.mitsuba?.current || 0},
-        NOW()
+        ${date}
       )
     `;
 
