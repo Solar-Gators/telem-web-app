@@ -68,6 +68,7 @@ export default function LiveStatsTab({
           icon={Car}
           status={getMotorStatus(telemetryData)}
           lastUpdated={dateData.mppt1.input_v}
+          className="blur-sm"
         />
         <PowerCard
           title="Total Solar Input"
