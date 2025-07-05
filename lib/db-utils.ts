@@ -124,28 +124,49 @@ export async function fetchTelemetryDataInRange(
     // Connect to the Neon database
     const sql = neon(process.env.DATABASE_URL || "");
 
-    // Fetch all data in the date range
-    const result = await sql`
-      SELECT * 
-      FROM telemetry 
-      WHERE created_at BETWEEN ${startDate.toISOString()} AND ${endDate.toISOString()} 
-      ORDER BY created_at ASC
-    `;
+    let result;
+    
+    // If a specific stat field is requested, optimize query to select only that field and exclude zeros
+    if (statField) {
+      // Validate statField to prevent SQL injection - only allow alphanumeric characters and underscores
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(statField)) {
+        throw new Error(`Invalid field name: ${statField}`);
+      }
+      
+      // Build the query with validated field name
+      const query = `
+        SELECT ${statField} as value, created_at as timestamp
+        FROM telemetry 
+        WHERE created_at BETWEEN $1 AND $2 
+        AND ${statField} != 0
+        ORDER BY created_at ASC
+      `;
+      
+      result = await sql(query, [startDate.toISOString(), endDate.toISOString()]);
+    } else {
+      // Fetch all data in the date range
+      result = await sql`
+        SELECT * 
+        FROM telemetry 
+        WHERE created_at BETWEEN ${startDate.toISOString()} AND ${endDate.toISOString()} 
+        ORDER BY created_at ASC
+      `;
+    }
 
     if (result.length === 0) {
       return [];
     }
 
-    // If a specific stat field is requested, extract only that field with timestamps
+    // If a specific stat field is requested, return the optimized query results
     if (statField) {
-      return result.map((row) => ({
-        value: (row as any)[statField],
-        timestamp: row.created_at,
+      return result.map((row: any) => ({
+        value: row.value,
+        timestamp: row.timestamp,
       })) as TelemetryStatValue[];
     }
 
     // Otherwise, map all data to TelemetryData format
-    return result.map((row) => mapTelemetryData<number>(row));
+    return result.map((row: any) => mapTelemetryData<number>(row));
   } catch (error) {
     console.error("Error fetching telemetry data in range:", error);
     return null;
