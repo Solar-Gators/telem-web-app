@@ -67,6 +67,13 @@ export async function fetchLatestTelemetryData() {
       dateDataForMap[field] = new Date(sqlResult[`d_${field}`]);
     }
 
+    // Check if any values are 0 and throw an error if found
+    for (const field of telemetryFields) {
+      if (numericDataForMap[field] === 0) {
+        throw new Error(`Telemetry field '${field}' has a value of 0`);
+      }
+    }
+
     // Use the provided mapTelemetryData function to structure both sets of data
     const numericTelemetry = mapTelemetryData<number>(numericDataForMap);
     const dateTelemetry = mapTelemetryData<Date>(dateDataForMap);

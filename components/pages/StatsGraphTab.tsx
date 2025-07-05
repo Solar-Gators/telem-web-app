@@ -153,20 +153,24 @@ export default function StatsGraphTab() {
 
     // Create CSV headers
     const headers = ["timestamp", ...selectedDataKeys];
-    const csvHeaders = headers.map(header => 
-      header === "timestamp" ? "Timestamp" : getLabelFromDataKey(header)
-    ).join(",");
+    const csvHeaders = headers
+      .map((header) =>
+        header === "timestamp" ? "Timestamp" : getLabelFromDataKey(header),
+      )
+      .join(",");
 
     // Create CSV rows
-    const csvRows = filteredChartData.map(dataPoint => {
-      return headers.map(header => {
-        if (header === "timestamp") {
-          const date = new Date(dataPoint.timestamp);
-          return `"${date.toLocaleString()}"`;
-        }
-        const value = dataPoint[header];
-        return value !== undefined && value !== null ? value : "";
-      }).join(",");
+    const csvRows = filteredChartData.map((dataPoint) => {
+      return headers
+        .map((header) => {
+          if (header === "timestamp") {
+            const date = new Date(dataPoint.timestamp);
+            return `"${date.toLocaleString()}"`;
+          }
+          const value = dataPoint[header];
+          return value !== undefined && value !== null ? value : "";
+        })
+        .join(",");
     });
 
     // Combine headers and rows
@@ -177,12 +181,16 @@ export default function StatsGraphTab() {
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    
+
     // Generate filename with date range
-    const startStr = startDate?.toLocaleDateString().replace(/\//g, "-") || "start";
+    const startStr =
+      startDate?.toLocaleDateString().replace(/\//g, "-") || "start";
     const endStr = endDate?.toLocaleDateString().replace(/\//g, "-") || "end";
-    link.setAttribute("download", `telemetry-data-${startStr}-to-${endStr}.csv`);
-    
+    link.setAttribute(
+      "download",
+      `telemetry-data-${startStr}-to-${endStr}.csv`,
+    );
+
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -230,8 +238,8 @@ export default function StatsGraphTab() {
         fetchTelemetryDataInRange(startDate, endDate).then((allData) => {
           if (!allData || !Array.isArray(allData)) return;
 
-          const processedData = (allData as TelemetryData<number>[]).map(
-            (dataPoint: any) => {
+          const processedData = (allData as TelemetryData<number>[])
+            .map((dataPoint: any) => {
               const result: any = {
                 timestamp:
                   dataPoint.created_at || dataPoint.gps?.rx_time || new Date(),
@@ -281,8 +289,11 @@ export default function StatsGraphTab() {
               });
 
               return result;
-            },
-          );
+            })
+            .filter((dataPoint) => {
+              // Filter out data points where any selected custom field has a value of 0
+              return !customFields.some((field) => dataPoint[field] === 0);
+            });
 
           setChartData(processedData);
         });
@@ -355,8 +366,8 @@ export default function StatsGraphTab() {
           fetchTelemetryDataInRange(startDate, endDate).then((allData) => {
             if (!allData || !Array.isArray(allData)) return;
 
-            const processedData = (allData as TelemetryData<number>[]).map(
-              (dataPoint: any) => {
+            const processedData = (allData as TelemetryData<number>[])
+              .map((dataPoint: any) => {
                 const result: any = {
                   timestamp:
                     dataPoint.created_at ||
@@ -408,8 +419,11 @@ export default function StatsGraphTab() {
                 });
 
                 return result;
-              },
-            );
+              })
+              .filter((dataPoint) => {
+                // Filter out data points where any selected custom field has a value of 0
+                return !customFields.some((field) => dataPoint[field] === 0);
+              });
 
             setChartData(processedData);
           });
@@ -660,8 +674,8 @@ export default function StatsGraphTab() {
           <label className="text-sm font-medium">Export Data</label>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-32"
                 disabled={filteredChartData.length === 0}
               >
@@ -673,10 +687,16 @@ export default function StatsGraphTab() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Export Telemetry Data</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will download a CSV file containing {filteredChartData.length} data points for the selected fields from {startDate?.toLocaleDateString()} to {endDate?.toLocaleDateString()}.
+                  This will download a CSV file containing{" "}
+                  {filteredChartData.length} data points for the selected fields
+                  from {startDate?.toLocaleDateString()} to{" "}
+                  {endDate?.toLocaleDateString()}.
                   {selectedDataKeys.length > 0 && (
                     <span className="block mt-2">
-                      <strong>Selected fields:</strong> {selectedDataKeys.map(key => getLabelFromDataKey(key)).join(", ")}
+                      <strong>Selected fields:</strong>{" "}
+                      {selectedDataKeys
+                        .map((key) => getLabelFromDataKey(key))
+                        .join(", ")}
                     </span>
                   )}
                 </AlertDialogDescription>

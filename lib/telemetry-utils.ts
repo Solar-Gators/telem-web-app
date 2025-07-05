@@ -673,20 +673,20 @@ const VOLTAGE_TO_AH_DATA = [
   { voltage: 2.854886912, ah: 4.689266032 },
   { voltage: 2.848330611, ah: 4.698052355 },
   { voltage: 2.841996894, ah: 4.706838677 },
-  { voltage: 2.8358982, ah: 4.715625 }
+  { voltage: 2.8358982, ah: 4.715625 },
 ];
 
 function voltToAh(inputVoltage: number): number {
   // Check if the input voltage is within the interpolation range
-  const minVoltage = Math.min(...VOLTAGE_TO_AH_DATA.map(d => d.voltage));
-  const maxVoltage = Math.max(...VOLTAGE_TO_AH_DATA.map(d => d.voltage));
-  
+  const minVoltage = Math.min(...VOLTAGE_TO_AH_DATA.map((d) => d.voltage));
+  const maxVoltage = Math.max(...VOLTAGE_TO_AH_DATA.map((d) => d.voltage));
+
   if (inputVoltage < minVoltage || inputVoltage > maxVoltage) {
     // Return boundary values if outside range
     if (inputVoltage < minVoltage) {
-      return VOLTAGE_TO_AH_DATA.find(d => d.voltage === maxVoltage)?.ah || 0;
+      return VOLTAGE_TO_AH_DATA.find((d) => d.voltage === maxVoltage)?.ah || 0;
     } else {
-      return VOLTAGE_TO_AH_DATA.find(d => d.voltage === minVoltage)?.ah || 0;
+      return VOLTAGE_TO_AH_DATA.find((d) => d.voltage === minVoltage)?.ah || 0;
     }
   }
 
@@ -694,35 +694,39 @@ function voltToAh(inputVoltage: number): number {
   for (let i = 0; i < VOLTAGE_TO_AH_DATA.length - 1; i++) {
     const current = VOLTAGE_TO_AH_DATA[i];
     const next = VOLTAGE_TO_AH_DATA[i + 1];
-    
+
     if (inputVoltage >= current.voltage && inputVoltage <= next.voltage) {
-      const ratio = (inputVoltage - current.voltage) / (next.voltage - current.voltage);
+      const ratio =
+        (inputVoltage - current.voltage) / (next.voltage - current.voltage);
       return current.ah + ratio * (next.ah - current.ah);
     }
   }
 
   // Fallback - return closest match
-  const closest = VOLTAGE_TO_AH_DATA.reduce((prev, curr) => 
-    Math.abs(curr.voltage - inputVoltage) < Math.abs(prev.voltage - inputVoltage) ? curr : prev
+  const closest = VOLTAGE_TO_AH_DATA.reduce((prev, curr) =>
+    Math.abs(curr.voltage - inputVoltage) <
+    Math.abs(prev.voltage - inputVoltage)
+      ? curr
+      : prev,
   );
   return closest.ah;
 }
 
 export function calculateBatteryEnergyAh(data: TelemetryData<number>): number {
   if (!data.battery?.main_bat_v) return 0;
-  
+
   // Convert telemetry main pack voltage to actual pack voltage
   const actualPackVoltage = (29 / 13) * data.battery.main_bat_v;
-  
+
   // Get average parallel group voltage
   const avgParallelGroupVoltage = actualPackVoltage / 29;
-  
+
   // Convert to Ah using the curve (this gives consumed Ah)
   const consumedAh = voltToAh(avgParallelGroupVoltage);
-  
+
   // Return remaining energy: total capacity (4.8 Ah) minus consumed Ah
   const remainingAh = 4.8 - consumedAh;
-  
+
   return Math.max(0, remainingAh); // Ensure we don't return negative values
 }
 

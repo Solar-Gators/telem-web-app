@@ -87,7 +87,13 @@ export default function LiveStatsTab({
           value={batteryEnergyAh}
           unit="Ah"
           icon={Battery}
-          status={batteryEnergyAh > 1.0 ? "good" : batteryEnergyAh > 0.5 ? "warning" : "critical"}
+          status={
+            batteryEnergyAh > 1.0
+              ? "good"
+              : batteryEnergyAh > 0.5
+                ? "warning"
+                : "critical"
+          }
           lastUpdated={batteryLastUpdated}
         />
         <SimpleCard
@@ -95,7 +101,9 @@ export default function LiveStatsTab({
           value={batterySOC}
           unit="%"
           icon={Battery}
-          status={batterySOC > 20 ? "good" : batterySOC > 10 ? "warning" : "critical"}
+          status={
+            batterySOC > 20 ? "good" : batterySOC > 10 ? "warning" : "critical"
+          }
           lastUpdated={batteryLastUpdated}
         />
       </div>
