@@ -737,6 +737,37 @@ export function calculateBatterySOC(data: TelemetryData<number>): number {
   return Math.max(0, Math.min(100, soc)); // Clamp between 0 and 100
 }
 
+export function calculateMotorPowerConsumption(data: TelemetryData<number>): number | null {
+  // Check if all required values are non-zero
+  const mainBatV = data.battery?.main_bat_v;
+  const mainBatC = data.battery?.main_bat_c;
+  const mppt1OutputV = data.mppt1?.output_v;
+  const mppt1OutputC = data.mppt1?.output_c;
+  const mppt2OutputV = data.mppt2?.output_v;
+  const mppt2OutputC = data.mppt2?.output_c;
+  const mppt3OutputV = data.mppt3?.output_v;
+  const mppt3OutputC = data.mppt3?.output_c;
+
+  // Return null if any required value is missing or zero
+  if (!mainBatV || !mainBatC || !mppt1OutputV || !mppt1OutputC || 
+      !mppt2OutputV || !mppt2OutputC || !mppt3OutputV || !mppt3OutputC ||
+      mainBatV === 0 || mainBatC === 0 || mppt1OutputV === 0 || mppt1OutputC === 0 ||
+      mppt2OutputV === 0 || mppt2OutputC === 0 || mppt3OutputV === 0 || mppt3OutputC === 0) {
+    return null;
+  }
+
+  // Calculate battery power: voltage * current
+  const batteryPower = mainBatV * mainBatC;
+
+  // Calculate total array power: sum of each MPPT's power
+  const arrayPower = (mppt1OutputV * mppt1OutputC) + 
+                     (mppt2OutputV * mppt2OutputC) + 
+                     (mppt3OutputV * mppt3OutputC);
+
+  // Motor power consumption = battery power - array power
+  return arrayPower - batteryPower;
+}
+
 export function getCustomValue(
   data: TelemetryData<number>,
   path: string,

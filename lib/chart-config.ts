@@ -80,6 +80,11 @@ export const CUSTOM_FIELD_CONFIG: SelectGroup = {
       dataPath: "custom.total_solar_power",
     },
     {
+      value: "battery_power",
+      label: "Net Power",
+      dataPath: "custom.battery_power",
+    },
+    {
       value: "battery_energy_ah",
       label: "Battery Remaining Energy (Ah)",
       dataPath: "custom.battery_energy_ah",
@@ -88,6 +93,11 @@ export const CUSTOM_FIELD_CONFIG: SelectGroup = {
       value: "battery_soc",
       label: "Battery SOC (%)",
       dataPath: "custom.battery_soc",
+    },
+    {
+      value: "motor_power_consumption",
+      label: "Motor Power Consumption",
+      dataPath: "custom.motor_power_consumption",
     },
   ],
 };

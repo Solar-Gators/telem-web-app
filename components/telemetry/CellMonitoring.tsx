@@ -55,7 +55,7 @@ export default function CellMonitoring({
               {lowCellV.toFixed(2)}
               <span className="ml-1 text-muted-foreground text-xs">V</span>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground blur-sm">
               Cell #{cellIdxLowV}
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function CellMonitoring({
               {highCellV.toFixed(2)}
               <span className="ml-1 text-muted-foreground text-xs">V</span>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground blur-sm">
               Cell #{cellIdxHighT}
             </div>
           </div>

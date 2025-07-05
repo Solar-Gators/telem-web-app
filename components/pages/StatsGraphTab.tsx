@@ -29,6 +29,7 @@ import {
   calculateTotalSolarPower,
   calculateBatteryEnergyAh,
   calculateBatterySOC,
+  calculateMotorPowerConsumption,
 } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
 import { ChevronDownIcon, Download } from "lucide-react";
@@ -67,10 +68,14 @@ function getLabelFromDataKey(dataKey: string): string {
       return "Total Solar Power";
     case "mppt_sum":
       return "Total MPPT Voltage Output";
+    case "battery_power":
+      return "Battery Power";
     case "battery_energy_ah":
       return "Battery Remaining Energy (Ah)";
     case "battery_soc":
       return "Battery SOC (%)";
+    case "motor_power_consumption":
+      return "Motor Power Consumption";
   }
 
   // Convert from database format (e.g., "battery_main_bat_v") to config format (e.g., "battery.main_bat_v")
@@ -212,14 +217,18 @@ export default function StatsGraphTab() {
           | "motor_power"
           | "total_solar_power"
           | "mppt_sum"
+          | "battery_power"
           | "battery_energy_ah"
-          | "battery_soc" =>
+          | "battery_soc"
+          | "motor_power_consumption" =>
           key === "net_power" ||
           key === "motor_power" ||
           key === "total_solar_power" ||
           key === "mppt_sum" ||
+          key === "battery_power" ||
           key === "battery_energy_ah" ||
-          key === "battery_soc",
+          key === "battery_soc" ||
+          key === "motor_power_consumption",
       );
       const regularFields = selectedDataKeys.filter(
         (key) =>
@@ -228,8 +237,10 @@ export default function StatsGraphTab() {
             "motor_power",
             "total_solar_power",
             "mppt_sum",
+            "battery_power",
             "battery_energy_ah",
             "battery_soc",
+            "motor_power_consumption",
           ].includes(key),
       );
 
@@ -279,11 +290,30 @@ export default function StatsGraphTab() {
                       dataPoint.mppt2.output_v +
                       dataPoint.mppt3.output_v;
                     break;
+                  case "battery_power":
+                    // Calculate battery power: voltage * current
+                    // Only include if both voltage and current are non-zero
+                    const voltage = dataPoint.battery?.main_bat_v;
+                    const current = dataPoint.battery?.main_bat_c;
+                    if (voltage && current && voltage !== 0 && current !== 0) {
+                      result[field] = voltage * current;
+                    } else {
+                      result[field] = 0;
+                    }
+                    break;
                   case "battery_energy_ah":
                     result[field] = calculateBatteryEnergyAh(dataPoint);
                     break;
                   case "battery_soc":
                     result[field] = calculateBatterySOC(dataPoint);
+                    break;
+                  case "motor_power_consumption":
+                    const motorPowerConsumption = calculateMotorPowerConsumption(dataPoint);
+                    if (motorPowerConsumption !== null) {
+                      result[field] = motorPowerConsumption;
+                    } else {
+                      result[field] = null; // This will be filtered out
+                    }
                     break;
                 }
               });
@@ -291,8 +321,8 @@ export default function StatsGraphTab() {
               return result;
             })
             .filter((dataPoint) => {
-              // Filter out data points where any selected custom field has a value of 0
-              return !customFields.some((field) => dataPoint[field] === 0);
+              // Filter out data points where any selected custom field has a value of 0 or null
+              return !customFields.some((field) => dataPoint[field] === 0 || dataPoint[field] === null);
             });
 
           setChartData(processedData);
@@ -340,14 +370,18 @@ export default function StatsGraphTab() {
             | "motor_power"
             | "total_solar_power"
             | "mppt_sum"
+            | "battery_power"
             | "battery_energy_ah"
-            | "battery_soc" =>
+            | "battery_soc"
+            | "motor_power_consumption" =>
             key === "net_power" ||
             key === "motor_power" ||
             key === "total_solar_power" ||
             key === "mppt_sum" ||
+            key === "battery_power" ||
             key === "battery_energy_ah" ||
-            key === "battery_soc",
+            key === "battery_soc" ||
+            key === "motor_power_consumption",
         );
         const regularFields = selectedDataKeys.filter(
           (key) =>
@@ -356,8 +390,10 @@ export default function StatsGraphTab() {
               "motor_power",
               "total_solar_power",
               "mppt_sum",
+              "battery_power",
               "battery_energy_ah",
               "battery_soc",
+              "motor_power_consumption",
             ].includes(key),
         );
 
@@ -409,11 +445,30 @@ export default function StatsGraphTab() {
                         dataPoint.mppt2.output_v +
                         dataPoint.mppt3.output_v;
                       break;
+                    case "battery_power":
+                      // Calculate battery power: voltage * current
+                      // Only include if both voltage and current are non-zero
+                      const voltage = dataPoint.battery?.main_bat_v;
+                      const current = dataPoint.battery?.main_bat_c;
+                      if (voltage && current && voltage !== 0 && current !== 0) {
+                        result[field] = voltage * current;
+                      } else {
+                        result[field] = 0;
+                      }
+                      break;
                     case "battery_energy_ah":
                       result[field] = calculateBatteryEnergyAh(dataPoint);
                       break;
                     case "battery_soc":
                       result[field] = calculateBatterySOC(dataPoint);
+                      break;
+                    case "motor_power_consumption":
+                      const motorPowerConsumption = calculateMotorPowerConsumption(dataPoint);
+                      if (motorPowerConsumption !== null) {
+                        result[field] = motorPowerConsumption;
+                      } else {
+                        result[field] = null; // This will be filtered out
+                      }
                       break;
                   }
                 });
@@ -421,8 +476,8 @@ export default function StatsGraphTab() {
                 return result;
               })
               .filter((dataPoint) => {
-                // Filter out data points where any selected custom field has a value of 0
-                return !customFields.some((field) => dataPoint[field] === 0);
+                // Filter out data points where any selected custom field has a value of 0 or null
+                return !customFields.some((field) => dataPoint[field] === 0 || dataPoint[field] === null);
               });
 
             setChartData(processedData);
