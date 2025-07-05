@@ -1,4 +1,4 @@
-import { Gauge, Zap, Car, Sun } from "lucide-react";
+import { Gauge, Zap, Car, Sun, Battery } from "lucide-react";
 import { TelemetryData } from "@/lib/types";
 import {
   getSpeedStatus,
@@ -9,6 +9,8 @@ import {
   calculateTotalSolarPower,
   calculateAverageSolarVoltage,
   calculateTotalSolarCurrent,
+  calculateBatteryEnergyAh,
+  calculateBatterySOC,
 } from "@/lib/telemetry-utils";
 import PowerCard from "../telemetry/PowerCard";
 import SimpleCard from "../telemetry/SimpleCard";
@@ -27,6 +29,8 @@ export default function LiveStatsTab({
   const totalSolarPower = calculateTotalSolarPower(telemetryData);
   const motorPower = calculateMotorPower(telemetryData);
   const netPower = calculateNetPower(telemetryData);
+  const batteryEnergyAh = calculateBatteryEnergyAh(telemetryData);
+  const batterySOC = calculateBatterySOC(telemetryData);
 
   const batteryLastUpdated =
     dateData.battery.main_bat_v > dateData.battery.main_bat_c
@@ -73,6 +77,26 @@ export default function LiveStatsTab({
           icon={Sun}
           status="good"
           lastUpdated={dateData.battery.main_bat_v}
+        />
+      </div>
+
+      {/* Battery Energy Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SimpleCard
+          title="Remaining Energy"
+          value={batteryEnergyAh}
+          unit="Ah"
+          icon={Battery}
+          status={batteryEnergyAh > 1.0 ? "good" : batteryEnergyAh > 0.5 ? "warning" : "critical"}
+          lastUpdated={batteryLastUpdated}
+        />
+        <SimpleCard
+          title="State of Charge"
+          value={batterySOC}
+          unit="%"
+          icon={Battery}
+          status={batterySOC > 20 ? "good" : batterySOC > 10 ? "warning" : "critical"}
+          lastUpdated={batteryLastUpdated}
         />
       </div>
 

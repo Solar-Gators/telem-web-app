@@ -56,7 +56,7 @@ export default function SimpleCard({
       </CardHeader>
       <CardContent className="relative">
         <div className={`text-xl font-bold ${getStatusColor()}`}>
-          {value?.toFixed(1)}
+          {value?.toFixed(2)}
           <span className="text-sm font-normal text-muted-foreground ml-1">
             {unit}
           </span>

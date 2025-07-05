@@ -79,6 +79,16 @@ export const CUSTOM_FIELD_CONFIG: SelectGroup = {
       label: "Total Solar Power",
       dataPath: "custom.total_solar_power",
     },
+    {
+      value: "battery_energy_ah",
+      label: "Battery Remaining Energy (Ah)",
+      dataPath: "custom.battery_energy_ah",
+    },
+    {
+      value: "battery_soc",
+      label: "Battery SOC (%)",
+      dataPath: "custom.battery_soc",
+    },
   ],
 };
 

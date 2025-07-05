@@ -27,6 +27,8 @@ import {
   calculateNetPower,
   calculateMotorPower,
   calculateTotalSolarPower,
+  calculateBatteryEnergyAh,
+  calculateBatterySOC,
 } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
 import { ChevronDownIcon, Download } from "lucide-react";
@@ -65,6 +67,10 @@ function getLabelFromDataKey(dataKey: string): string {
       return "Total Solar Power";
     case "mppt_sum":
       return "Total MPPT Voltage Output";
+    case "battery_energy_ah":
+      return "Battery Remaining Energy (Ah)";
+    case "battery_soc":
+      return "Battery SOC (%)";
   }
 
   // Convert from database format (e.g., "battery_main_bat_v") to config format (e.g., "battery.main_bat_v")
@@ -197,11 +203,15 @@ export default function StatsGraphTab() {
           | "net_power"
           | "motor_power"
           | "total_solar_power"
-          | "mppt_sum" =>
+          | "mppt_sum"
+          | "battery_energy_ah"
+          | "battery_soc" =>
           key === "net_power" ||
           key === "motor_power" ||
           key === "total_solar_power" ||
-          key === "mppt_sum",
+          key === "mppt_sum" ||
+          key === "battery_energy_ah" ||
+          key === "battery_soc",
       );
       const regularFields = selectedDataKeys.filter(
         (key) =>
@@ -210,6 +220,8 @@ export default function StatsGraphTab() {
             "motor_power",
             "total_solar_power",
             "mppt_sum",
+            "battery_energy_ah",
+            "battery_soc",
           ].includes(key),
       );
 
@@ -258,6 +270,12 @@ export default function StatsGraphTab() {
                       dataPoint.mppt1.output_v +
                       dataPoint.mppt2.output_v +
                       dataPoint.mppt3.output_v;
+                    break;
+                  case "battery_energy_ah":
+                    result[field] = calculateBatteryEnergyAh(dataPoint);
+                    break;
+                  case "battery_soc":
+                    result[field] = calculateBatterySOC(dataPoint);
                     break;
                 }
               });
@@ -310,11 +328,15 @@ export default function StatsGraphTab() {
             | "net_power"
             | "motor_power"
             | "total_solar_power"
-            | "mppt_sum" =>
+            | "mppt_sum"
+            | "battery_energy_ah"
+            | "battery_soc" =>
             key === "net_power" ||
             key === "motor_power" ||
             key === "total_solar_power" ||
-            key === "mppt_sum",
+            key === "mppt_sum" ||
+            key === "battery_energy_ah" ||
+            key === "battery_soc",
         );
         const regularFields = selectedDataKeys.filter(
           (key) =>
@@ -323,6 +345,8 @@ export default function StatsGraphTab() {
               "motor_power",
               "total_solar_power",
               "mppt_sum",
+              "battery_energy_ah",
+              "battery_soc",
             ].includes(key),
         );
 
@@ -373,6 +397,12 @@ export default function StatsGraphTab() {
                         dataPoint.mppt1.output_v +
                         dataPoint.mppt2.output_v +
                         dataPoint.mppt3.output_v;
+                      break;
+                    case "battery_energy_ah":
+                      result[field] = calculateBatteryEnergyAh(dataPoint);
+                      break;
+                    case "battery_soc":
+                      result[field] = calculateBatterySOC(dataPoint);
                       break;
                   }
                 });
