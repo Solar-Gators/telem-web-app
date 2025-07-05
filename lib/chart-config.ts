@@ -64,11 +64,11 @@ export const CUSTOM_FIELD_CONFIG: SelectGroup = {
       label: "Total MPPT Voltage Output",
       dataPath: "custom.mppt_sum",
     },
-    {
+/*     {
       value: "net_power",
       label: "Net Power",
       dataPath: "custom.net_power",
-    },
+    }, */
     //{
     //  value: "motor_power",
     //  label: "Motor Power",
