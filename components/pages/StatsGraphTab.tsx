@@ -29,7 +29,7 @@ import {
   calculateTotalSolarPower,
 } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -40,6 +40,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 
 // Helper function to get label from data key
@@ -127,6 +138,50 @@ export default function StatsGraphTab() {
   const [maxYTrim, setMaxYTrim] = useState<number | undefined>(undefined);
 
   const selectGroups = generateSelectGroups();
+
+  // CSV Export function
+  const exportToCSV = () => {
+    if (filteredChartData.length === 0) {
+      return;
+    }
+
+    // Create CSV headers
+    const headers = ["timestamp", ...selectedDataKeys];
+    const csvHeaders = headers.map(header => 
+      header === "timestamp" ? "Timestamp" : getLabelFromDataKey(header)
+    ).join(",");
+
+    // Create CSV rows
+    const csvRows = filteredChartData.map(dataPoint => {
+      return headers.map(header => {
+        if (header === "timestamp") {
+          const date = new Date(dataPoint.timestamp);
+          return `"${date.toLocaleString()}"`;
+        }
+        const value = dataPoint[header];
+        return value !== undefined && value !== null ? value : "";
+      }).join(",");
+    });
+
+    // Combine headers and rows
+    const csvContent = [csvHeaders, ...csvRows].join("\n");
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    
+    // Generate filename with date range
+    const startStr = startDate?.toLocaleDateString().replace(/\//g, "-") || "start";
+    const endStr = endDate?.toLocaleDateString().replace(/\//g, "-") || "end";
+    link.setAttribute("download", `telemetry-data-${startStr}-to-${endStr}.csv`);
+    
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleValueChange = (values: string[]) => {
     setSelectedDataKeys(values.map((v) => v.replace(".", "_")));
@@ -537,8 +592,8 @@ export default function StatsGraphTab() {
         </div>
       </div>
 
-      {/* Y-Axis Trim Controls */}
-      <div className="grid place-items-center grid-cols-2 gap-4 mt-4">
+      {/* Y-Axis Trim Controls and Export */}
+      <div className="grid place-items-center grid-cols-3 gap-4 mt-4">
         <div className="flex flex-col gap-2">
           <label htmlFor="min-y-trim" className="text-sm font-medium">
             Min Y Value
@@ -570,6 +625,40 @@ export default function StatsGraphTab() {
             }}
             className="w-32"
           />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Export Data</label>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-32"
+                disabled={filteredChartData.length === 0}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export CSV
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="z-50">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Export Telemetry Data</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will download a CSV file containing {filteredChartData.length} data points for the selected fields from {startDate?.toLocaleDateString()} to {endDate?.toLocaleDateString()}.
+                  {selectedDataKeys.length > 0 && (
+                    <span className="block mt-2">
+                      <strong>Selected fields:</strong> {selectedDataKeys.map(key => getLabelFromDataKey(key)).join(", ")}
+                    </span>
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={exportToCSV}>
+                  Download CSV
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
