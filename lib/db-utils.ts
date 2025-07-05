@@ -125,14 +125,14 @@ export async function fetchTelemetryDataInRange(
     const sql = neon(process.env.DATABASE_URL || "");
 
     let result;
-    
+
     // If a specific stat field is requested, optimize query to select only that field and exclude zeros
     if (statField) {
       // Validate statField to prevent SQL injection - only allow alphanumeric characters and underscores
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(statField)) {
         throw new Error(`Invalid field name: ${statField}`);
       }
-      
+
       // Build the query with validated field name
       const query = `
         SELECT ${statField} as value, created_at as timestamp
@@ -141,8 +141,11 @@ export async function fetchTelemetryDataInRange(
         AND ${statField} != 0
         ORDER BY created_at ASC
       `;
-      
-      result = await sql(query, [startDate.toISOString(), endDate.toISOString()]);
+
+      result = await sql(query, [
+        startDate.toISOString(),
+        endDate.toISOString(),
+      ]);
     } else {
       // Fetch all data in the date range
       result = await sql`

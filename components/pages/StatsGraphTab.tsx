@@ -460,6 +460,7 @@ export default function StatsGraphTab() {
     setRefreshInterval(interval);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDataKeys, startDate, endDate]);
 
   // Filter chart data based on Y trim values
@@ -743,7 +744,9 @@ export default function StatsGraphTab() {
             tickMargin={10}
             tickCount={5}
             domain={["dataMin", "dataMax"]}
-            tickFormatter={(value) => Number.parseFloat(value.toFixed(1)).toString()}
+            tickFormatter={(value) =>
+              Number.parseFloat(value.toFixed(1)).toString()
+            }
           />
           <ChartTooltip
             cursor={false}

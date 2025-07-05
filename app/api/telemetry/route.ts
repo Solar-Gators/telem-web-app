@@ -16,9 +16,9 @@ export async function POST(request: NextRequest) {
 
     const telemetryData: TelemetryData<number> = json_obj["body"];
 
-    const unixTimestamp = json_obj["received"]
+    const unixTimestamp = json_obj["received"];
 
-    if (!unixTimestamp) throw "No timestamp in body!"
+    if (!unixTimestamp) throw "No timestamp in body!";
 
     const date = new Date(unixTimestamp * 1000);
 
