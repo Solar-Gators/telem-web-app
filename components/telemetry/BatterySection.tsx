@@ -43,7 +43,10 @@ export default function BatterySection({
             unit="V"
             icon={Battery}
             subtitleFullSize={true}
-            status={getBatteryStatus(batteryData.sup_bat_v ?? 0, "supplemental")}
+            status={getBatteryStatus(
+              batteryData.sup_bat_v ?? 0,
+              "supplemental",
+            )}
             lastUpdated={lastUpdated}
             className="blur-sm"
           />

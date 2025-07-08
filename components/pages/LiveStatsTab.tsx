@@ -56,7 +56,11 @@ export default function LiveStatsTab({
         <PowerCard
           title="Net Power"
           voltage={telemetryData.battery.main_bat_v}
-          current={telemetryData.battery.main_bat_v ? netPower / telemetryData.battery.main_bat_v : 0}
+          current={
+            telemetryData.battery.main_bat_v
+              ? netPower / telemetryData.battery.main_bat_v
+              : 0
+          }
           power={netPower}
           icon={Zap}
           status={getNetPowerStatus(telemetryData)}

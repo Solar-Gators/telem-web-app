@@ -104,7 +104,12 @@ export function calculateNetPower(data: TelemetryData<number>): number {
 }
 
 export function calculateMotorPower(data: TelemetryData<number>): number {
-  if (!data.mitsuba || data.mitsuba.voltage === undefined || data.mitsuba.current === undefined) return 0;
+  if (
+    !data.mitsuba ||
+    data.mitsuba.voltage === undefined ||
+    data.mitsuba.current === undefined
+  )
+    return 0;
 
   return data.mitsuba.voltage * data.mitsuba.current;
 }
@@ -113,9 +118,15 @@ export function calculateTotalSolarPower(
   data: TelemetryData<number>,
 ): number | null {
   if (
-    !data.mppt1 || !data.mppt1.output_v || !data.mppt1.output_c ||
-    !data.mppt2 || !data.mppt2.output_v || !data.mppt2.output_c ||
-    !data.mppt3 || !data.mppt3.output_v || !data.mppt3.output_c
+    !data.mppt1 ||
+    !data.mppt1.output_v ||
+    !data.mppt1.output_c ||
+    !data.mppt2 ||
+    !data.mppt2.output_v ||
+    !data.mppt2.output_c ||
+    !data.mppt3 ||
+    !data.mppt3.output_v ||
+    !data.mppt3.output_c
   ) {
     return null;
   }

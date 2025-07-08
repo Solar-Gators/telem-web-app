@@ -22,21 +22,23 @@ export default function TrackFlareTab({ telemetryData }: TrackFlareTabProps) {
                 </div>
               }
             >
-              {telemetryData.gps && telemetryData.gps.latitude !== undefined && telemetryData.gps.longitude !== undefined && (
-                <MapComponent
-                  location={{
-                    lat: telemetryData.gps.latitude,
-                    lng: telemetryData.gps.longitude,
-                  }}
-                  satelliteCount={telemetryData.gps?.num_sats}
-                />
-              )}
+              {telemetryData.gps &&
+                telemetryData.gps.latitude !== undefined &&
+                telemetryData.gps.longitude !== undefined && (
+                  <MapComponent
+                    location={{
+                      lat: telemetryData.gps.latitude,
+                      lng: telemetryData.gps.longitude,
+                    }}
+                    satelliteCount={telemetryData.gps?.num_sats}
+                  />
+                )}
             </ClientOnly>
           </div>
           <div className="p-4 border-t bg-background">
             <div className="flex items-center justify-end gap-4">
               <Badge variant="outline" className="text-sm">
-                Speed: {telemetryData.gps?.speed?.toFixed(1) ?? '0.0'} mph
+                Speed: {telemetryData.gps?.speed?.toFixed(1) ?? "0.0"} mph
               </Badge>
 
               {telemetryData.gps?.num_sats && (

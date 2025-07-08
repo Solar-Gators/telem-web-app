@@ -415,12 +415,12 @@ export default function StatsGraphTab() {
     if (refreshInterval) {
       clearInterval(refreshInterval);
     }
-    
+
     // Only set up refresh interval if enabled
     if (!ENABLE_REFRESH_INTERVAL) {
       return;
     }
-    
+
     const interval = setInterval(() => {
       if (selectedDataKeys.length > 0 && startDate && endDate) {
         // Check if any custom fields are selected

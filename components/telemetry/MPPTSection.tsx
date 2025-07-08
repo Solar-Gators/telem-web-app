@@ -64,7 +64,12 @@ export default function MPPTSection({
   dateData,
 }: MPPTSectionProps) {
   const getLastUpdated = (mppt: TelemetryData<Date>["mppt1"]) => {
-    if (!mppt?.input_v || !mppt?.input_c || !mppt?.output_v || !mppt?.output_c) {
+    if (
+      !mppt?.input_v ||
+      !mppt?.input_c ||
+      !mppt?.output_v ||
+      !mppt?.output_c
+    ) {
       return undefined;
     }
     return new Date(
@@ -89,44 +94,47 @@ export default function MPPTSection({
     output_c: 0,
   };
 
-  const mppt1Data: MPPTData = mppt1 && 
-    mppt1.input_v !== undefined && 
-    mppt1.input_c !== undefined && 
-    mppt1.output_v !== undefined && 
+  const mppt1Data: MPPTData =
+    mppt1 &&
+    mppt1.input_v !== undefined &&
+    mppt1.input_c !== undefined &&
+    mppt1.output_v !== undefined &&
     mppt1.output_c !== undefined
-    ? {
-        input_v: mppt1.input_v,
-        input_c: mppt1.input_c,
-        output_v: mppt1.output_v,
-        output_c: mppt1.output_c,
-      }
-    : defaultMPPTData;
+      ? {
+          input_v: mppt1.input_v,
+          input_c: mppt1.input_c,
+          output_v: mppt1.output_v,
+          output_c: mppt1.output_c,
+        }
+      : defaultMPPTData;
 
-  const mppt2Data: MPPTData = mppt2 && 
-    mppt2.input_v !== undefined && 
-    mppt2.input_c !== undefined && 
-    mppt2.output_v !== undefined && 
+  const mppt2Data: MPPTData =
+    mppt2 &&
+    mppt2.input_v !== undefined &&
+    mppt2.input_c !== undefined &&
+    mppt2.output_v !== undefined &&
     mppt2.output_c !== undefined
-    ? {
-        input_v: mppt2.input_v,
-        input_c: mppt2.input_c,
-        output_v: mppt2.output_v,
-        output_c: mppt2.output_c,
-      }
-    : defaultMPPTData;
+      ? {
+          input_v: mppt2.input_v,
+          input_c: mppt2.input_c,
+          output_v: mppt2.output_v,
+          output_c: mppt2.output_c,
+        }
+      : defaultMPPTData;
 
-  const mppt3Data: MPPTData = mppt3 && 
-    mppt3.input_v !== undefined && 
-    mppt3.input_c !== undefined && 
-    mppt3.output_v !== undefined && 
+  const mppt3Data: MPPTData =
+    mppt3 &&
+    mppt3.input_v !== undefined &&
+    mppt3.input_c !== undefined &&
+    mppt3.output_v !== undefined &&
     mppt3.output_c !== undefined
-    ? {
-        input_v: mppt3.input_v,
-        input_c: mppt3.input_c,
-        output_v: mppt3.output_v,
-        output_c: mppt3.output_c,
-      }
-    : defaultMPPTData;
+      ? {
+          input_v: mppt3.input_v,
+          input_c: mppt3.input_c,
+          output_v: mppt3.output_v,
+          output_c: mppt3.output_c,
+        }
+      : defaultMPPTData;
 
   return (
     <div>
@@ -139,9 +147,21 @@ export default function MPPTSection({
         Solar Panel Controllers (MPPT)
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MPPTCard title="MPPT 1" data={mppt1Data} lastUpdated={mppt1LastUpdated} />
-        <MPPTCard title="MPPT 2" data={mppt2Data} lastUpdated={mppt2LastUpdated} />
-        <MPPTCard title="MPPT 3" data={mppt3Data} lastUpdated={mppt3LastUpdated} />
+        <MPPTCard
+          title="MPPT 1"
+          data={mppt1Data}
+          lastUpdated={mppt1LastUpdated}
+        />
+        <MPPTCard
+          title="MPPT 2"
+          data={mppt2Data}
+          lastUpdated={mppt2LastUpdated}
+        />
+        <MPPTCard
+          title="MPPT 3"
+          data={mppt3Data}
+          lastUpdated={mppt3LastUpdated}
+        />
       </div>
     </div>
   );
