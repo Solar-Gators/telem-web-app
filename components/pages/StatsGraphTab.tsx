@@ -62,9 +62,9 @@ const ENABLE_REFRESH_INTERVAL = false;
 // Helper function to convert any date to CDT (UTC-5)
 function toCDT(date: Date | string): Date {
   const d = new Date(date);
-  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-  const cdt = new Date(utc + (-9 * 3600000));
-  return cdt;
+  // Force the date to be displayed as if it's in CDT (UTC-5)
+  // Regardless of the local timezone, we want consistent CDT display
+  return new Date(d.toLocaleString("en-US", { timeZone: "America/Chicago" }));
 }
 
 // Helper function to get label from data key
