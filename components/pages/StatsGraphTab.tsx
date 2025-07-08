@@ -59,6 +59,14 @@ import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 // Configuration constant to enable/disable refresh interval
 const ENABLE_REFRESH_INTERVAL = false;
 
+// Helper function to convert any date to CDT (UTC-5)
+function toCDT(date: Date | string): Date {
+  const d = new Date(date);
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const cdt = new Date(utc + (-9 * 3600000));
+  return cdt;
+}
+
 // Helper function to get label from data key
 function getLabelFromDataKey(dataKey: string): string {
   // Handle custom fields
@@ -309,8 +317,9 @@ export default function StatsGraphTab() {
           const processedData = (allData as TelemetryData<number>[])
             .map((dataPoint: any) => {
               const result: any = {
-                timestamp:
+                timestamp: toCDT(
                   dataPoint.created_at || dataPoint.gps?.rx_time || new Date(),
+                ),
               };
 
               // Add regular fields
@@ -396,8 +405,9 @@ export default function StatsGraphTab() {
           const mergedData: { [timestamp: string]: any } = {};
           results.forEach(({ key, data }) => {
             data?.forEach((point: any) => {
-              const ts = point.timestamp;
-              if (!mergedData[ts]) mergedData[ts] = { timestamp: ts };
+              const cdtTimestamp = toCDT(point.timestamp);
+              const ts = cdtTimestamp.toISOString();
+              if (!mergedData[ts]) mergedData[ts] = { timestamp: cdtTimestamp };
               mergedData[ts][key] = point.value;
             });
           });
@@ -464,10 +474,11 @@ export default function StatsGraphTab() {
             const processedData = (allData as TelemetryData<number>[])
               .map((dataPoint: any) => {
                 const result: any = {
-                  timestamp:
+                  timestamp: toCDT(
                     dataPoint.created_at ||
                     dataPoint.gps?.rx_time ||
                     new Date(),
+                  ),
                 };
 
                 // Add regular fields
@@ -556,8 +567,9 @@ export default function StatsGraphTab() {
             const mergedData: { [timestamp: string]: any } = {};
             results.forEach(({ key, data }) => {
               data?.forEach((point: any) => {
-                const ts = point.timestamp;
-                if (!mergedData[ts]) mergedData[ts] = { timestamp: ts };
+                const cdtTimestamp = toCDT(point.timestamp);
+                const ts = cdtTimestamp.toISOString();
+                if (!mergedData[ts]) mergedData[ts] = { timestamp: cdtTimestamp };
                 mergedData[ts][key] = point.value;
               });
             });
