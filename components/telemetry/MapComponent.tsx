@@ -7,7 +7,7 @@ import { Location } from "@/lib/types";
 
 interface MapComponentProps {
   location: Location;
-  satelliteCount: number;
+  satelliteCount?: number;
 }
 
 export default function MapComponent({
@@ -76,7 +76,7 @@ export default function MapComponent({
         markerRef.current = null;
       }
     };
-  }, []);
+  }, [location.lat, location.lng]);
 
   useEffect(() => {
     if (mapInstanceRef.current && markerRef.current) {
@@ -84,25 +84,11 @@ export default function MapComponent({
       markerRef.current.setLatLng([location.lat, location.lng]);
       mapInstanceRef.current.setView([location.lat, location.lng]);
     }
-  }, [location]);
+  }, [location.lat, location.lng]);
 
   return (
     <div className="relative h-full">
       <div ref={mapRef} className="h-full w-full rounded-lg" />
-      <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 border">
-        <div className="flex items-center gap-2">
-          <Satellite className="h-4 w-4" />
-          <span className="text-sm font-medium">
-            Satellites: {satelliteCount}
-          </span>
-          <Badge
-            variant={satelliteCount >= 4 ? "default" : "destructive"}
-            className="text-xs"
-          >
-            {satelliteCount >= 4 ? "Good" : "Poor"}
-          </Badge>
-        </div>
-      </div>
     </div>
   );
 }

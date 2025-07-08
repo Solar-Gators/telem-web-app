@@ -5,7 +5,7 @@ import ClientOnly from "@/components/ClientOnly";
 
 interface SimpleCardProps {
   title: string;
-  value: number;
+  value?: number;
   unit: string;
   icon: LucideIcon;
   status?: StatusType;
@@ -13,6 +13,7 @@ interface SimpleCardProps {
   subtitleUnit?: string;
   lastUpdated?: Date;
   subtitleFullSize?: boolean;
+  className?: string;
 }
 
 export default function SimpleCard({
@@ -25,6 +26,7 @@ export default function SimpleCard({
   subtitleUnit,
   lastUpdated,
   subtitleFullSize,
+  className,
 }: SimpleCardProps) {
   const getStatusColor = () => {
     switch (status) {
@@ -40,7 +42,7 @@ export default function SimpleCard({
   };
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 mb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <ClientOnly
@@ -54,7 +56,7 @@ export default function SimpleCard({
       </CardHeader>
       <CardContent className="relative">
         <div className={`text-xl font-bold ${getStatusColor()}`}>
-          {value.toFixed(1)}
+          {value?.toFixed(2)}
           <span className="text-sm font-normal text-muted-foreground ml-1">
             {unit}
           </span>

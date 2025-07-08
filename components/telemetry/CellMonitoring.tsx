@@ -55,7 +55,7 @@ export default function CellMonitoring({
               {lowCellV.toFixed(2)}
               <span className="ml-1 text-muted-foreground text-xs">V</span>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground blur-sm">
               Cell #{cellIdxLowV}
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function CellMonitoring({
               {highCellV.toFixed(2)}
               <span className="ml-1 text-muted-foreground text-xs">V</span>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground blur-sm">
               Cell #{cellIdxHighT}
             </div>
           </div>
@@ -73,9 +73,9 @@ export default function CellMonitoring({
             <div className="text-muted-foreground">Highest Cell Temp</div>
             <div
               className={`font-bold ${
-                highCellT > 45
+                highCellT > 50
                   ? "text-red-600"
-                  : highCellT > 35
+                  : highCellT > 45
                     ? "text-yellow-600"
                     : "text-green-600"
               }`}

@@ -22,33 +22,40 @@ export default function TrackFlareTab({ telemetryData }: TrackFlareTabProps) {
                 </div>
               }
             >
-              <MapComponent
-                location={{
-                  lat: telemetryData.gps.latitude,
-                  lng: telemetryData.gps.longitude,
-                }}
-                satelliteCount={telemetryData.gps.num_sats}
-              />
+              {telemetryData.gps &&
+                telemetryData.gps.latitude !== undefined &&
+                telemetryData.gps.longitude !== undefined && (
+                  <MapComponent
+                    location={{
+                      lat: telemetryData.gps.latitude,
+                      lng: telemetryData.gps.longitude,
+                    }}
+                    satelliteCount={telemetryData.gps?.num_sats}
+                  />
+                )}
             </ClientOnly>
           </div>
           <div className="p-4 border-t bg-background">
             <div className="flex items-center justify-end gap-4">
               <Badge variant="outline" className="text-sm">
-                Speed: {telemetryData.gps.speed.toFixed(1)} mph
+                Speed: {telemetryData.gps?.speed?.toFixed(1) ?? "0.0"} mph
               </Badge>
-              <Badge
-                variant={
-                  telemetryData.gps.num_sats === 0
-                    ? "destructive"
-                    : telemetryData.gps.num_sats >= 4
-                      ? "default"
-                      : "secondary"
-                }
-              >
-                {telemetryData.gps.num_sats === 0
-                  ? "No Connection"
-                  : `${telemetryData.gps.num_sats} Satellites`}
-              </Badge>
+
+              {telemetryData.gps?.num_sats && (
+                <Badge
+                  variant={
+                    telemetryData.gps.num_sats === 0
+                      ? "destructive"
+                      : telemetryData.gps.num_sats >= 4
+                        ? "default"
+                        : "secondary"
+                  }
+                >
+                  {telemetryData.gps.num_sats === 0
+                    ? "No Connection"
+                    : `${telemetryData.gps.num_sats} Satellites`}
+                </Badge>
+              )}
             </div>
           </div>
         </div>

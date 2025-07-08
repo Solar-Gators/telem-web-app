@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 import { TelemetryData } from "@/lib/types";
-import { ieee32ToFloat } from "@/lib/telemetry-utils";
 
+// External API to upload telemetry data to database
+// Never called in our app, called externally in NoteHub (LTE service that recieves data from the car)
 export async function POST(request: NextRequest) {
   const json_obj = await request.json();
 
@@ -17,7 +18,27 @@ export async function POST(request: NextRequest) {
 
     const telemetryData: TelemetryData<number> = json_obj["body"];
 
-    const supBatVoltage = ieee32ToFloat(telemetryData.battery.sup_bat_v) / 1000;
+    const unixTimestamp = json_obj["received"];
+
+    if (!unixTimestamp) throw "No timestamp in body!";
+
+    const date = new Date(unixTimestamp * 1000);
+
+    if (telemetryData.battery.sup_bat_v !== undefined) {
+      telemetryData.battery.sup_bat_v /= 1000;
+    }
+    if (telemetryData.battery.main_bat_v !== undefined) {
+      telemetryData.battery.main_bat_v /= 1000;
+    }
+    if (telemetryData.battery.low_cell_v !== undefined) {
+      telemetryData.battery.low_cell_v /= 1000;
+    }
+    if (telemetryData.battery.high_cell_v !== undefined) {
+      telemetryData.battery.high_cell_v /= 1000;
+    }
+    if (telemetryData.battery.high_cell_t !== undefined) {
+      telemetryData.battery.high_cell_t /= 1000;
+    }
 
     const sql = neon(process.env.DATABASE_URL as string);
 
@@ -33,38 +54,38 @@ export async function POST(request: NextRequest) {
         mitsuba_voltage, mitsuba_current,
         created_at
       ) VALUES (
-        ${telemetryData.gps.rx_time},
-        ${telemetryData.gps.longitude},
-        ${telemetryData.gps.latitude},
-        ${telemetryData.gps.speed},
-        ${telemetryData.gps.num_sats},
-        ${supBatVoltage},
-        ${telemetryData.battery.main_bat_v},
-        ${telemetryData.battery.main_bat_c},
-        ${telemetryData.battery.low_cell_v},
-        ${telemetryData.battery.high_cell_v},
-        ${telemetryData.battery.high_cell_t},
-        ${telemetryData.battery.cell_idx_low_v},
-        ${telemetryData.battery.cell_idx_high_t},
-        ${telemetryData.mppt1.input_v},
-        ${telemetryData.mppt1.input_c},
-        ${telemetryData.mppt1.output_v},
-        ${telemetryData.mppt1.output_c},
-        ${telemetryData.mppt2.input_v},
-        ${telemetryData.mppt2.input_c},
-        ${telemetryData.mppt2.output_v},
-        ${telemetryData.mppt2.output_c},
-        ${telemetryData.mppt3.input_v},
-        ${telemetryData.mppt3.input_c},
-        ${telemetryData.mppt3.output_v},
-        ${telemetryData.mppt3.output_c},
-        ${telemetryData.mitsuba.voltage},
-        ${telemetryData.mitsuba.current},
-        NOW()
+        ${telemetryData.gps?.rx_time || 0},
+        ${telemetryData.gps?.longitude || 0},
+        ${telemetryData.gps?.latitude || 0},
+        ${telemetryData.gps?.speed || 0},
+        ${telemetryData.gps?.num_sats || 0},
+        ${telemetryData.battery?.sup_bat_v || 0},
+        ${telemetryData.battery?.main_bat_v || 0},
+        ${telemetryData.battery?.main_bat_c || 0},
+        ${telemetryData.battery?.low_cell_v || 0},
+        ${telemetryData.battery?.high_cell_v || 0},
+        ${telemetryData.battery?.high_cell_t || 0},
+        ${telemetryData.battery?.cell_idx_low_v || 0},
+        ${telemetryData.battery?.cell_idx_high_t || 0},
+        ${telemetryData.mppt1?.input_v || 0},
+        ${telemetryData.mppt1?.input_c || 0},
+        ${telemetryData.mppt1?.output_v || 0},
+        ${telemetryData.mppt1?.output_c || 0},
+        ${telemetryData.mppt2?.input_v || 0},
+        ${telemetryData.mppt2?.input_c || 0},
+        ${telemetryData.mppt2?.output_v || 0},
+        ${telemetryData.mppt2?.output_c || 0},
+        ${telemetryData.mppt3?.input_v || 0},
+        ${telemetryData.mppt3?.input_c || 0},
+        ${telemetryData.mppt3?.output_v || 0},
+        ${telemetryData.mppt3?.output_c || 0},
+        ${telemetryData.mitsuba?.voltage || 0},
+        ${telemetryData.mitsuba?.current || 0},
+        ${date}
       )
     `;
 
-    console.log("Telemetry data stored.");
+    console.log("Telemetry data stored.", telemetryData);
 
     return NextResponse.json(
       { success: true, message: "Telemetry data stored successfully" },

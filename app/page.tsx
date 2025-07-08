@@ -4,6 +4,7 @@ import useTelemetryData from "@/hooks/useTelemetryData";
 import Header from "@/components/layout/Header";
 import TelemetryTabs from "@/components/layout/TelemetryTabs";
 import VerificationGuard from "@/components/auth/VerificationGuard";
+import { getLatestTimestamp } from "@/lib/telemetry-utils";
 
 function TelemetryContent() {
   const { data, dateData, loading, error } = useTelemetryData();
@@ -33,10 +34,12 @@ function TelemetryContent() {
     );
   }
 
+  const lastUpdated = getLatestTimestamp(dateData);
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
-        <Header />
+        <Header lastUpdated={lastUpdated} />
         <TelemetryTabs telemetryData={data} dateData={dateData} />
       </div>
     </div>
@@ -45,5 +48,9 @@ function TelemetryContent() {
 
 export default function SolarCarTelemetry() {
   // todo add VerificationGuard back to enable auth
-  return <TelemetryContent />;
+  return (
+    <VerificationGuard>
+      <TelemetryContent />
+    </VerificationGuard>
+  );
 }

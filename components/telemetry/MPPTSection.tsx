@@ -5,9 +5,9 @@ import { calculateMPPTPower } from "@/lib/telemetry-utils";
 import ClientOnly from "@/components/ClientOnly";
 
 interface MPPTSectionProps {
-  mppt1: MPPTData;
-  mppt2: MPPTData;
-  mppt3: MPPTData;
+  mppt1?: TelemetryData<number>["mppt1"];
+  mppt2?: TelemetryData<number>["mppt2"];
+  mppt3?: TelemetryData<number>["mppt3"];
   dateData: TelemetryData<Date>;
 }
 
@@ -30,20 +30,21 @@ function MPPTCard({ title, data, lastUpdated }: MPPTCardProps) {
         <div>
           <div className="text-sm text-muted-foreground mb-1">Output</div>
           <div className="text-xl font-bold">
-            {inputPower.toFixed(0)}
-            <span className="text-muted-foreground"> W</span>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {data.input_v.toFixed(1)} V × {data.input_c.toFixed(1)} A
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-muted-foreground mb-1">Input</div>
-          <div className="text-xl text-base font-bold">
-            {outputPower.toFixed(0)}W
+            {outputPower.toFixed(0)}
+            <span className="text-muted-foreground text-sm"> W</span>
           </div>
           <div className="text-sm text-muted-foreground">
             {data.output_v.toFixed(1)} V × {data.output_c.toFixed(1)} A
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground mb-1">Input</div>
+          <div className="text-md text-base font-bold">
+            {inputPower.toFixed(0)}
+            <span className="text-muted-foreground text-xs"> W</span>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {data.input_v.toFixed(1)} V × {data.input_c.toFixed(1)} A
           </div>
         </div>
         {lastUpdated && (
@@ -62,8 +63,16 @@ export default function MPPTSection({
   mppt3,
   dateData,
 }: MPPTSectionProps) {
-  const getLastUpdated = (mppt: TelemetryData<Date>["mppt1"]) =>
-    new Date(
+  const getLastUpdated = (mppt: TelemetryData<Date>["mppt1"]) => {
+    if (
+      !mppt?.input_v ||
+      !mppt?.input_c ||
+      !mppt?.output_v ||
+      !mppt?.output_c
+    ) {
+      return undefined;
+    }
+    return new Date(
       Math.max(
         mppt.input_v.getTime(),
         mppt.input_c.getTime(),
@@ -71,10 +80,61 @@ export default function MPPTSection({
         mppt.output_c.getTime(),
       ),
     );
+  };
 
   const mppt1LastUpdated = getLastUpdated(dateData.mppt1);
   const mppt2LastUpdated = getLastUpdated(dateData.mppt2);
   const mppt3LastUpdated = getLastUpdated(dateData.mppt3);
+
+  // Create default MPPT data for missing values
+  const defaultMPPTData: MPPTData = {
+    input_v: 0,
+    input_c: 0,
+    output_v: 0,
+    output_c: 0,
+  };
+
+  const mppt1Data: MPPTData =
+    mppt1 &&
+    mppt1.input_v !== undefined &&
+    mppt1.input_c !== undefined &&
+    mppt1.output_v !== undefined &&
+    mppt1.output_c !== undefined
+      ? {
+          input_v: mppt1.input_v,
+          input_c: mppt1.input_c,
+          output_v: mppt1.output_v,
+          output_c: mppt1.output_c,
+        }
+      : defaultMPPTData;
+
+  const mppt2Data: MPPTData =
+    mppt2 &&
+    mppt2.input_v !== undefined &&
+    mppt2.input_c !== undefined &&
+    mppt2.output_v !== undefined &&
+    mppt2.output_c !== undefined
+      ? {
+          input_v: mppt2.input_v,
+          input_c: mppt2.input_c,
+          output_v: mppt2.output_v,
+          output_c: mppt2.output_c,
+        }
+      : defaultMPPTData;
+
+  const mppt3Data: MPPTData =
+    mppt3 &&
+    mppt3.input_v !== undefined &&
+    mppt3.input_c !== undefined &&
+    mppt3.output_v !== undefined &&
+    mppt3.output_c !== undefined
+      ? {
+          input_v: mppt3.input_v,
+          input_c: mppt3.input_c,
+          output_v: mppt3.output_v,
+          output_c: mppt3.output_c,
+        }
+      : defaultMPPTData;
 
   return (
     <div>
@@ -87,9 +147,21 @@ export default function MPPTSection({
         Solar Panel Controllers (MPPT)
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MPPTCard title="MPPT 1" data={mppt1} lastUpdated={mppt1LastUpdated} />
-        <MPPTCard title="MPPT 2" data={mppt2} lastUpdated={mppt2LastUpdated} />
-        <MPPTCard title="MPPT 3" data={mppt3} lastUpdated={mppt3LastUpdated} />
+        <MPPTCard
+          title="MPPT 1"
+          data={mppt1Data}
+          lastUpdated={mppt1LastUpdated}
+        />
+        <MPPTCard
+          title="MPPT 2"
+          data={mppt2Data}
+          lastUpdated={mppt2LastUpdated}
+        />
+        <MPPTCard
+          title="MPPT 3"
+          data={mppt3Data}
+          lastUpdated={mppt3LastUpdated}
+        />
       </div>
     </div>
   );

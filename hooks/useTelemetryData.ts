@@ -11,7 +11,7 @@ const useTelemetryData = () => {
   useEffect(() => {
     const fetchLatestData = async () => {
       try {
-        const {numericData, dateData} = await fetchLatestTelemetryData();
+        const { numericData, dateData } = await fetchLatestTelemetryData();
         setData(numericData || null);
         setDateData(dateData || null);
         setError(null);
@@ -24,6 +24,10 @@ const useTelemetryData = () => {
     };
 
     fetchLatestData();
+
+    const interval = setInterval(fetchLatestData, 2000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return { data, dateData, loading, error };

@@ -5,12 +5,13 @@ import ClientOnly from "@/components/ClientOnly";
 
 interface PowerCardProps {
   title: string;
-  voltage: number;
-  current: number;
+  voltage?: number;
+  current?: number;
   power: number;
   icon: LucideIcon;
   status?: StatusType;
   lastUpdated?: Date;
+  className?: string;
 }
 
 export default function PowerCard({
@@ -21,6 +22,7 @@ export default function PowerCard({
   icon: Icon,
   status,
   lastUpdated,
+  className,
 }: PowerCardProps) {
   const getStatusColor = () => {
     switch (status) {
@@ -36,7 +38,7 @@ export default function PowerCard({
   };
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <ClientOnly
@@ -58,14 +60,14 @@ export default function PowerCard({
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <span className="text-muted-foreground">V:</span>{" "}
-            {voltage.toFixed(1)}
+            {voltage?.toFixed(1)}
             <span className="text-xs font-normal text-muted-foreground ml-1">
               V
             </span>
           </div>
           <div>
             <span className="text-muted-foreground">A:</span>{" "}
-            {current.toFixed(1)}
+            {current?.toFixed(1)}
             <span className="text-xs font-normal text-muted-foreground ml-1">
               A
             </span>

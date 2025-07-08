@@ -31,8 +31,8 @@ export default function BatterySection({
             value={batteryData.main_bat_v}
             unit="V"
             icon={Battery}
-            status={getBatteryStatus(batteryData.main_bat_v, "main")}
-            subtitle={batteryData.main_bat_c.toFixed(1)}
+            status={getBatteryStatus(batteryData.main_bat_v ?? 0, "main")}
+            subtitle={batteryData.main_bat_c?.toFixed(1)}
             subtitleUnit="A"
             subtitleFullSize={true}
             lastUpdated={lastUpdated}
@@ -43,17 +43,21 @@ export default function BatterySection({
             unit="V"
             icon={Battery}
             subtitleFullSize={true}
-            status={getBatteryStatus(batteryData.sup_bat_v, "supplemental")}
+            status={getBatteryStatus(
+              batteryData.sup_bat_v ?? 0,
+              "supplemental",
+            )}
             lastUpdated={lastUpdated}
+            className="blur-sm"
           />
         </div>
 
         <CellMonitoring
-          lowCellV={batteryData.low_cell_v}
-          highCellV={batteryData.high_cell_v}
-          highCellT={batteryData.high_cell_t}
-          cellIdxLowV={batteryData.cell_idx_low_v}
-          cellIdxHighT={batteryData.cell_idx_high_t}
+          lowCellV={batteryData.low_cell_v ?? 0}
+          highCellV={batteryData.high_cell_v ?? 0}
+          highCellT={batteryData.high_cell_t ?? 0}
+          cellIdxLowV={batteryData.cell_idx_low_v ?? 0}
+          cellIdxHighT={batteryData.cell_idx_high_t ?? 0}
         />
       </div>
     </div>
