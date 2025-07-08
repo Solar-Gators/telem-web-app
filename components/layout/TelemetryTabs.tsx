@@ -24,7 +24,9 @@ export default function TelemetryTabs({
       >
         <TabsTrigger value="live-stats">Live Stats</TabsTrigger>
         <TabsTrigger value="stats-graph">Stats Graph</TabsTrigger>
-        <TabsTrigger value="track-flare">Track Flare</TabsTrigger>
+        <TabsTrigger value="track-flare" disabled>
+          Track Flare
+        </TabsTrigger>
         <TabsTrigger value="admin">Admin Dashboard</TabsTrigger>
       </TabsList>
 
