@@ -142,18 +142,13 @@ export default function StatsGraphTab() {
   ]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<Date | undefined>(() => {
-    const now = new Date();
-    now.setHours(1, 0, 0, 0);
-    return now;
+    return new Date("2025-07-04T01:00:00");
   });
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(
     null,
   );
   const [endDate, setEndDate] = useState<Date | undefined>(() => {
-    const now = new Date();
-    now.setDate(now.getDate() + 1);
-    now.setHours(1, 0, 0, 0);
-    return now;
+    return new Date("2025-07-06T01:00:00");
   });
 
   const [lineColors] = useState([
