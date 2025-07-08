@@ -63,18 +63,19 @@ const ENABLE_REFRESH_INTERVAL = false;
 function toCDT(date: Date | string): Date {
   const d = new Date(date);
   
+  // Always subtract 1 hour regardless of environment
+  let adjustedTime = new Date(d.getTime() - (1 * 60 * 60 * 1000)); // subtract 1 hour
+  
   // Check if we're in local development (not production)
   const isLocal = process.env.NODE_ENV === 'development' || 
                   typeof window !== 'undefined' && window.location.hostname === 'localhost';
   
-  // If local, subtract 4 hours to match production timezone
+  // If local, subtract additional 4 hours to match production timezone
   if (isLocal) {
-    const adjustedTime = new Date(d.getTime() - (4 * 60 * 60 * 1000)); // subtract 4 hours
-    return adjustedTime;
+    adjustedTime = new Date(adjustedTime.getTime() - (4 * 60 * 60 * 1000)); // subtract additional 4 hours
   }
   
-  // In production, return the date as-is
-  return d;
+  return adjustedTime;
 }
 
 // Helper function to get label from data key

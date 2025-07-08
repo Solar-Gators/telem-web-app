@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 import { TelemetryData } from "@/lib/types";
 
+// External API to upload telemetry data to database
+// Never called in our app, called externally in NoteHub (LTE service that recieves data from the car)
 export async function POST(request: NextRequest) {
   const json_obj = await request.json();
 
