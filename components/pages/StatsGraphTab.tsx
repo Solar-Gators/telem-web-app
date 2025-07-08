@@ -62,19 +62,20 @@ const ENABLE_REFRESH_INTERVAL = false;
 // Helper function to convert any date to CDT (UTC-5)
 function toCDT(date: Date | string): Date {
   const d = new Date(date);
-  
+
   // Always subtract 1 hour regardless of environment
-  let adjustedTime = new Date(d.getTime() - (1 * 60 * 60 * 1000)); // subtract 1 hour
-  
+  let adjustedTime = new Date(d.getTime() - 1 * 60 * 60 * 1000); // subtract 1 hour
+
   // Check if we're in local development (not production)
-  const isLocal = process.env.NODE_ENV === 'development' || 
-                  typeof window !== 'undefined' && window.location.hostname === 'localhost';
-  
+  const isLocal =
+    process.env.NODE_ENV === "development" ||
+    (typeof window !== "undefined" && window.location.hostname === "localhost");
+
   // If local, subtract additional 4 hours to match production timezone
   if (isLocal) {
-    adjustedTime = new Date(adjustedTime.getTime() - (4 * 60 * 60 * 1000)); // subtract additional 4 hours
+    adjustedTime = new Date(adjustedTime.getTime() - 4 * 60 * 60 * 1000); // subtract additional 4 hours
   }
-  
+
   return adjustedTime;
 }
 
@@ -482,8 +483,8 @@ export default function StatsGraphTab() {
                 const result: any = {
                   timestamp: toCDT(
                     dataPoint.created_at ||
-                    dataPoint.gps?.rx_time ||
-                    new Date(),
+                      dataPoint.gps?.rx_time ||
+                      new Date(),
                   ),
                 };
 
@@ -575,7 +576,8 @@ export default function StatsGraphTab() {
               data?.forEach((point: any) => {
                 const cdtTimestamp = toCDT(point.timestamp);
                 const ts = cdtTimestamp.toISOString();
-                if (!mergedData[ts]) mergedData[ts] = { timestamp: cdtTimestamp };
+                if (!mergedData[ts])
+                  mergedData[ts] = { timestamp: cdtTimestamp };
                 mergedData[ts][key] = point.value;
               });
             });

@@ -48,5 +48,9 @@ function TelemetryContent() {
 
 export default function SolarCarTelemetry() {
   // todo add VerificationGuard back to enable auth
-  return <TelemetryContent />;
+  return (
+    <VerificationGuard>
+      <TelemetryContent />
+    </VerificationGuard>
+  );
 }

@@ -13,11 +13,10 @@ interface TelemetryStatValue {
 
 export async function fetchLatestTelemetryData() {
   try {
-    // Authentication logic can be re-enabled here if needed
-    // const session = await auth();
-    // if (!session || !session.user.is_verified) {
-    //   throw new AuthError("User not authenticated or not verified");
-    // }
+    const session = await auth();
+    if (!session || !session.user.is_verified) {
+      throw new AuthError("User not authenticated or not verified");
+    }
 
     // Connect to the Neon database. Ensure DATABASE_URL is in your environment variables.
     const sql = neon(process.env.DATABASE_URL || "");
@@ -109,10 +108,10 @@ export async function fetchTelemetryDataInRange(
   statField?: string,
 ): Promise<TelemetryData<number>[] | TelemetryStatValue[] | null> {
   try {
-    //const session = await auth();
-    //if (!session || !session.user.is_verified) {
-    //  throw new AuthError("User not authenticated or not verified");
-    //}
+    const session = await auth();
+    if (!session || !session.user.is_verified) {
+      throw new AuthError("User not authenticated or not verified");
+    }
 
     // Connect to the Neon database
     const sql = neon(process.env.DATABASE_URL || "");
