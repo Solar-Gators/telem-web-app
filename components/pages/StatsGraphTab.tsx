@@ -56,6 +56,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 
+// Configuration constant to enable/disable refresh interval
+const ENABLE_REFRESH_INTERVAL = false;
+
 // Helper function to get label from data key
 function getLabelFromDataKey(dataKey: string): string {
   // Handle custom fields
@@ -68,8 +71,6 @@ function getLabelFromDataKey(dataKey: string): string {
       return "Total Solar Power";
     case "mppt_sum":
       return "Total MPPT Voltage Output";
-    case "battery_power":
-      return "Battery Power";
     case "battery_energy_ah":
       return "Battery Remaining Energy (Ah)";
     case "battery_soc":
@@ -148,6 +149,65 @@ export default function StatsGraphTab() {
   const [minYTrim, setMinYTrim] = useState<number | undefined>(undefined);
   const [maxYTrim, setMaxYTrim] = useState<number | undefined>(undefined);
 
+  // Validation function to check for errors
+  const getValidationError = () => {
+    // Validate data and dateData are not null
+    if (chartData === null) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-red-600">Data Error</h3>
+            <p className="text-sm text-gray-600">
+              Chart data is null or invalid
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (startDate === null || endDate === null) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-red-600">Date Error</h3>
+            <p className="text-sm text-gray-600">
+              Date data is null or invalid
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // Iterate through all data points and check for null values
+    if (chartData.length > 0) {
+      const hasNullData = chartData.some((dataPoint) => {
+        if (dataPoint === null || dataPoint === undefined) {
+          return true;
+        }
+        // Check if any selected data key has null values
+        return selectedDataKeys.some((key) => {
+          const value = dataPoint[key];
+          return value === null;
+        });
+      });
+
+      if (hasNullData) {
+        return (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-red-600">Data Error</h3>
+              <p className="text-sm text-gray-600">
+                Some data points contain null values
+              </p>
+            </div>
+          </div>
+        );
+      }
+    }
+
+    return null;
+  };
+
   const selectGroups = generateSelectGroups();
 
   // CSV Export function
@@ -217,7 +277,6 @@ export default function StatsGraphTab() {
           | "motor_power"
           | "total_solar_power"
           | "mppt_sum"
-          | "battery_power"
           | "battery_energy_ah"
           | "battery_soc"
           | "motor_power_consumption" =>
@@ -225,7 +284,6 @@ export default function StatsGraphTab() {
           key === "motor_power" ||
           key === "total_solar_power" ||
           key === "mppt_sum" ||
-          key === "battery_power" ||
           key === "battery_energy_ah" ||
           key === "battery_soc" ||
           key === "motor_power_consumption",
@@ -237,7 +295,6 @@ export default function StatsGraphTab() {
             "motor_power",
             "total_solar_power",
             "mppt_sum",
-            "battery_power",
             "battery_energy_ah",
             "battery_soc",
             "motor_power_consumption",
@@ -290,12 +347,12 @@ export default function StatsGraphTab() {
                       dataPoint.mppt2.output_v +
                       dataPoint.mppt3.output_v;
                     break;
-                  case "battery_power":
+                  case "net_power":
                     // Calculate battery power: voltage * current
                     // Only include if both voltage and current are non-zero
                     const voltage = dataPoint.battery?.main_bat_v;
                     const current = dataPoint.battery?.main_bat_c;
-                    if (voltage && current && voltage !== 0 && current !== 0) {
+                    if (voltage && current) {
                       result[field] = voltage * current;
                     } else {
                       result[field] = 0;
@@ -308,12 +365,9 @@ export default function StatsGraphTab() {
                     result[field] = calculateBatterySOC(dataPoint);
                     break;
                   case "motor_power_consumption":
-                    const motorPowerConsumption = calculateMotorPowerConsumption(dataPoint);
-                    if (motorPowerConsumption !== null) {
-                      result[field] = motorPowerConsumption;
-                    } else {
-                      result[field] = null; // This will be filtered out
-                    }
+                    const motorPowerConsumption =
+                      calculateMotorPowerConsumption(dataPoint);
+                    result[field] = motorPowerConsumption;
                     break;
                 }
               });
@@ -322,7 +376,9 @@ export default function StatsGraphTab() {
             })
             .filter((dataPoint) => {
               // Filter out data points where any selected custom field has a value of 0 or null
-              return !customFields.some((field) => dataPoint[field] === 0 || dataPoint[field] === null);
+              return !customFields.some(
+                (field) => dataPoint[field] === 0 || dataPoint[field] === null,
+              );
             });
 
           setChartData(processedData);
@@ -359,6 +415,12 @@ export default function StatsGraphTab() {
     if (refreshInterval) {
       clearInterval(refreshInterval);
     }
+    
+    // Only set up refresh interval if enabled
+    if (!ENABLE_REFRESH_INTERVAL) {
+      return;
+    }
+    
     const interval = setInterval(() => {
       if (selectedDataKeys.length > 0 && startDate && endDate) {
         // Check if any custom fields are selected
@@ -370,7 +432,6 @@ export default function StatsGraphTab() {
             | "motor_power"
             | "total_solar_power"
             | "mppt_sum"
-            | "battery_power"
             | "battery_energy_ah"
             | "battery_soc"
             | "motor_power_consumption" =>
@@ -378,7 +439,6 @@ export default function StatsGraphTab() {
             key === "motor_power" ||
             key === "total_solar_power" ||
             key === "mppt_sum" ||
-            key === "battery_power" ||
             key === "battery_energy_ah" ||
             key === "battery_soc" ||
             key === "motor_power_consumption",
@@ -390,7 +450,6 @@ export default function StatsGraphTab() {
               "motor_power",
               "total_solar_power",
               "mppt_sum",
-              "battery_power",
               "battery_energy_ah",
               "battery_soc",
               "motor_power_consumption",
@@ -445,12 +504,12 @@ export default function StatsGraphTab() {
                         dataPoint.mppt2.output_v +
                         dataPoint.mppt3.output_v;
                       break;
-                    case "battery_power":
+                    case "net_power":
                       // Calculate battery power: voltage * current
                       // Only include if both voltage and current are non-zero
                       const voltage = dataPoint.battery?.main_bat_v;
                       const current = dataPoint.battery?.main_bat_c;
-                      if (voltage && current && voltage !== 0 && current !== 0) {
+                      if (voltage && current) {
                         result[field] = voltage * current;
                       } else {
                         result[field] = 0;
@@ -463,12 +522,9 @@ export default function StatsGraphTab() {
                       result[field] = calculateBatterySOC(dataPoint);
                       break;
                     case "motor_power_consumption":
-                      const motorPowerConsumption = calculateMotorPowerConsumption(dataPoint);
-                      if (motorPowerConsumption !== null) {
-                        result[field] = motorPowerConsumption;
-                      } else {
-                        result[field] = null; // This will be filtered out
-                      }
+                      const motorPowerConsumption =
+                        calculateMotorPowerConsumption(dataPoint);
+                      result[field] = motorPowerConsumption;
                       break;
                   }
                 });
@@ -477,7 +533,10 @@ export default function StatsGraphTab() {
               })
               .filter((dataPoint) => {
                 // Filter out data points where any selected custom field has a value of 0 or null
-                return !customFields.some((field) => dataPoint[field] === 0 || dataPoint[field] === null);
+                return !customFields.some(
+                  (field) =>
+                    dataPoint[field] === 0 || dataPoint[field] === null,
+                );
               });
 
             setChartData(processedData);
@@ -533,6 +592,12 @@ export default function StatsGraphTab() {
 
   // Generate dynamic chart
   const chartConfig = generateChartConfig(selectedDataKeys, lineColors);
+
+  // Check for validation errors and return early if any exist
+  const validationError = getValidationError();
+  if (validationError) {
+    return validationError;
+  }
 
   return (
     <div>

@@ -77,7 +77,7 @@ export function mapTelemetryData<T>(data: any): TelemetryData<T> {
 export function getSpeedStatus(
   data: TelemetryData<number>,
 ): StatusType | undefined {
-  if (!data.gps) return;
+  if (!data.gps || data.gps.speed === undefined) return;
 
   return data.gps.speed > 0 ? "good" : "warning";
 }
@@ -92,7 +92,7 @@ export function getNetPowerStatus(
 export function getMotorStatus(
   data: TelemetryData<number>,
 ): StatusType | undefined {
-  if (!data.mitsuba) return;
+  if (!data.mitsuba || data.mitsuba.current === undefined) return;
 
   return data.mitsuba.current > 0 ? "good" : "warning";
 }
@@ -100,16 +100,26 @@ export function getMotorStatus(
 export function calculateNetPower(data: TelemetryData<number>): number {
   const solarPower = calculateTotalSolarPower(data);
   const motorPower = calculateMotorPower(data);
-  return solarPower - motorPower;
+  return (solarPower ?? 0) - motorPower;
 }
 
 export function calculateMotorPower(data: TelemetryData<number>): number {
-  if (!data.mitsuba) return 0;
+  if (!data.mitsuba || data.mitsuba.voltage === undefined || data.mitsuba.current === undefined) return 0;
 
   return data.mitsuba.voltage * data.mitsuba.current;
 }
 
-export function calculateTotalSolarPower(data: TelemetryData<number>): number {
+export function calculateTotalSolarPower(
+  data: TelemetryData<number>,
+): number | null {
+  if (
+    !data.mppt1 || !data.mppt1.output_v || !data.mppt1.output_c ||
+    !data.mppt2 || !data.mppt2.output_v || !data.mppt2.output_c ||
+    !data.mppt3 || !data.mppt3.output_v || !data.mppt3.output_c
+  ) {
+    return null;
+  }
+
   return (
     data.mppt1.output_v * data.mppt1.output_c +
     data.mppt2.output_v * data.mppt2.output_c +
@@ -120,12 +130,18 @@ export function calculateTotalSolarPower(data: TelemetryData<number>): number {
 export function calculateAverageSolarVoltage(
   data: TelemetryData<number>,
 ): number {
+  if (!data.mppt1?.input_v || !data.mppt2?.input_v || !data.mppt3?.input_v) {
+    return 0;
+  }
   return (data.mppt1.input_v + data.mppt2.input_v + data.mppt3.input_v) / 3;
 }
 
 export function calculateTotalSolarCurrent(
   data: TelemetryData<number>,
 ): number {
+  if (!data.mppt1?.input_c || !data.mppt2?.input_c || !data.mppt3?.input_c) {
+    return 0;
+  }
   return data.mppt1.input_c + data.mppt2.input_c + data.mppt3.input_c;
 }
 
@@ -166,6 +182,7 @@ export function calculateStateOfCharge(data: TelemetryData<number>): number {
   // Simplified SOC calculation based on voltage
   // This is a placeholder - actual SOC calculation would be more complex
   const nominalVoltage = 48; // Example nominal battery voltage
+  if (!data.battery || data.battery.main_bat_v === undefined) return 0;
   return Math.min(
     100,
     Math.max(0, (data.battery.main_bat_v / nominalVoltage) * 100),
@@ -713,7 +730,7 @@ function voltToAh(inputVoltage: number): number {
 }
 
 export function calculateBatteryEnergyAh(data: TelemetryData<number>): number {
-  if (!data.battery?.main_bat_v) return 0;
+  if (!data.battery || data.battery.main_bat_v === undefined) return 0;
 
   // Convert telemetry main pack voltage to actual pack voltage
   const actualPackVoltage = (29 / 13) * data.battery.main_bat_v;
@@ -737,7 +754,9 @@ export function calculateBatterySOC(data: TelemetryData<number>): number {
   return Math.max(0, Math.min(100, soc)); // Clamp between 0 and 100
 }
 
-export function calculateMotorPowerConsumption(data: TelemetryData<number>): number | null {
+export function calculateMotorPowerConsumption(
+  data: TelemetryData<number>,
+): number | null {
   // Check if all required values are non-zero
   const mainBatV = data.battery?.main_bat_v;
   const mainBatC = data.battery?.main_bat_c;
@@ -749,10 +768,16 @@ export function calculateMotorPowerConsumption(data: TelemetryData<number>): num
   const mppt3OutputC = data.mppt3?.output_c;
 
   // Return null if any required value is missing or zero
-  if (!mainBatV || !mainBatC || !mppt1OutputV || !mppt1OutputC || 
-      !mppt2OutputV || !mppt2OutputC || !mppt3OutputV || !mppt3OutputC ||
-      mainBatV === 0 || mainBatC === 0 || mppt1OutputV === 0 || mppt1OutputC === 0 ||
-      mppt2OutputV === 0 || mppt2OutputC === 0 || mppt3OutputV === 0 || mppt3OutputC === 0) {
+  if (
+    !mainBatV ||
+    !mainBatC ||
+    !mppt1OutputV ||
+    !mppt1OutputC ||
+    !mppt2OutputV ||
+    !mppt2OutputC ||
+    !mppt3OutputV ||
+    !mppt3OutputC
+  ) {
     return null;
   }
 
@@ -760,9 +785,10 @@ export function calculateMotorPowerConsumption(data: TelemetryData<number>): num
   const batteryPower = mainBatV * mainBatC;
 
   // Calculate total array power: sum of each MPPT's power
-  const arrayPower = (mppt1OutputV * mppt1OutputC) + 
-                     (mppt2OutputV * mppt2OutputC) + 
-                     (mppt3OutputV * mppt3OutputC);
+  const arrayPower =
+    mppt1OutputV * mppt1OutputC +
+    mppt2OutputV * mppt2OutputC +
+    mppt3OutputV * mppt3OutputC;
 
   // Motor power consumption = battery power - array power
   return arrayPower - batteryPower;

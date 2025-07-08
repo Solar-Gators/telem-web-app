@@ -22,11 +22,21 @@ export async function POST(request: NextRequest) {
 
     const date = new Date(unixTimestamp * 1000);
 
-    telemetryData.battery.sup_bat_v /= 1000;
-    telemetryData.battery.main_bat_v /= 1000;
-    telemetryData.battery.low_cell_v /= 1000;
-    telemetryData.battery.high_cell_v /= 1000;
-    telemetryData.battery.high_cell_t /= 1000;
+    if (telemetryData.battery.sup_bat_v !== undefined) {
+      telemetryData.battery.sup_bat_v /= 1000;
+    }
+    if (telemetryData.battery.main_bat_v !== undefined) {
+      telemetryData.battery.main_bat_v /= 1000;
+    }
+    if (telemetryData.battery.low_cell_v !== undefined) {
+      telemetryData.battery.low_cell_v /= 1000;
+    }
+    if (telemetryData.battery.high_cell_v !== undefined) {
+      telemetryData.battery.high_cell_v /= 1000;
+    }
+    if (telemetryData.battery.high_cell_t !== undefined) {
+      telemetryData.battery.high_cell_t /= 1000;
+    }
 
     const sql = neon(process.env.DATABASE_URL as string);
 

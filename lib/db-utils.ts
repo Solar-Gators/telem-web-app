@@ -67,13 +67,6 @@ export async function fetchLatestTelemetryData() {
       dateDataForMap[field] = new Date(sqlResult[`d_${field}`]);
     }
 
-    // Check if any values are 0 and throw an error if found
-    for (const field of telemetryFields) {
-      if (numericDataForMap[field] === 0) {
-        throw new Error(`Telemetry field '${field}' has a value of 0`);
-      }
-    }
-
     // Use the provided mapTelemetryData function to structure both sets of data
     const numericTelemetry = mapTelemetryData<number>(numericDataForMap);
     const dateTelemetry = mapTelemetryData<Date>(dateDataForMap);
@@ -169,7 +162,19 @@ export async function fetchTelemetryDataInRange(
     }
 
     // Otherwise, map all data to TelemetryData format
-    return result.map((row: any) => mapTelemetryData<number>(row));
+    // Convert 0 values to null when not using statField
+    return result.map((row: any) => {
+      const transformedRow = { ...row };
+
+      // Convert 0 values to null for all telemetry fields
+      for (const field of telemetryFields) {
+        if (transformedRow[field] === 0) {
+          transformedRow[field] = null;
+        }
+      }
+
+      return mapTelemetryData<number>(transformedRow);
+    });
   } catch (error) {
     console.error("Error fetching telemetry data in range:", error);
     return null;

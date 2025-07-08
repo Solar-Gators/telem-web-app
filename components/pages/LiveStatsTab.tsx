@@ -11,6 +11,7 @@ import {
   calculateTotalSolarCurrent,
   calculateBatteryEnergyAh,
   calculateBatterySOC,
+  telemetryFields,
 } from "@/lib/telemetry-utils";
 import PowerCard from "../telemetry/PowerCard";
 import SimpleCard from "../telemetry/SimpleCard";
@@ -33,9 +34,11 @@ export default function LiveStatsTab({
   const batterySOC = calculateBatterySOC(telemetryData);
 
   const batteryLastUpdated =
-    dateData.battery.main_bat_v > dateData.battery.main_bat_c
-      ? dateData.battery.main_bat_v
-      : dateData.battery.main_bat_c;
+    dateData.battery.main_bat_v && dateData.battery.main_bat_c
+      ? dateData.battery.main_bat_v > dateData.battery.main_bat_c
+        ? dateData.battery.main_bat_v
+        : dateData.battery.main_bat_c
+      : dateData.battery.main_bat_v || dateData.battery.main_bat_c;
 
   return (
     <div className="space-y-6">
@@ -53,7 +56,7 @@ export default function LiveStatsTab({
         <PowerCard
           title="Net Power"
           voltage={telemetryData.battery.main_bat_v}
-          current={netPower / telemetryData.battery.main_bat_v}
+          current={telemetryData.battery.main_bat_v ? netPower / telemetryData.battery.main_bat_v : 0}
           power={netPower}
           icon={Zap}
           status={getNetPowerStatus(telemetryData)}
@@ -67,14 +70,14 @@ export default function LiveStatsTab({
           power={motorPower}
           icon={Car}
           status={getMotorStatus(telemetryData)}
-          lastUpdated={dateData.mppt1.input_v}
+          lastUpdated={dateData.mppt1?.input_v}
           className="blur-sm"
         />
         <PowerCard
           title="Total Solar Input"
           voltage={calculateAverageSolarVoltage(telemetryData)}
           current={calculateTotalSolarCurrent(telemetryData)}
-          power={totalSolarPower}
+          power={totalSolarPower ?? 0}
           icon={Sun}
           status="good"
           lastUpdated={dateData.battery.main_bat_v}
