@@ -5,6 +5,7 @@ import { TelemetryData } from "@/lib/types";
 import LiveStatsTab from "../pages/LiveStatsTab";
 import StatsGraphTab from "../pages/StatsGraphTab";
 import TrackFlareTab from "../pages/TrackFlareTab";
+import AdminTab from "../pages/AdminTab";
 
 interface TelemetryTabsProps {
   telemetryData: TelemetryData<number>;
@@ -18,7 +19,7 @@ export default function TelemetryTabs({
   return (
     <Tabs defaultValue="live-stats" className="w-full" suppressHydrationWarning>
       <TabsList
-        className="grid w-full grid-cols-3 mb-6"
+        className="grid w-full grid-cols-4 mb-6"
         suppressHydrationWarning
       >
         <TabsTrigger value="live-stats">Live Stats</TabsTrigger>
@@ -26,6 +27,7 @@ export default function TelemetryTabs({
         <TabsTrigger value="track-flare" disabled>
           Track Flare
         </TabsTrigger>
+        <TabsTrigger value="admin">Admin Dashboard</TabsTrigger>
       </TabsList>
 
       {/* Live Stats Tab */}
@@ -41,6 +43,10 @@ export default function TelemetryTabs({
       {/* Track Flare Tab */}
       <TabsContent value="track-flare">
         <TrackFlareTab telemetryData={telemetryData} dateData={dateData} />
+      </TabsContent>
+      {/* Admin Dashboard */}
+      <TabsContent value="admin">
+        <AdminTab />
       </TabsContent>
     </Tabs>
   );
