@@ -62,9 +62,19 @@ const ENABLE_REFRESH_INTERVAL = false;
 // Helper function to convert any date to CDT (UTC-5)
 function toCDT(date: Date | string): Date {
   const d = new Date(date);
-  // Force the date to be displayed as if it's in CDT (UTC-5)
-  // Regardless of the local timezone, we want consistent CDT display
-  return new Date(d.toLocaleString("en-US", { timeZone: "America/Chicago" }));
+  
+  // Check if we're in local development (not production)
+  const isLocal = process.env.NODE_ENV === 'development' || 
+                  typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  
+  // If local, subtract 4 hours to match production timezone
+  if (isLocal) {
+    const adjustedTime = new Date(d.getTime() - (4 * 60 * 60 * 1000)); // subtract 4 hours
+    return adjustedTime;
+  }
+  
+  // In production, return the date as-is
+  return d;
 }
 
 // Helper function to get label from data key
