@@ -30,6 +30,7 @@ import {
   calculateBatteryEnergyAh,
   calculateBatterySOC,
   calculateMotorPowerConsumption,
+  mapTelemetryData,
 } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
 import { ChevronDownIcon, Download } from "lucide-react";
@@ -55,6 +56,26 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
+import { Telemetry } from "next/dist/telemetry/storage";
+
+function integrateData(data: any, dataKey: string) {
+  let integral = 0
+
+  for (let i = 0; i < data.length - 1; i++) {
+
+  let date1 = new Date(data[i + 1].timestamp);
+  let date2 = new Date(data[i].timestamp);
+  let changeX = date1.getTime() - date2.getTime();
+
+  let midVal = (data[i+1][dataKey] + data[i][dataKey])/2
+  integral += (midVal*changeX)/1000
+
+  }
+  console.log(integral)
+  return integral
+}
+
+
 
 // Configuration constant to enable/disable refresh interval
 const ENABLE_REFRESH_INTERVAL = false;
@@ -618,6 +639,8 @@ export default function StatsGraphTab() {
   if (validationError) {
     return validationError;
   }
+
+integrateData(chartData, selectedDataKeys[0])
 
   return (
     <div>
