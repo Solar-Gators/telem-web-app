@@ -141,7 +141,7 @@ function getLabelFromDataKey(dataKey: string): string {
 // Generate dynamic chart config based on selected data keys
 function generateChartConfig(
   selectedDataKeys: string[],
-  lineColors: string[]
+  lineColors: string[],
 ): ChartConfig {
   const config: ChartConfig = {};
 
@@ -168,7 +168,7 @@ export default function StatsGraphTab() {
     return new Date("2025-07-04T01:00:00");
   });
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(
-    null
+    null,
   );
   const [endDate, setEndDate] = useState<Date | undefined>(() => {
     return new Date("2025-07-06T01:00:00");
@@ -257,7 +257,7 @@ export default function StatsGraphTab() {
     const headers = ["timestamp", ...selectedDataKeys];
     const csvHeaders = headers
       .map((header) =>
-        header === "timestamp" ? "Timestamp" : getLabelFromDataKey(header)
+        header === "timestamp" ? "Timestamp" : getLabelFromDataKey(header),
       )
       .join(",");
 
@@ -290,7 +290,7 @@ export default function StatsGraphTab() {
     const endStr = endDate?.toLocaleDateString().replace(/\//g, "-") || "end";
     link.setAttribute(
       "download",
-      `telemetry-data-${startStr}-to-${endStr}.csv`
+      `telemetry-data-${startStr}-to-${endStr}.csv`,
     );
 
     link.style.visibility = "hidden";
@@ -316,7 +316,7 @@ export default function StatsGraphTab() {
       // Check if any custom fields are selected
       const customFields = selectedDataKeys.filter(
         (
-          key
+          key,
         ): key is
           | "net_power"
           | "motor_power"
@@ -331,7 +331,7 @@ export default function StatsGraphTab() {
           key === "mppt_sum" ||
           key === "battery_energy_ah" ||
           key === "battery_soc" ||
-          key === "motor_power_consumption"
+          key === "motor_power_consumption",
       );
       const regularFields = selectedDataKeys.filter(
         (key) =>
@@ -343,7 +343,7 @@ export default function StatsGraphTab() {
             "battery_energy_ah",
             "battery_soc",
             "motor_power_consumption",
-          ].includes(key)
+          ].includes(key),
       );
 
       if (customFields.length > 0) {
@@ -355,7 +355,7 @@ export default function StatsGraphTab() {
             .map((dataPoint: any) => {
               const result: any = {
                 timestamp: toCDT(
-                  dataPoint.created_at || dataPoint.gps?.rx_time || new Date()
+                  dataPoint.created_at || dataPoint.gps?.rx_time || new Date(),
                 ),
               };
 
@@ -367,7 +367,7 @@ export default function StatsGraphTab() {
                   const fieldName = field.substring(firstUnderscore + 1);
                   const value = getValueFromPath(
                     dataPoint,
-                    `${category}.${fieldName}`
+                    `${category}.${fieldName}`,
                   );
                   if (value !== undefined) {
                     result[field] = value;
@@ -423,7 +423,7 @@ export default function StatsGraphTab() {
             .filter((dataPoint) => {
               // Filter out data points where any selected custom field has a value of 0 or null
               return !customFields.some(
-                (field) => dataPoint[field] === 0 || dataPoint[field] === null
+                (field) => dataPoint[field] === 0 || dataPoint[field] === null,
               );
             });
 
@@ -436,8 +436,8 @@ export default function StatsGraphTab() {
             fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
               key,
               data,
-            }))
-          )
+            })),
+          ),
         ).then((results) => {
           const mergedData: { [timestamp: string]: any } = {};
           results.forEach(({ key, data }) => {
@@ -450,7 +450,7 @@ export default function StatsGraphTab() {
           });
           const mergedArray = Object.values(mergedData).sort(
             (a: any, b: any) =>
-              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
           );
           setChartData(mergedArray);
         });
@@ -473,7 +473,7 @@ export default function StatsGraphTab() {
         // Check if any custom fields are selected
         const customFields = selectedDataKeys.filter(
           (
-            key
+            key,
           ): key is
             | "net_power"
             | "motor_power"
@@ -488,7 +488,7 @@ export default function StatsGraphTab() {
             key === "mppt_sum" ||
             key === "battery_energy_ah" ||
             key === "battery_soc" ||
-            key === "motor_power_consumption"
+            key === "motor_power_consumption",
         );
         const regularFields = selectedDataKeys.filter(
           (key) =>
@@ -500,7 +500,7 @@ export default function StatsGraphTab() {
               "battery_energy_ah",
               "battery_soc",
               "motor_power_consumption",
-            ].includes(key)
+            ].includes(key),
         );
 
         if (customFields.length > 0) {
@@ -512,7 +512,9 @@ export default function StatsGraphTab() {
               .map((dataPoint: any) => {
                 const result: any = {
                   timestamp: toCDT(
-                    dataPoint.created_at || dataPoint.gps?.rx_time || new Date()
+                    dataPoint.created_at ||
+                      dataPoint.gps?.rx_time ||
+                      new Date(),
                   ),
                 };
 
@@ -524,7 +526,7 @@ export default function StatsGraphTab() {
                     const fieldName = field.substring(firstUnderscore + 1);
                     const value = getValueFromPath(
                       dataPoint,
-                      `${category}.${fieldName}`
+                      `${category}.${fieldName}`,
                     );
                     if (value !== undefined) {
                       result[field] = value;
@@ -580,7 +582,8 @@ export default function StatsGraphTab() {
               .filter((dataPoint) => {
                 // Filter out data points where any selected custom field has a value of 0 or null
                 return !customFields.some(
-                  (field) => dataPoint[field] === 0 || dataPoint[field] === null
+                  (field) =>
+                    dataPoint[field] === 0 || dataPoint[field] === null,
                 );
               });
 
@@ -594,9 +597,9 @@ export default function StatsGraphTab() {
                 (data) => ({
                   key,
                   data,
-                })
-              )
-            )
+                }),
+              ),
+            ),
           ).then((results) => {
             const mergedData: { [timestamp: string]: any } = {};
             results.forEach(({ key, data }) => {
@@ -611,7 +614,7 @@ export default function StatsGraphTab() {
             const mergedArray = Object.values(mergedData).sort(
               (a: any, b: any) =>
                 new Date(a.timestamp).getTime() -
-                new Date(b.timestamp).getTime()
+                new Date(b.timestamp).getTime(),
             );
             setChartData(mergedArray);
           });
@@ -672,7 +675,7 @@ export default function StatsGraphTab() {
                     <DropdownMenuCheckboxItem
                       key={option.value}
                       checked={selectedDataKeys.includes(
-                        option.value.replace(".", "_")
+                        option.value.replace(".", "_"),
                       )}
                       onCheckedChange={(checked) => {
                         const value = option.value.replace(".", "_");
@@ -756,7 +759,7 @@ export default function StatsGraphTab() {
               onChange={(time) => {
                 startDate?.setHours(parseInt(time.target.value.split(":")[0]));
                 startDate?.setMinutes(
-                  parseInt(time.target.value.split(":")[1])
+                  parseInt(time.target.value.split(":")[1]),
                 );
               }}
               className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
