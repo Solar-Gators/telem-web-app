@@ -32,7 +32,7 @@ import {
   calculateMotorPowerConsumption,
 } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
-import { ChevronDownIcon, Download } from "lucide-react";
+import { Axis3D, ChevronDownIcon, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -55,9 +55,30 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
+import SimpleCard from "../telemetry/SimpleCard";
 
 // Configuration constant to enable/disable refresh interval
 const ENABLE_REFRESH_INTERVAL = false;
+
+function integrateData(data: any, dataKey: string) {
+  let integral = 0;
+  for (let i = data.length - 1; i > 0; i--) {
+    const v0 = data[i][dataKey];
+    const v1 = data[i - 1][dataKey];
+
+    if (v1 == null || v0 == null) {
+      continue;
+    }
+
+    let midValue = (v0 + v1) / 2;
+    let date1 = new Date(data[i - 1].timestamp);
+    let date2 = new Date(data[i].timestamp);
+    let changeX = date2.getTime() - date1.getTime();
+
+    integral += (midValue * changeX) / 1000;
+  }
+  return integral;
+}
 
 // Helper function to convert any date to CDT (UTC-5)
 function toCDT(date: Date | string): Date {
@@ -141,6 +162,7 @@ export default function StatsGraphTab() {
   const [selectedDataKeys, setSelectedDataKeys] = useState<string[]>([
     "battery_main_bat_v",
   ]);
+  const [integrals, setIntegrals] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<Date | undefined>(() => {
     return new Date("2025-07-04T01:00:00");
@@ -280,6 +302,14 @@ export default function StatsGraphTab() {
   const handleValueChange = (values: string[]) => {
     setSelectedDataKeys(values.map((v) => v.replace(".", "_")));
   };
+
+  useEffect(() => {
+    let calcIntegrals = [];
+    for (let i = 0; i < selectedDataKeys.length; i++) {
+      calcIntegrals.push(integrateData(chartData, selectedDataKeys[i]));
+    }
+    setIntegrals(calcIntegrals);
+  }, [selectedDataKeys, chartData]);
 
   useEffect(() => {
     if (selectedDataKeys.length > 0 && startDate && endDate) {
@@ -926,6 +956,26 @@ export default function StatsGraphTab() {
           })}
         </LineChart>
       </ChartContainer>
+      <div className="m-4"></div>
+      <div className="grid grid-cols-3 md:grid-cols-2 gap-1">
+        {selectedDataKeys.map((key, index) => {
+          const value = integrals[index];
+          const title =
+            "Integral Value of " +
+            getLabelFromDataKey(key) +
+            " " +
+            Number(value).toFixed(2);
+          return (
+            <SimpleCard
+              key={key}
+              title={title}
+              unit=""
+              icon={Axis3D}
+              value={value}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
