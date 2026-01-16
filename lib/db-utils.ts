@@ -172,7 +172,10 @@ export async function fetchTelemetryDataInRange(
         }
       }
 
-      return mapTelemetryData<number>(transformedRow);
+      return {
+        ...mapTelemetryData<number>(transformedRow),
+        created_at: transformedRow.created_at,
+      };
     });
   } catch (error) {
     console.error("Error fetching telemetry data in range:", error);

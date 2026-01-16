@@ -58,20 +58,27 @@ import {
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
 import { Telemetry } from "next/dist/telemetry/storage";
 
+
 function integrateData(data: any, dataKey: string) {
   let integral = 0
 
   for (let i = 0; i < data.length - 1; i++) {
 
+  const val1 = data[i][dataKey]
+  const val2 = data[i+1][dataKey]
+
+  if (val1 == null || val2 == null) {
+    continue
+  }
+
   let date1 = new Date(data[i + 1].timestamp);
   let date2 = new Date(data[i].timestamp);
   let changeX = date1.getTime() - date2.getTime();
 
-  let midVal = (data[i+1][dataKey] + data[i][dataKey])/2
+  let midVal = (val2 + val1)/2
   integral += (midVal*changeX)/1000
-
   }
-  console.log(integral)
+  console.log("PENIS")
   return integral
 }
 
@@ -156,6 +163,7 @@ function generateChartConfig(
 }
 
 export default function StatsGraphTab() {
+  
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [multiselectEnabled, setMultiselectEnabled] = useState(false);
@@ -640,9 +648,19 @@ export default function StatsGraphTab() {
     return validationError;
   }
 
-integrateData(chartData, selectedDataKeys[0])
+const [integrals, setintegrals] = useState<number[]>([])
 
-  return (
+useEffect(()=>{
+  let calcIntegrals = []
+  for (let i = 0; i < selectedDataKeys.length; i++ ) {
+    calcIntegrals.push(integrateData(chartData, selectedDataKeys[i]))
+    setintegrals(calcIntegrals)
+  }
+
+
+},[chartData])
+
+return (
     <div>
       <div className="grid place-items-center grid-cols-3 gap-4">
         <div className="flex flex-col gap-3">
@@ -744,19 +762,22 @@ integrateData(chartData, selectedDataKeys[0])
             </Popover>
           </div>
           <div className="flex flex-col gap-3">
-            <Input
-              type="time"
-              id="time-picker"
-              step="1"
-              defaultValue="01:00:00"
-              onChange={(time) => {
-                startDate?.setHours(parseInt(time.target.value.split(":")[0]));
-                startDate?.setMinutes(
-                  parseInt(time.target.value.split(":")[1]),
-                );
-              }}
-              className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-            />
+          <Input
+          type="time"
+          id="time-picker"
+          step="1"
+          defaultValue="01:00:00"
+          onChange={(e) => {
+            if (startDate) {
+              const newDate = new Date(startDate);
+              const [hours, minutes] = e.target.value.split(":");
+              newDate.setHours(parseInt(hours));
+              newDate.setMinutes(parseInt(minutes));
+              setStartDate(newDate);
+            }
+          }}
+          className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+        />
           </div>
         </div>
         <div className="flex gap-4">
@@ -789,13 +810,22 @@ integrateData(chartData, selectedDataKeys[0])
             </Popover>
           </div>
           <div className="flex flex-col gap-3">
-            <Input
-              type="time"
-              id="time-picker"
-              step="1"
-              defaultValue="01:00:00"
-              className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-            />
+          <Input
+  type="time"
+  id="time-picker"
+  step="1"
+  defaultValue="01:00:00"
+  onChange={(e) => {
+    if (endDate) {
+      const newDate = new Date(endDate);
+      const [hours, minutes] = e.target.value.split(":");
+      newDate.setHours(parseInt(hours));
+      newDate.setMinutes(parseInt(minutes));
+      setEndDate(newDate);
+    }
+  }}
+  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+/>
           </div>
         </div>
       </div>
@@ -949,6 +979,8 @@ integrateData(chartData, selectedDataKeys[0])
           })}
         </LineChart>
       </ChartContainer>
+      {selectedDataKeys.map((key, index) => {
+        return <div key={index}>{key} : {integrals[index]}</div>})}
     </div>
   );
 }
