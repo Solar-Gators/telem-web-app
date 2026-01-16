@@ -33,7 +33,7 @@ import {
   mapTelemetryData,
 } from "@/lib/telemetry-utils";
 import { useEffect, useState } from "react";
-import { ChevronDownIcon, Download } from "lucide-react";
+import { Axis3D, ChevronDownIcon, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -56,33 +56,30 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { fetchTelemetryDataInRange } from "@/lib/db-utils";
+import SimpleCard from "../telemetry/SimpleCard";
 import { Telemetry } from "next/dist/telemetry/storage";
 
-
 function integrateData(data: any, dataKey: string) {
-  let integral = 0
+  let integral = 0;
 
   for (let i = 0; i < data.length - 1; i++) {
+    const val1 = data[i][dataKey];
+    const val2 = data[i + 1][dataKey];
 
-  const val1 = data[i][dataKey]
-  const val2 = data[i+1][dataKey]
+    if (val1 == null || val2 == null) {
+      continue;
+    }
 
-  if (val1 == null || val2 == null) {
-    continue
+    let date1 = new Date(data[i + 1].timestamp);
+    let date2 = new Date(data[i].timestamp);
+    let changeX = date1.getTime() - date2.getTime();
+
+    let midVal = (val2 + val1) / 2;
+    integral += (midVal * changeX) / 1000;
   }
-
-  let date1 = new Date(data[i + 1].timestamp);
-  let date2 = new Date(data[i].timestamp);
-  let changeX = date1.getTime() - date2.getTime();
-
-  let midVal = (val2 + val1)/2
-  integral += (midVal*changeX)/1000
-  }
-  console.log("PENIS")
-  return integral
+  console.log("PENIS");
+  return integral;
 }
-
-
 
 // Configuration constant to enable/disable refresh interval
 const ENABLE_REFRESH_INTERVAL = false;
@@ -148,7 +145,7 @@ function getLabelFromDataKey(dataKey: string): string {
 // Generate dynamic chart config based on selected data keys
 function generateChartConfig(
   selectedDataKeys: string[],
-  lineColors: string[],
+  lineColors: string[]
 ): ChartConfig {
   const config: ChartConfig = {};
 
@@ -163,7 +160,6 @@ function generateChartConfig(
 }
 
 export default function StatsGraphTab() {
-  
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [multiselectEnabled, setMultiselectEnabled] = useState(false);
@@ -175,7 +171,7 @@ export default function StatsGraphTab() {
     return new Date("2025-07-04T01:00:00");
   });
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(
-    null,
+    null
   );
   const [endDate, setEndDate] = useState<Date | undefined>(() => {
     return new Date("2025-07-06T01:00:00");
@@ -264,7 +260,7 @@ export default function StatsGraphTab() {
     const headers = ["timestamp", ...selectedDataKeys];
     const csvHeaders = headers
       .map((header) =>
-        header === "timestamp" ? "Timestamp" : getLabelFromDataKey(header),
+        header === "timestamp" ? "Timestamp" : getLabelFromDataKey(header)
       )
       .join(",");
 
@@ -297,7 +293,7 @@ export default function StatsGraphTab() {
     const endStr = endDate?.toLocaleDateString().replace(/\//g, "-") || "end";
     link.setAttribute(
       "download",
-      `telemetry-data-${startStr}-to-${endStr}.csv`,
+      `telemetry-data-${startStr}-to-${endStr}.csv`
     );
 
     link.style.visibility = "hidden";
@@ -311,11 +307,19 @@ export default function StatsGraphTab() {
   };
 
   useEffect(() => {
+    let calcIntegrals = [];
+    for (let i = 0; i < selectedDataKeys.length; i++) {
+      calcIntegrals.push(integrateData(chartData, selectedDataKeys[i]));
+    }
+    setintegrals(calcIntegrals);
+  }, [selectedDataKeys, chartData]);
+
+  useEffect(() => {
     if (selectedDataKeys.length > 0 && startDate && endDate) {
       // Check if any custom fields are selected
       const customFields = selectedDataKeys.filter(
         (
-          key,
+          key
         ): key is
           | "net_power"
           | "motor_power"
@@ -330,7 +334,7 @@ export default function StatsGraphTab() {
           key === "mppt_sum" ||
           key === "battery_energy_ah" ||
           key === "battery_soc" ||
-          key === "motor_power_consumption",
+          key === "motor_power_consumption"
       );
       const regularFields = selectedDataKeys.filter(
         (key) =>
@@ -342,7 +346,7 @@ export default function StatsGraphTab() {
             "battery_energy_ah",
             "battery_soc",
             "motor_power_consumption",
-          ].includes(key),
+          ].includes(key)
       );
 
       if (customFields.length > 0) {
@@ -354,7 +358,7 @@ export default function StatsGraphTab() {
             .map((dataPoint: any) => {
               const result: any = {
                 timestamp: toCDT(
-                  dataPoint.created_at || dataPoint.gps?.rx_time || new Date(),
+                  dataPoint.created_at || dataPoint.gps?.rx_time || new Date()
                 ),
               };
 
@@ -366,7 +370,7 @@ export default function StatsGraphTab() {
                   const fieldName = field.substring(firstUnderscore + 1);
                   const value = getValueFromPath(
                     dataPoint,
-                    `${category}.${fieldName}`,
+                    `${category}.${fieldName}`
                   );
                   if (value !== undefined) {
                     result[field] = value;
@@ -422,7 +426,7 @@ export default function StatsGraphTab() {
             .filter((dataPoint) => {
               // Filter out data points where any selected custom field has a value of 0 or null
               return !customFields.some(
-                (field) => dataPoint[field] === 0 || dataPoint[field] === null,
+                (field) => dataPoint[field] === 0 || dataPoint[field] === null
               );
             });
 
@@ -435,8 +439,8 @@ export default function StatsGraphTab() {
             fetchTelemetryDataInRange(startDate, endDate, key).then((data) => ({
               key,
               data,
-            })),
-          ),
+            }))
+          )
         ).then((results) => {
           const mergedData: { [timestamp: string]: any } = {};
           results.forEach(({ key, data }) => {
@@ -449,7 +453,7 @@ export default function StatsGraphTab() {
           });
           const mergedArray = Object.values(mergedData).sort(
             (a: any, b: any) =>
-              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
           );
           setChartData(mergedArray);
         });
@@ -472,7 +476,7 @@ export default function StatsGraphTab() {
         // Check if any custom fields are selected
         const customFields = selectedDataKeys.filter(
           (
-            key,
+            key
           ): key is
             | "net_power"
             | "motor_power"
@@ -487,7 +491,7 @@ export default function StatsGraphTab() {
             key === "mppt_sum" ||
             key === "battery_energy_ah" ||
             key === "battery_soc" ||
-            key === "motor_power_consumption",
+            key === "motor_power_consumption"
         );
         const regularFields = selectedDataKeys.filter(
           (key) =>
@@ -499,7 +503,7 @@ export default function StatsGraphTab() {
               "battery_energy_ah",
               "battery_soc",
               "motor_power_consumption",
-            ].includes(key),
+            ].includes(key)
         );
 
         if (customFields.length > 0) {
@@ -511,9 +515,7 @@ export default function StatsGraphTab() {
               .map((dataPoint: any) => {
                 const result: any = {
                   timestamp: toCDT(
-                    dataPoint.created_at ||
-                      dataPoint.gps?.rx_time ||
-                      new Date(),
+                    dataPoint.created_at || dataPoint.gps?.rx_time || new Date()
                   ),
                 };
 
@@ -525,7 +527,7 @@ export default function StatsGraphTab() {
                     const fieldName = field.substring(firstUnderscore + 1);
                     const value = getValueFromPath(
                       dataPoint,
-                      `${category}.${fieldName}`,
+                      `${category}.${fieldName}`
                     );
                     if (value !== undefined) {
                       result[field] = value;
@@ -581,8 +583,7 @@ export default function StatsGraphTab() {
               .filter((dataPoint) => {
                 // Filter out data points where any selected custom field has a value of 0 or null
                 return !customFields.some(
-                  (field) =>
-                    dataPoint[field] === 0 || dataPoint[field] === null,
+                  (field) => dataPoint[field] === 0 || dataPoint[field] === null
                 );
               });
 
@@ -596,9 +597,9 @@ export default function StatsGraphTab() {
                 (data) => ({
                   key,
                   data,
-                }),
-              ),
-            ),
+                })
+              )
+            )
           ).then((results) => {
             const mergedData: { [timestamp: string]: any } = {};
             results.forEach(({ key, data }) => {
@@ -613,7 +614,7 @@ export default function StatsGraphTab() {
             const mergedArray = Object.values(mergedData).sort(
               (a: any, b: any) =>
                 new Date(a.timestamp).getTime() -
-                new Date(b.timestamp).getTime(),
+                new Date(b.timestamp).getTime()
             );
             setChartData(mergedArray);
           });
@@ -648,19 +649,25 @@ export default function StatsGraphTab() {
     return validationError;
   }
 
-const [integrals, setintegrals] = useState<number[]>([])
+  const [integrals, setintegrals] = useState<number[]>([]);
 
-useEffect(()=>{
-  let calcIntegrals = []
-  for (let i = 0; i < selectedDataKeys.length; i++ ) {
-    calcIntegrals.push(integrateData(chartData, selectedDataKeys[i]))
-    setintegrals(calcIntegrals)
-  }
+  useEffect(() => {
+    let calcIntegrals = [];
+    for (let i = 0; i < selectedDataKeys.length; i++) {
+      calcIntegrals.push(integrateData(chartData, selectedDataKeys[i]));
+      setintegrals(calcIntegrals);
+    }
+  }, [chartData]);
 
+  useEffect(() => {
+    let calcIntegrals = [];
+    for (let i = 0; i < selectedDataKeys.length; i++) {
+      calcIntegrals.push(integrateData(chartData, selectedDataKeys[i]));
+      setintegrals(calcIntegrals);
+    }
+  }, [chartData]);
 
-},[chartData])
-
-return (
+  return (
     <div>
       <div className="grid place-items-center grid-cols-3 gap-4">
         <div className="flex flex-col gap-3">
@@ -686,7 +693,7 @@ return (
                     <DropdownMenuCheckboxItem
                       key={option.value}
                       checked={selectedDataKeys.includes(
-                        option.value.replace(".", "_"),
+                        option.value.replace(".", "_")
                       )}
                       onCheckedChange={(checked) => {
                         const value = option.value.replace(".", "_");
@@ -762,22 +769,22 @@ return (
             </Popover>
           </div>
           <div className="flex flex-col gap-3">
-          <Input
-          type="time"
-          id="time-picker"
-          step="1"
-          defaultValue="01:00:00"
-          onChange={(e) => {
-            if (startDate) {
-              const newDate = new Date(startDate);
-              const [hours, minutes] = e.target.value.split(":");
-              newDate.setHours(parseInt(hours));
-              newDate.setMinutes(parseInt(minutes));
-              setStartDate(newDate);
-            }
-          }}
-          className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-        />
+            <Input
+              type="time"
+              id="time-picker"
+              step="1"
+              defaultValue="01:00:00"
+              onChange={(e) => {
+                if (startDate) {
+                  const newDate = new Date(startDate);
+                  const [hours, minutes] = e.target.value.split(":");
+                  newDate.setHours(parseInt(hours));
+                  newDate.setMinutes(parseInt(minutes));
+                  setStartDate(newDate);
+                }
+              }}
+              className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+            />
           </div>
         </div>
         <div className="flex gap-4">
@@ -810,22 +817,22 @@ return (
             </Popover>
           </div>
           <div className="flex flex-col gap-3">
-          <Input
-  type="time"
-  id="time-picker"
-  step="1"
-  defaultValue="01:00:00"
-  onChange={(e) => {
-    if (endDate) {
-      const newDate = new Date(endDate);
-      const [hours, minutes] = e.target.value.split(":");
-      newDate.setHours(parseInt(hours));
-      newDate.setMinutes(parseInt(minutes));
-      setEndDate(newDate);
-    }
-  }}
-  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-/>
+            <Input
+              type="time"
+              id="time-picker"
+              step="1"
+              defaultValue="01:00:00"
+              onChange={(e) => {
+                if (endDate) {
+                  const newDate = new Date(endDate);
+                  const [hours, minutes] = e.target.value.split(":");
+                  newDate.setHours(parseInt(hours));
+                  newDate.setMinutes(parseInt(minutes));
+                  setEndDate(newDate);
+                }
+              }}
+              className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+            />
           </div>
         </div>
       </div>
@@ -979,8 +986,33 @@ return (
           })}
         </LineChart>
       </ChartContainer>
+      <div className="m-4"></div>
+      <div className="grid grid-cols-3 md:grid-cols-2 gap-1">
+        {selectedDataKeys.map((key, index) => {
+          const value = integrals[index];
+          const title =
+            "Integral Value of " +
+            getLabelFromDataKey(key) +
+            " " +
+            Number(value).toFixed(2);
+          return (
+            <SimpleCard
+              key={key}
+              title={title}
+              unit=""
+              icon={Axis3D}
+              value={value}
+            />
+          );
+        })}
+      </div>
       {selectedDataKeys.map((key, index) => {
-        return <div key={index}>{key} : {integrals[index]}</div>})}
+        return (
+          <div key={index}>
+            {key} : {integrals[index]}
+          </div>
+        );
+      })}
     </div>
   );
 }
