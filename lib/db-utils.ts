@@ -7,26 +7,26 @@ import { auth } from "@/auth";
 import { AuthError } from "next-auth";
 
 interface TelemetryStatValue {
-  value: any;
-  timestamp: Date;
+	value: any;
+	timestamp: Date;
 }
 
 export async function fetchLatestTelemetryData() {
-  try {
-    const session = await auth();
-    if (!session || !session.user.is_verified) {
-      throw new AuthError("User not authenticated or not verified");
-    }
+	try {
+		const session = await auth();
+		if (!session || !session.user.is_verified) {
+			throw new AuthError("User not authenticated or not verified");
+		}
 
-    // Connect to the Neon database. Ensure DATABASE_URL is in your environment variables.
-    const sql = neon(process.env.DATABASE_URL || "");
+		// Connect to the Neon database. Ensure DATABASE_URL is in your environment variables.
+		const sql = neon(process.env.DATABASE_URL || "");
 
-    // Build the SELECT clause dynamically. For each field, this creates two subqueries:
-    // 1. To get the latest value (prioritizing non-zero).
-    // 2. To get the timestamp of that same latest value.
-    const selectFields = telemetryFields
-      .map(
-        (field) => `
+		// Build the SELECT clause dynamically. For each field, this creates two subqueries:
+		// 1. To get the latest value (prioritizing non-zero).
+		// 2. To get the timestamp of that same latest value.
+		const selectFields = telemetryFields
+			.map(
+				(field) => `
       COALESCE(
         (SELECT ${field} FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
         (SELECT ${field} FROM telemetry ORDER BY created_at DESC LIMIT 1)
@@ -35,52 +35,51 @@ export async function fetchLatestTelemetryData() {
         (SELECT created_at FROM telemetry WHERE ${field} != 0 ORDER BY created_at DESC LIMIT 1),
         (SELECT created_at FROM telemetry ORDER BY created_at DESC LIMIT 1)
       ) AS d_${field}
-    `,
-      )
-      .join(",\n      ");
+    `
+			)
+			.join(",\n      ");
 
-    // Build the complete query, also fetching the ID and timestamp of the overall latest entry.
-    const query = `
+		// Build the complete query, also fetching the ID and timestamp of the overall latest entry.
+		const query = `
       SELECT
         ${selectFields},
         (SELECT id FROM telemetry ORDER BY created_at DESC LIMIT 1) AS id,
         (SELECT created_at FROM telemetry ORDER BY created_at DESC LIMIT 1) AS overall_created_at
     `;
 
-    // Execute the dynamic query
-    const result = await sql(query);
+		// Execute the dynamic query
+		const result = await sql(query);
 
-    if (result.length === 0) {
-      throw new Error("No telemetry data found");
-    }
+		if (result.length === 0) {
+			throw new Error("No telemetry data found");
+		}
 
-    const sqlResult = result[0];
-    const numericDataForMap: Record<string, any> = {};
-    const dateDataForMap: Record<string, Date> = {};
+		const sqlResult = result[0];
+		const numericDataForMap: Record<string, any> = {};
+		const dateDataForMap: Record<string, Date> = {};
 
-    // Iterate over the defined fields to separate the numeric values and date values
-    // from the flat SQL query result into two distinct objects.
-    for (const field of telemetryFields) {
-      numericDataForMap[field] = sqlResult[field];
-      // The corresponding date is retrieved from the aliased 'd_{field}' column
-      dateDataForMap[field] = new Date(sqlResult[`d_${field}`]);
-    }
+		// Iterate over the defined fields to separate the numeric values and date values
+		// from the flat SQL query result into two distinct objects.
+		for (const field of telemetryFields) {
+			numericDataForMap[field] = sqlResult[field];
+			// The corresponding date is retrieved from the aliased 'd_{field}' column
+			dateDataForMap[field] = new Date(sqlResult[`d_${field}`]);
+		}
 
-    // Use the provided mapTelemetryData function to structure both sets of data
-    const numericTelemetry = mapTelemetryData<number>(numericDataForMap);
-    const dateTelemetry = mapTelemetryData<Date>(dateDataForMap);
+		// Use the provided mapTelemetryData function to structure both sets of data
+		const numericTelemetry = mapTelemetryData<number>(numericDataForMap);
+		const dateTelemetry = mapTelemetryData<Date>(dateDataForMap);
 
-    // Return both the numeric data and the date data
-    return {
-      numericData: numericTelemetry,
-      dateData: dateTelemetry,
-    };
-  } catch (error) {
-    console.error("Error fetching latest telemetry data:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
-    return { error: errorMessage };
-  }
+		// Return both the numeric data and the date data
+		return {
+			numericData: numericTelemetry,
+			dateData: dateTelemetry,
+		};
+	} catch (error) {
+		console.error("Error fetching latest telemetry data:", error);
+		const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+		return { error: errorMessage };
+	}
 }
 
 /**
@@ -103,30 +102,30 @@ export async function fetchLatestTelemetryData() {
  * const voltageData = await fetchTelemetryDataInRange(hourAgo, now, 'battery_main_bat_v');
  */
 export async function fetchTelemetryDataInRange(
-  startDate: Date,
-  endDate: Date,
-  statField?: string,
+	startDate: Date,
+	endDate: Date,
+	statField?: string
 ): Promise<TelemetryData<number>[] | TelemetryStatValue[] | null> {
-  try {
-    const session = await auth();
-    if (!session || !session.user.is_verified) {
-      throw new AuthError("User not authenticated or not verified");
-    }
+	try {
+		const session = await auth();
+		if (!session || !session.user.is_verified) {
+			throw new AuthError("User not authenticated or not verified");
+		}
 
-    // Connect to the Neon database
-    const sql = neon(process.env.DATABASE_URL || "");
+		// Connect to the Neon database
+		const sql = neon(process.env.DATABASE_URL || "");
 
-    let result;
+		let result;
 
-    // If a specific stat field is requested, optimize query to select only that field and exclude zeros
-    if (statField) {
-      // Validate statField to prevent SQL injection - only allow alphanumeric characters and underscores
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(statField)) {
-        throw new Error(`Invalid field name: ${statField}`);
-      }
+		// If a specific stat field is requested, optimize query to select only that field and exclude zeros
+		if (statField) {
+			// Validate statField to prevent SQL injection - only allow alphanumeric characters and underscores
+			if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(statField)) {
+				throw new Error(`Invalid field name: ${statField}`);
+			}
 
-      // Build the query with validated field name
-      const query = `
+			// Build the query with validated field name
+			const query = `
         SELECT ${statField} as value, created_at as timestamp
         FROM telemetry 
         WHERE created_at BETWEEN $1 AND $2 
@@ -134,48 +133,48 @@ export async function fetchTelemetryDataInRange(
         ORDER BY created_at ASC
       `;
 
-      result = await sql(query, [
-        startDate.toISOString(),
-        endDate.toISOString(),
-      ]);
-    } else {
-      // Fetch all data in the date range
-      result = await sql`
+			result = await sql(query, [startDate.toISOString(), endDate.toISOString()]);
+		} else {
+			// Fetch all data in the date range
+			result = await sql`
         SELECT * 
         FROM telemetry 
         WHERE created_at BETWEEN ${startDate.toISOString()} AND ${endDate.toISOString()} 
         ORDER BY created_at ASC
       `;
-    }
+		}
 
-    if (result.length === 0) {
-      return [];
-    }
+		if (result.length === 0) {
+			return [];
+		}
 
-    // If a specific stat field is requested, return the optimized query results
-    if (statField) {
-      return result.map((row: any) => ({
-        value: row.value,
-        timestamp: row.timestamp,
-      })) as TelemetryStatValue[];
-    }
+		// If a specific stat field is requested, return the optimized query results
+		if (statField) {
+			return result.map((row: any) => ({
+				value: row.value,
+				timestamp: row.timestamp,
+			})) as TelemetryStatValue[];
+		}
 
-    // Otherwise, map all data to TelemetryData format
-    // Convert 0 values to null when not using statField
-    return result.map((row: any) => {
-      const transformedRow = { ...row };
+		// Otherwise, map all data to TelemetryData format
+		// Convert 0 values to null when not using statField
+		return result.map((row: any) => {
+			const transformedRow = { ...row };
 
-      // Convert 0 values to null for all telemetry fields
-      for (const field of telemetryFields) {
-        if (transformedRow[field] === 0) {
-          transformedRow[field] = null;
-        }
-      }
+			// Convert 0 values to null for all telemetry fields
+			for (const field of telemetryFields) {
+				if (transformedRow[field] === 0) {
+					transformedRow[field] = null;
+				}
+			}
 
-      return mapTelemetryData<number>(transformedRow);
-    });
-  } catch (error) {
-    console.error("Error fetching telemetry data in range:", error);
-    return null;
-  }
+			return {
+				...mapTelemetryData<number>(transformedRow),
+				created_at: transformedRow.created_at,
+			};
+		});
+	} catch (error) {
+		console.error("Error fetching telemetry data in range:", error);
+		return null;
+	}
 }
