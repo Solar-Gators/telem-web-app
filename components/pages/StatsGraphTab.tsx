@@ -753,14 +753,17 @@ export default function StatsGraphTab() {
           <div className="flex flex-col gap-3">
             <Input
               type="time"
-              id="time-picker"
+              id="time-picker-start"
               step="1"
               defaultValue="01:00:00"
-              onChange={(time) => {
-                startDate?.setHours(parseInt(time.target.value.split(":")[0]));
-                startDate?.setMinutes(
-                  parseInt(time.target.value.split(":")[1]),
-                );
+              onChange={(e) => {
+                if (startDate) {
+                  const newDate = new Date(startDate);
+                  const [hours, minutes] = e.target.value.split(":");
+                  newDate.setHours(parseInt(hours));
+                  newDate.setMinutes(parseInt(minutes));
+                  setStartDate(newDate);
+                }
               }}
               className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
             />
@@ -798,9 +801,18 @@ export default function StatsGraphTab() {
           <div className="flex flex-col gap-3">
             <Input
               type="time"
-              id="time-picker"
+              id="time-picker-end"
               step="1"
               defaultValue="01:00:00"
+              onChange={(e) => {
+                if (endDate) {
+                  const newDate = new Date(endDate);
+                  const [hours, minutes] = e.target.value.split(":");
+                  newDate.setHours(parseInt(hours));
+                  newDate.setMinutes(parseInt(minutes));
+                  setEndDate(newDate);
+                }
+              }}
               className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
             />
           </div>
