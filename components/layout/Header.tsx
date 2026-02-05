@@ -26,7 +26,11 @@ export default function Header({ lastUpdated }: HeaderProps) {
           />
           {lastUpdated && (
             <p className="absolute text-muted-foreground text-xs right-4">
-              Last packet: {lastUpdated?.toLocaleTimeString()}
+              Last packet:{" "}
+              {lastUpdated.toLocaleString(undefined, {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
             </p>
           )}
         </ClientOnly>
